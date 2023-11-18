@@ -22,12 +22,16 @@ namespace JMayer.Data.HTTP
         /// <summary>
         /// The HTTP client used to interact with the remote server.
         /// </summary>
-        private readonly HttpClient _httpClient = new();
+        protected readonly HttpClient _httpClient = new();
 
         /// <summary>
-        /// The type 
+        /// The name of the type associated with the data layer.
         /// </summary>
-        private readonly string _typeName = nameof(T);
+        /// <remarks>
+        /// The type name is used in the route for the API. It uses 
+        /// the standard format, api/type name/action.
+        /// </remarks>
+        protected readonly string _typeName = nameof(T);
 
         /// <summary>
         /// The method creates a remote data object.

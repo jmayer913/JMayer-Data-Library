@@ -1,14 +1,36 @@
 ﻿using JMayer.Data.Data;
+using System.Linq.Expressions;
 
-#warning What separates this from the regular data layer?
+#warning I should add cancellation tokens to the interface.
 
 namespace JMayer.Data.Database.DataLayer
 {
     /// <summary>
     /// The interface for interacting with a collection/table in a database using CRUD operations.
     /// </summary>
-    /// <typeparam name="T">A DataObject which represents data in the collection/table.</typeparam>
-    public interface IConfigurationDataLayer<T> : IDataLayer<T> where T : DataObject
+    /// <typeparam name="T">A ConfigurationDataObject which represents data in the collection/table.</typeparam>
+    public interface IConfigurationDataLayer<T> : IDataLayer<T> where T : ConfigurationDataObject
     {
+        /// <summary>
+        /// The method returns all the data objects for the table or collection as a list view.
+        /// </summary>
+        /// <returns>A list of DataObjects.</returns>
+        Task<List<ListView>> GetAllListViewAsync();
+
+        /// <summary>
+        /// The method returns all the data objects for the collection/table as a list view based on a where predicate.
+        /// </summary>
+        /// <param name="wherePredicate">The where predicate to use against the collection/table.</param>
+        /// <returns>A list of DataObjects.</returns>
+        Task<List<ListView>> GetAllListViewAsync(Expression<Func<T, bool>> wherePredicate);
+
+        /// <summary>
+        /// The method returns all the data objects for the collection/table as a list view based on a where predicate with an order.
+        /// </summary>
+        /// <param name="wherePredicate">The where predicate to use against the collection/table.</param>
+        /// <param name="orderByPredicate">The order predicate to use against the collection/table.</param>
+        /// <param name="descending">False means the data is ordered ascending; true means the data is ordered descending.</param>
+        /// <returns>A list of DataObjects.</returns>
+        Task<List<ListView>> GetAllListViewAsync(Expression<Func<T, bool>> wherePredicate, Expression<Func<T, bool>> orderByPredicate, bool descending = false);
     }
 }
