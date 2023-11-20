@@ -1,5 +1,4 @@
 ﻿using JMayer.Data.Data;
-using System.ComponentModel.DataAnnotations;
 
 namespace JMayer.Data.HTTP
 {
@@ -68,6 +67,6 @@ namespace JMayer.Data.HTTP
         /// <param name="dataObject">The data object to validate.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
         /// <returns>The results of the validation.</returns>
-        Task<ValidationResult?> ValidationAsync(T dataObject, CancellationToken cancellationToken = default);
+        Task<ServerSideValidationResult?> ValidationAsync(T dataObject, CancellationToken cancellationToken = default);
     }
 }

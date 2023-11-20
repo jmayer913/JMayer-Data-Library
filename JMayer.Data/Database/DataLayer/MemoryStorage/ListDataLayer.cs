@@ -282,6 +282,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
 
             if (databaseDataObject == null)
             {
+#warning I feel like a more specific exception should be thrown.
                 throw new NullReferenceException($"Failed to find the {dataObject.Key} key in the data storage; could not update the data object.");
             }
 

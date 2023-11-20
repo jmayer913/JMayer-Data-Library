@@ -1,5 +1,4 @@
 ﻿using JMayer.Data.Data;
-using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Net.Http.Json;
 
@@ -183,16 +182,16 @@ namespace JMayer.Data.HTTP
         /// <param name="dataObject">The data object to validate.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
         /// <returns>The results of the validation.</returns>
-        public async Task<ValidationResult?> ValidationAsync(T dataObject, CancellationToken cancellationToken = default)
+        public async Task<ServerSideValidationResult?> ValidationAsync(T dataObject, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(dataObject);
 
-            ValidationResult? validationResult = null;
+            ServerSideValidationResult? validationResult = null;
             HttpResponseMessage httpResponseMessage = await _httpClient.PostAsJsonAsync($"{_typeName}/Validate", dataObject, cancellationToken);
 
             if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
             {
-                validationResult = await httpResponseMessage.Content.ReadFromJsonAsync<ValidationResult?>(cancellationToken);
+                validationResult = await httpResponseMessage.Content.ReadFromJsonAsync<ServerSideValidationResult?>(cancellationToken);
             }
 
             return validationResult;

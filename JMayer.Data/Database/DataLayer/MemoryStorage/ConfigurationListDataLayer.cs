@@ -1,8 +1,6 @@
 ﻿using JMayer.Data.Data;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
-using System.Runtime.CompilerServices;
 
 namespace JMayer.Data.Database.DataLayer.MemoryStorage
 {
@@ -117,6 +115,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
 
             if (databaseDataObject == null)
             {
+#warning I feel like a more specific exception should be thrown.
                 throw new NullReferenceException($"Failed to find the {dataObject.Key} key in the data storage; could not update the data object.");
             }
 
@@ -144,7 +143,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// <returns>The validation result.</returns>
         public async override Task<List<ValidationResult>> ValidateAsync(T dataObject, CancellationToken cancellationToken = default)
         {
-            List < ValidationResult > validationResults = await base.ValidateAsync(dataObject, cancellationToken);
+            List<ValidationResult> validationResults = await base.ValidateAsync(dataObject, cancellationToken);
 
             if (await ExistAsync(obj => obj.Name == dataObject.Name, cancellationToken) == true) 
             {
