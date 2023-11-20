@@ -1,4 +1,5 @@
 ﻿using JMayer.Data.Data;
+using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 
 namespace JMayer.Data.Database.DataLayer
@@ -39,6 +40,22 @@ namespace JMayer.Data.Database.DataLayer
         /// <param name="cancellationToken">A token used for task cancellations.</param>
         /// <returns>A Task object for the async.</returns>
         Task DeleteAsync(T dataObject, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// The method returns if the key exists in the collection/table.
+        /// </summary>
+        /// <param name="key">The key to search for.</param>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <returns>True means the key exists; false means it does not.</returns>
+        Task<bool> ExistAsync(string key, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// The method returns if data objects exists in the collection/table based on a where predicate.
+        /// </summary>
+        /// <param name="wherePredicate">The where predicate to use against the collection/table.</param>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <returns>True means the data objects exists based on the expression; false means none do.</returns>
+        Task<bool> ExistAsync(Expression<Func<T, bool>> wherePredicate, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// The method returns all the data objects for the table or collection.
@@ -87,5 +104,13 @@ namespace JMayer.Data.Database.DataLayer
         /// <param name="cancellationToken">A token used for task cancellations.</param>
         /// <returns>The latest data object.</returns>
         Task<T> UpdateAsync(T dataObject, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// The method validates a data object.
+        /// </summary>
+        /// <param name="dataObject">The data object to validate.</param>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <returns>The validation result.</returns>
+        Task<List<ValidationResult>> ValidateAsync(T dataObject, CancellationToken cancellationToken = default);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using JMayer.Data.Data;
+using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 
 namespace JMayer.Data.Database.DataLayer.MemoryStorage
@@ -115,6 +116,32 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
                     _ = _dataStorage.Remove(latestDataObject);
                 }
             }
+        }
+
+        /// <summary>
+        /// The method returns if the key exists in the collection/table.
+        /// </summary>
+        /// <param name="key">The key to search for.</param>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <returns>True means the key exists; false means it does not.</returns>
+        public async virtual Task<bool> ExistAsync(string key, CancellationToken cancellationToken = default)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(key);
+            bool result = QueryData(obj => obj.Key == key).FirstOrDefault() != null;
+            return await Task.FromResult(result);
+        }
+
+        /// <summary>
+        /// The method returns if data objects exists in the collection/table based on a where predicate.
+        /// </summary>
+        /// <param name="wherePredicate">The where predicate to use against the collection/table.</param>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <returns>True means the data objects exists based on the expression; false means none do.</returns>
+        public async virtual Task<bool> ExistAsync(Expression<Func<T, bool>> wherePredicate, CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(wherePredicate);
+            bool result = QueryData(wherePredicate).FirstOrDefault() != null;
+            return await Task.FromResult(result);
         }
 
         /// <summary>
@@ -265,6 +292,38 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
             }
 
             return databaseDataObject;
+        }
+
+        /// <summary>
+        /// The method validates a data object.
+        /// </summary>
+        /// <param name="dataObject">The data object to validate.</param>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <returns>The validation result.</returns>
+        public async virtual Task<List<ValidationResult>> ValidateAsync(T dataObject, CancellationToken cancellationToken = default)
+        {
+            //First, validate against the data annotations on the object.
+            List<ValidationResult> validationResults = ValidateDataAnnotations(dataObject);
+
+            //Now, validate against the database for with any custom rules.
+            if (!string.IsNullOrWhiteSpace(dataObject.Key) && await ExistAsync(dataObject.Key, cancellationToken) == false)
+            {
+                validationResults.Add(new ValidationResult($"The {dataObject.Key} key does not exist.", new List<string>() { nameof(dataObject.Key) }));
+            }
+
+            return validationResults;
+        }
+
+        /// <summary>
+        /// The method validates the data annotations on the data object.
+        /// </summary>
+        /// <param name="dataObject">The data object to validate.</param>
+        /// <returns>A list of validation results.</returns>
+        protected static List<ValidationResult> ValidateDataAnnotations(T dataObject)
+        {
+            List<ValidationResult> validationResults = [];
+            _ = Validator.TryValidateObject(dataObject, new ValidationContext(dataObject), validationResults);
+            return validationResults;
         }
     }
 }

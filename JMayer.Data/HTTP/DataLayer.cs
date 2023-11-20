@@ -1,4 +1,5 @@
 ﻿using JMayer.Data.Data;
+using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Net.Http.Json;
 
@@ -69,7 +70,7 @@ namespace JMayer.Data.HTTP
         /// </summary>
         /// <param name="dataObject">The data object to create.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
-        /// <returns>The created data object.</returns>
+        /// <returns>The results of the create operation.</returns>
         public async Task<OperationResult> CreateAsync(T dataObject, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(dataObject);
@@ -90,7 +91,7 @@ namespace JMayer.Data.HTTP
         /// </summary>
         /// <param name="dataObject">The data object to delete.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
-        /// <returns>A Task object for the async.</returns>
+        /// <returns>The results of the delete operation.</returns>
         public async Task<OperationResult> DeleteAsync(T dataObject, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(dataObject);
@@ -160,7 +161,7 @@ namespace JMayer.Data.HTTP
         /// </summary>
         /// <param name="dataObject">The data object to update.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
-        /// <returns>The updated data object.</returns>
+        /// <returns>The results of the update operation.</returns>
         public async Task<OperationResult> UpdateAsync(T dataObject, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(dataObject);
@@ -174,6 +175,27 @@ namespace JMayer.Data.HTTP
             }
 
             return new OperationResult(lastDataObject, httpResponseMessage.StatusCode);
+        }
+
+        /// <summary>
+        /// The method validates the data object on the remote server.
+        /// </summary>
+        /// <param name="dataObject">The data object to validate.</param>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <returns>The results of the validation.</returns>
+        public async Task<ValidationResult?> ValidationAsync(T dataObject, CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(dataObject);
+
+            ValidationResult? validationResult = null;
+            HttpResponseMessage httpResponseMessage = await _httpClient.PostAsJsonAsync($"{_typeName}/Validate", dataObject, cancellationToken);
+
+            if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
+            {
+                validationResult = await httpResponseMessage.Content.ReadFromJsonAsync<ValidationResult?>(cancellationToken);
+            }
+
+            return validationResult;
         }
     }
 }

@@ -1,5 +1,8 @@
 ﻿using JMayer.Data.Data;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 
 namespace JMayer.Data.Database.DataLayer.MemoryStorage
 {
@@ -119,7 +122,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
 
             if (!AllowToUpdate(databaseDataObject, dataObject))
             {
-                throw new UpdateConflictException($"Failed to update because the data object was updated by {databaseDataObject.LastEditedBy} on {databaseDataObject.LastEditedOn}.");
+                throw new UpdateConflictException($"Failed to update because the data object was updated by {databaseDataObject.LastEditedBy ?? databaseDataObject.LastEditedByKey ?? string.Empty} on {databaseDataObject.LastEditedOn}.");
             }
             else
             {
@@ -131,6 +134,24 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
             }
             
             return databaseDataObject;
+        }
+
+        /// <summary>
+        /// The method validates a data object.
+        /// </summary>
+        /// <param name="dataObject">The data object to validate.</param>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <returns>The validation result.</returns>
+        public async override Task<List<ValidationResult>> ValidateAsync(T dataObject, CancellationToken cancellationToken = default)
+        {
+            List < ValidationResult > validationResults = await base.ValidateAsync(dataObject, cancellationToken);
+
+            if (await ExistAsync(obj => obj.Name == dataObject.Name, cancellationToken) == true) 
+            {
+                validationResults.Add(new ValidationResult($"The {dataObject.Name} name already exists in the data store.", new List<string>() { nameof(dataObject.Key) }));
+            }
+
+            return validationResults;
         }
     }
 }

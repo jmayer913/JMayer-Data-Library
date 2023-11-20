@@ -4,7 +4,7 @@ using System.Net;
 namespace JMayer.Data.HTTP
 {
     /// <summary>
-    /// The class contains the results for the remote operation.
+    /// The class represents the result for a remote operation.
     /// </summary>
     public class OperationResult
     {

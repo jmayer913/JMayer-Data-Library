@@ -1,4 +1,5 @@
 ﻿using JMayer.Data.Data;
+using System.ComponentModel.DataAnnotations;
 
 namespace JMayer.Data.HTTP
 {
@@ -20,7 +21,7 @@ namespace JMayer.Data.HTTP
         /// </summary>
         /// <param name="dataObject">The data object to create.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
-        /// <returns>The created data object.</returns>
+        /// <returns>The results of the create operation.</returns>
         Task<OperationResult> CreateAsync(T dataObject, CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -28,7 +29,7 @@ namespace JMayer.Data.HTTP
         /// </summary>
         /// <param name="dataObject">The data object to delete.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
-        /// <returns>A Task object for the async.</returns>
+        /// <returns>The results of the delete operation.</returns>
         Task<OperationResult> DeleteAsync(T dataObject, CancellationToken cancellationToken = default);
 
         /// <summary>
@@ -58,7 +59,15 @@ namespace JMayer.Data.HTTP
         /// </summary>
         /// <param name="dataObject">The data object to update.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
-        /// <returns>The updated data object.</returns>
+        /// <returns>The results of the update operation.</returns>
         Task<OperationResult> UpdateAsync(T dataObject, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// The method validates the data object on the remote server.
+        /// </summary>
+        /// <param name="dataObject">The data object to validate.</param>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <returns>The results of the validation.</returns>
+        Task<ValidationResult?> ValidationAsync(T dataObject, CancellationToken cancellationToken = default);
     }
 }

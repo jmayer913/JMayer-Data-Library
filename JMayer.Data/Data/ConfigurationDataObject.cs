@@ -1,4 +1,6 @@
-﻿namespace JMayer.Data.Data
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace JMayer.Data.Data
 {
     /// <summary>
     /// The class represents user configuration data in the database.
@@ -21,6 +23,11 @@
         public string? LastEditedBy { get; set; }
 
         /// <summary>
+        /// The property gets/sets the key for who last edited the configuration.
+        /// </summary>
+        public string? LastEditedByKey { get; set; }
+
+        /// <summary>
         /// The property gets/sets the last time the configuration was edited.
         /// </summary>
         public DateTime? LastEditedOn { get; set; }
@@ -28,6 +35,7 @@
         /// <summary>
         /// The property gets/sets the name of the configuration.
         /// </summary>
+        [Required]
         public string? Name { get; set; }
 
         /// <summary>
@@ -54,6 +62,7 @@
                 CreatedOn = configurationDataObject.CreatedOn;
                 Description = configurationDataObject.Description;
                 LastEditedBy = configurationDataObject.LastEditedBy;
+                LastEditedByKey = configurationDataObject.LastEditedByKey;
                 LastEditedOn = configurationDataObject.LastEditedOn;
                 Name = configurationDataObject.Name;
             }
