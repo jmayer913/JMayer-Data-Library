@@ -1,8 +1,6 @@
 ﻿using JMayer.Data.Data;
 using System.Linq.Expressions;
 
-#warning I should add cancellation tokens to the interface.
-
 namespace JMayer.Data.Database.DataLayer
 {
     /// <summary>
@@ -14,15 +12,17 @@ namespace JMayer.Data.Database.DataLayer
         /// <summary>
         /// The method returns all the data objects for the table or collection as a list view.
         /// </summary>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
         /// <returns>A list of DataObjects.</returns>
-        Task<List<ListView>> GetAllListViewAsync();
+        Task<List<ListView>> GetAllListViewAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// The method returns all the data objects for the collection/table as a list view based on a where predicate.
         /// </summary>
         /// <param name="wherePredicate">The where predicate to use against the collection/table.</param>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
         /// <returns>A list of DataObjects.</returns>
-        Task<List<ListView>> GetAllListViewAsync(Expression<Func<T, bool>> wherePredicate);
+        Task<List<ListView>> GetAllListViewAsync(Expression<Func<T, bool>> wherePredicate, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// The method returns all the data objects for the collection/table as a list view based on a where predicate with an order.
@@ -30,7 +30,8 @@ namespace JMayer.Data.Database.DataLayer
         /// <param name="wherePredicate">The where predicate to use against the collection/table.</param>
         /// <param name="orderByPredicate">The order predicate to use against the collection/table.</param>
         /// <param name="descending">False means the data is ordered ascending; true means the data is ordered descending.</param>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
         /// <returns>A list of DataObjects.</returns>
-        Task<List<ListView>> GetAllListViewAsync(Expression<Func<T, bool>> wherePredicate, Expression<Func<T, bool>> orderByPredicate, bool descending = false);
+        Task<List<ListView>> GetAllListViewAsync(Expression<Func<T, bool>> wherePredicate, Expression<Func<T, bool>> orderByPredicate, bool descending = false, CancellationToken cancellationToken = default);
     }
 }

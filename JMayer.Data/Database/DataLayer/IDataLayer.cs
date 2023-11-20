@@ -1,8 +1,6 @@
 ﻿using JMayer.Data.Data;
 using System.Linq.Expressions;
 
-#warning I should add cancellation tokens to the interface.
-
 namespace JMayer.Data.Database.DataLayer
 {
     /// <summary>
@@ -14,42 +12,48 @@ namespace JMayer.Data.Database.DataLayer
         /// <summary>
         /// The method returns the total count of data objects in a collection/table.
         /// </summary>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
         /// <returns>A count.</returns>
-        Task<int> CountAsync();
+        Task<int> CountAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// The method returns a count of data objects in a collection/table based on a where predicate.
         /// </summary>
         /// <param name="wherePredicate">The where predicate to use against the collection/table.</param>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
         /// <returns>A count.</returns>
-        Task<int> CountAsync(Expression<Func<T, bool>> wherePredicate);
+        Task<int> CountAsync(Expression<Func<T, bool>> wherePredicate, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// The method creates a data object in the table or collection.
         /// </summary>
         /// <param name="dataObject">The data object to create.</param>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
         /// <returns>The created data object.</returns>
-        Task<T> CreateAsync(T dataObject);
+        Task<T> CreateAsync(T dataObject, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// The method deletes a data object in the table or collection.
         /// </summary>
         /// <param name="dataObject">The data object to delete.</param>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
         /// <returns>A Task object for the async.</returns>
-        Task DeleteAsync(T dataObject);
+        Task DeleteAsync(T dataObject, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// The method returns all the data objects for the table or collection.
         /// </summary>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
         /// <returns>A list of DataObjects.</returns>
-        Task<List<T>> GetAllAsync();
+        Task<List<T>> GetAllAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// The method returns all the data objects for the collection/table based on a where predicate.
         /// </summary>
         /// <param name="wherePredicate">The where predicate to use against the collection/table.</param>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
         /// <returns>A list of DataObjects.</returns>
-        Task<List<T>> GetAllAsync(Expression<Func<T, bool>> wherePredicate);
+        Task<List<T>> GetAllAsync(Expression<Func<T, bool>> wherePredicate, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// The method returns all the data objects for the collection/table based on a where predicate with an order.
@@ -57,27 +61,31 @@ namespace JMayer.Data.Database.DataLayer
         /// <param name="wherePredicate">The where predicate to use against the collection/table.</param>
         /// <param name="orderByPredicate">The order predicate to use against the collection/table.</param>
         /// <param name="descending">False means the data is ordered ascending; true means the data is ordered descending.</param>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
         /// <returns>A list of DataObjects.</returns>
-        Task<List<T>> GetAllAsync(Expression<Func<T, bool>> wherePredicate, Expression<Func<T, bool>> orderByPredicate, bool descending = false);
+        Task<List<T>> GetAllAsync(Expression<Func<T, bool>> wherePredicate, Expression<Func<T, bool>> orderByPredicate, bool descending = false, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// The method returns the first data object in the collection/table.
         /// </summary>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
         /// <returns>A DataObject.</returns>
-        Task<T?> GetSingleAsync();
+        Task<T?> GetSingleAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// The method returns a data object in the collection/table based on a where predicate.
         /// </summary>
         /// <param name="wherePredicate">The where predicate to use against the collection/table.</param>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
         /// <returns>A DataObject.</returns>
-        Task<T?> GetSingleAsync(Expression<Func<T, bool>> wherePredicate);
+        Task<T?> GetSingleAsync(Expression<Func<T, bool>> wherePredicate, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// The method updates a data object in the table or collection.
         /// </summary>
         /// <param name="dataObject">The data object to update.</param>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
         /// <returns>The latest data object.</returns>
-        Task<T> UpdateAsync(T dataObject);
+        Task<T> UpdateAsync(T dataObject, CancellationToken cancellationToken = default);
     }
 }

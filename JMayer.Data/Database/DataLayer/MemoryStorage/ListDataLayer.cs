@@ -32,8 +32,9 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// <summary>
         /// The method returns the total count of data objects in a collection/table.
         /// </summary>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
         /// <returns>A count.</returns>
-        public async virtual Task<int> CountAsync()
+        public async virtual Task<int> CountAsync(CancellationToken cancellationToken = default)
         {
             int count = 0;
 
@@ -49,8 +50,9 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// The method returns a count of data objects in a collection/table based on a where predicate.
         /// </summary>
         /// <param name="wherePredicate">The where predicate to use against the collection/table.</param>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
         /// <returns>A count.</returns>
-        public async virtual Task<int> CountAsync(Expression<Func<T, bool>> wherePredicate)
+        public async virtual Task<int> CountAsync(Expression<Func<T, bool>> wherePredicate, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(wherePredicate);
             List<T> dataObjects = QueryData(wherePredicate);
@@ -61,8 +63,9 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// The method creates a data object in the table or collection.
         /// </summary>
         /// <param name="dataObject">The data object to create.</param>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
         /// <returns>The created data object.</returns>
-        public async virtual Task<T> CreateAsync(T dataObject)
+        public async virtual Task<T> CreateAsync(T dataObject, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(dataObject);
 
@@ -80,12 +83,13 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// The method deletes a data object in the table or collection.
         /// </summary>
         /// <param name="dataObject">The data object to delete.</param>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
         /// <returns>A Task object for the async.</returns>
-        public async virtual Task DeleteAsync(T dataObject)
+        public async virtual Task DeleteAsync(T dataObject, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(dataObject);
 
-            T? latestDataObject = await GetSingleAsync(obj => obj.Key == dataObject.Key);
+            T? latestDataObject = await GetSingleAsync(obj => obj.Key == dataObject.Key, cancellationToken);
 
             if (latestDataObject != null)
             {
@@ -99,8 +103,9 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// <summary>
         /// The method returns all the data objects for the table or collection.
         /// </summary>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
         /// <returns>A list of DataObjects.</returns>
-        public async virtual Task<List<T>> GetAllAsync()
+        public async virtual Task<List<T>> GetAllAsync(CancellationToken cancellationToken = default)
         {
             List<T> dataObjects = QueryData();
             return await Task.FromResult(dataObjects);
@@ -110,8 +115,9 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// The method returns all the data objects for the collection/table based on a where predicate.
         /// </summary>
         /// <param name="wherePredicate">The where predicate to use against the collection/table.</param>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
         /// <returns>A list of DataObjects.</returns>
-        public async virtual Task<List<T>> GetAllAsync(Expression<Func<T, bool>> wherePredicate)
+        public async virtual Task<List<T>> GetAllAsync(Expression<Func<T, bool>> wherePredicate, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(wherePredicate);
             List<T> dataObjects = QueryData(wherePredicate);
@@ -124,8 +130,9 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// <param name="wherePredicate">The where predicate to use against the collection/table.</param>
         /// <param name="orderByPredicate">The order predicate to use against the collection/table.</param>
         /// <param name="descending">False means the data is ordered ascending; true means the data is ordered descending.</param>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
         /// <returns>A list of DataObjects.</returns>
-        public async virtual Task<List<T>> GetAllAsync(Expression<Func<T, bool>> wherePredicate, Expression<Func<T, bool>> orderByPredicate, bool descending = false)
+        public async virtual Task<List<T>> GetAllAsync(Expression<Func<T, bool>> wherePredicate, Expression<Func<T, bool>> orderByPredicate, bool descending = false, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(wherePredicate);
             ArgumentNullException.ThrowIfNull(orderByPredicate);
@@ -142,8 +149,9 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// <summary>
         /// The method returns the first data object in the collection/table.
         /// </summary>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
         /// <returns>A DataObject.</returns>
-        public async virtual Task<T?> GetSingleAsync()
+        public async virtual Task<T?> GetSingleAsync(CancellationToken cancellationToken = default)
         {
             T? dataObject;
 
@@ -159,8 +167,9 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// The method returns a data object in the collection/table based on a where predicate.
         /// </summary>
         /// <param name="wherePredicate">The where predicate to use against the collection/table.</param>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
         /// <returns>A DataObject.</returns>
-        public async virtual Task<T?> GetSingleAsync(Expression<Func<T, bool>> wherePredicate)
+        public async virtual Task<T?> GetSingleAsync(Expression<Func<T, bool>> wherePredicate, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(wherePredicate);
             T? dataObject = QueryData(wherePredicate).FirstOrDefault();
@@ -230,12 +239,13 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// The method updates a data object in the table or collection.
         /// </summary>
         /// <param name="dataObject">The data object to update.</param>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
         /// <returns>The latest data object.</returns>
-        public async virtual Task<T> UpdateAsync(T dataObject)
+        public async virtual Task<T> UpdateAsync(T dataObject, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(dataObject);
 
-            T? databaseDataObject = await GetSingleAsync(obj => obj.Key == dataObject.Key);
+            T? databaseDataObject = await GetSingleAsync(obj => obj.Key == dataObject.Key, cancellationToken);
 
             if (databaseDataObject == null)
             {

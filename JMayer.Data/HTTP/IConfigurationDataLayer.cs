@@ -13,7 +13,8 @@ namespace JMayer.Data.HTTP
         /// <summary>
         /// The method returns all the remote data objects as a list view.
         /// </summary>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
         /// <returns>A list of DataObjects.</returns>
-        Task<List<ListView>?> GetAllListViewAsync();
+        Task<List<ListView>?> GetAllListViewAsync(CancellationToken cancellationToken = default);
     }
 }

@@ -15,15 +15,16 @@ namespace JMayer.Data.HTTP
         /// <summary>
         /// The method returns all the remote data objects as a list view.
         /// </summary>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
         /// <returns>A list of DataObjects.</returns>
-        public async Task<List<ListView>?> GetAllListViewAsync()
+        public async Task<List<ListView>?> GetAllListViewAsync(CancellationToken cancellationToken = default)
         {
             List<ListView>? listView = [];
-            HttpResponseMessage httpResponseMessage = await _httpClient.GetAsync($"{_typeName}/All/ListView");
+            HttpResponseMessage httpResponseMessage = await _httpClient.GetAsync($"{_typeName}/All/ListView", cancellationToken);
 
             if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
             {
-                listView = await httpResponseMessage.Content.ReadFromJsonAsync<List<ListView>?>();
+                listView = await httpResponseMessage.Content.ReadFromJsonAsync<List<ListView>?>(cancellationToken);
             }
 
             return listView;
