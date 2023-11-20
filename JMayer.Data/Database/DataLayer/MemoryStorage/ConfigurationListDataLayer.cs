@@ -10,7 +10,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
     /// <remarks>
     /// The underlying data storage is a list so this shouldn't be used with very large datasets.
     /// </remarks>
-    public class ConfigurationListDataLayer<T> : ListDataLayer<T>, IConfigurationDataLayer<T> where T : ConfigurationDataObject
+    public class ConfigurationListDataLayer<T> : ListDataLayer<T>, IConfigurationDataLayer<T> where T : ConfigurationDataObject, new()
     {
         /// <summary>
         /// The method returns if there's no update conflict.
@@ -84,24 +84,20 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// The method preps the data object for creation.
         /// </summary>
         /// <param name="dataObject">The data object that needs to be preped.</param>
-        /// <returns>The data object.</returns>
-        protected override T PrepForCreate(T dataObject)
+        protected override void PrepForCreate(T dataObject)
         {
-            dataObject = base.PrepForCreate(dataObject);
+            base.PrepForCreate(dataObject);
             dataObject.CreatedOn = DateTime.Now;
-            return dataObject;
         }
 
         /// <summary>
         /// The method preps the data object for an update.
         /// </summary>
         /// <param name="dataObject">The data object that needs to be preped.</param>
-        /// <returns>The data object.</returns>
-        protected override T PrepForUpdate(T dataObject)
+        protected override void PrepForUpdate(T dataObject)
         {
-            dataObject = base.PrepForUpdate(dataObject);
+            base.PrepForUpdate(dataObject);
             dataObject.LastEditedOn = DateTime.Now;
-            return dataObject;
         }
 
         /// <summary>
@@ -129,7 +125,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
             {
                 lock (GetDataStorageLock())
                 {
-                    dataObject = PrepForUpdate(dataObject);
+                    PrepForUpdate(dataObject);
                     databaseDataObject.MapProperties(dataObject);
                 }
             }

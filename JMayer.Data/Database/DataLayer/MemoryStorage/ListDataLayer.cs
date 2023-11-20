@@ -1,8 +1,6 @@
 ﻿using JMayer.Data.Data;
 using System.Linq.Expressions;
 
-#warning Because this is memory based and objects are reference types, I wonder if I should be returning copies so the user can't update data directly and instead they must use the UpdateAsync().
-
 namespace JMayer.Data.Database.DataLayer.MemoryStorage
 {
     /// <summary>
@@ -12,7 +10,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
     /// <remarks>
     /// The underlying data storage is a list so this shouldn't be used with very large datasets.
     /// </remarks>
-    public class ListDataLayer<T> : IDataLayer<T> where T : DataObject
+    public class ListDataLayer<T> : IDataLayer<T> where T : DataObject, new()
     {
         /// <summary>
         /// The memory data storage for this database.
@@ -71,12 +69,31 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
 
             lock (_dataStorageLock)
             {
-                dataObject = PrepForCreate(dataObject);
+                PrepForCreate(dataObject);
                 _dataStorage.Add(dataObject);
                 _identity += 1;
+                dataObject = CreateCopy(dataObject); //Create a copy so its independent of the data storage.
             }
 
             return await Task.FromResult(dataObject);
+        }
+
+        /// <summary>
+        /// The method returns a copy of the data object.
+        /// </summary>
+        /// <param name="dataObject">The data object to copy.</param>
+        /// <returns>A copied data object.</returns>
+        /// <remarks>
+        /// Because this is memory storage and classes are reference types, a copy
+        /// must be created so the memory storage is independent of any data manipulation
+        /// done by the user. Basically, it forces the user to call UpdateAsync() 
+        /// to update data in the memory storage.
+        /// </remarks>
+        protected static T CreateCopy(T dataObject)
+        {
+            T copyDataObject = new();
+            copyDataObject.MapProperties(dataObject);
+            return copyDataObject;
         }
 
         /// <summary>
@@ -153,13 +170,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// <returns>A DataObject.</returns>
         public async virtual Task<T?> GetSingleAsync(CancellationToken cancellationToken = default)
         {
-            T? dataObject;
-
-            lock (_dataStorageLock)
-            {
-                dataObject = _dataStorage.FirstOrDefault();
-            }
-
+            T? dataObject = QueryData().FirstOrDefault();
             return await Task.FromResult(dataObject);
         }
 
@@ -181,21 +192,16 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// </summary>
         /// <param name="dataObject">The data object that needs to be preped.</param>
         /// <returns>The data object.</returns>
-        protected virtual T PrepForCreate(T dataObject)
+        protected virtual void PrepForCreate(T dataObject)
         {
             dataObject.Key = _identity.ToString();
-            return dataObject;
         }
 
         /// <summary>
         /// The method preps the data object for an update operation.
         /// </summary>
         /// <param name="dataObject">The data object that needs to be preped.</param>
-        /// <returns>The data object.</returns>
-        protected virtual T PrepForUpdate(T dataObject)
-        {
-            return dataObject;
-        }
+        protected virtual void PrepForUpdate(T dataObject) { }
 
         /// <summary>
         /// The method queries the data.
@@ -229,7 +235,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
                     }
                 }
 
-                dataObjects = new(dataObjectEnumerable);
+                dataObjects = new(dataObjectEnumerable.Select(CreateCopy));
             }
 
             return dataObjects;
@@ -254,7 +260,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
 
             lock (_dataStorageLock)
             {
-                dataObject = PrepForUpdate(dataObject);
+                PrepForUpdate(dataObject);
                 databaseDataObject.MapProperties(dataObject);
             }
 
