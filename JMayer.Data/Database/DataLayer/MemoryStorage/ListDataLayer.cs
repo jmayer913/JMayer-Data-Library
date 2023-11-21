@@ -107,13 +107,13 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         {
             ArgumentNullException.ThrowIfNull(dataObject);
 
-            T? latestDataObject = await GetSingleAsync(obj => obj.Key == dataObject.Key, cancellationToken);
-
-            if (latestDataObject != null)
+            lock (_dataStorageLock)
             {
-                lock (_dataStorageLock)
+                T? databaseDataObject = _dataStorage.FirstOrDefault(obj => obj.Key == dataObject.Key);
+
+                if (databaseDataObject != null)
                 {
-                    _ = _dataStorage.Remove(latestDataObject);
+                    _ = _dataStorage.Remove(databaseDataObject);
                 }
             }
         }
@@ -278,21 +278,22 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         {
             ArgumentNullException.ThrowIfNull(dataObject);
 
-            T? databaseDataObject = await GetSingleAsync(obj => obj.Key == dataObject.Key, cancellationToken);
-
-            if (databaseDataObject == null)
-            {
-#warning I feel like a more specific exception should be thrown.
-                throw new NullReferenceException($"Failed to find the {dataObject.Key} key in the data storage; could not update the data object.");
-            }
-
             lock (_dataStorageLock)
             {
+                T? databaseDataObject = _dataStorage.FirstOrDefault(obj => obj.Key == dataObject.Key);
+
+                if (databaseDataObject == null)
+                {
+#warning I feel like a more specific exception should be thrown.
+                    throw new NullReferenceException($"Failed to find the {dataObject.Key} key in the data storage; could not update the data object.");
+                }
+
                 PrepForUpdate(dataObject);
                 databaseDataObject.MapProperties(dataObject);
+                dataObject = CreateCopy(databaseDataObject);
             }
 
-            return databaseDataObject;
+            return await Task.FromResult(dataObject);
         }
 
         /// <summary>

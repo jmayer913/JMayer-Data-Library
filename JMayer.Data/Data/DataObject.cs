@@ -1,4 +1,6 @@
-﻿namespace JMayer.Data.Data
+﻿#warning I wonder if the Key can be turned into an object that can handle any key combinations. Right now, this only handles monogo keys and SQL identity keys but it doesn't handle SQL complex keys.
+
+namespace JMayer.Data.Data
 {
     /// <summary>
     /// The class represents generic data in the database.

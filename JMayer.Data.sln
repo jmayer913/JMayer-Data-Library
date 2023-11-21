@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34309.116
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JMayer.Data", "JMayer.Data\JMayer.Data.csproj", "{CA1D8FD8-A2CF-42B2-A359-AA5381215B45}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JMayer.Data", "JMayer.Data\JMayer.Data.csproj", "{CA1D8FD8-A2CF-42B2-A359-AA5381215B45}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProject", "TestProject\TestProject.csproj", "{C73F2E04-14B8-47A8-AA10-54FC7705DFD7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{CA1D8FD8-A2CF-42B2-A359-AA5381215B45}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CA1D8FD8-A2CF-42B2-A359-AA5381215B45}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CA1D8FD8-A2CF-42B2-A359-AA5381215B45}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C73F2E04-14B8-47A8-AA10-54FC7705DFD7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C73F2E04-14B8-47A8-AA10-54FC7705DFD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C73F2E04-14B8-47A8-AA10-54FC7705DFD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C73F2E04-14B8-47A8-AA10-54FC7705DFD7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
