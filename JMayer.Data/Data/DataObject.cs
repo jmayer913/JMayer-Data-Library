@@ -1,5 +1,7 @@
 ﻿#warning I wonder if the Key can be turned into an object that can handle any key combinations. Right now, this only handles monogo keys and SQL identity keys but it doesn't handle SQL complex keys.
 
+using System.ComponentModel.DataAnnotations;
+
 namespace JMayer.Data.Data
 {
     /// <summary>
@@ -61,6 +63,18 @@ namespace JMayer.Data.Data
         {
             ArgumentNullException.ThrowIfNull(dataObject);
             Key = dataObject.Key;
+        }
+
+        /// <summary>
+        /// The method validates the data annotations on the data object.
+        /// </summary>
+        /// <param name="dataObject">The data object to validate.</param>
+        /// <returns>The validation results.</returns>
+        public List<ValidationResult> Validate()
+        {
+            List<ValidationResult> validationResults = [];
+            _ = Validator.TryValidateObject(this, new ValidationContext(this), validationResults, true);
+            return validationResults;
         }
     }
 }

@@ -333,7 +333,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
             ArgumentNullException.ThrowIfNull(dataObject);
 
             //First, validate against the data annotations on the object.
-            List<ValidationResult> validationResults = ValidateDataAnnotations(dataObject);
+            List<ValidationResult> validationResults = dataObject.Validate();
 
             //Now, validate against the database for with any custom rules.
             if (!string.IsNullOrWhiteSpace(dataObject.Key) && await ExistAsync(dataObject.Key, cancellationToken) == false)
@@ -341,18 +341,6 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
                 validationResults.Add(new ValidationResult($"The {dataObject.Key} key does not exist.", new List<string>() { nameof(dataObject.Key) }));
             }
 
-            return validationResults;
-        }
-
-        /// <summary>
-        /// The method validates the data annotations on the data object.
-        /// </summary>
-        /// <param name="dataObject">The data object to validate.</param>
-        /// <returns>A list of validation results.</returns>
-        protected static List<ValidationResult> ValidateDataAnnotations(T dataObject)
-        {
-            List<ValidationResult> validationResults = [];
-            _ = Validator.TryValidateObject(dataObject, new ValidationContext(dataObject), validationResults, true);
             return validationResults;
         }
     }
