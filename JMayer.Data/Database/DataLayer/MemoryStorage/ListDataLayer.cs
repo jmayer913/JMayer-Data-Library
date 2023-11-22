@@ -216,6 +216,19 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         }
 
         /// <summary>
+        /// The method returns the first data object in the collection/table based on a key.
+        /// </summary>
+        /// <param name="key">The key to search for.</param>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <returns>A DataObject.</returns>
+        public async Task<T?> GetSingleAsync(string key, CancellationToken cancellationToken = default)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(key);
+            T? dataObject = QueryData(obj => obj.Key == key).FirstOrDefault();
+            return await Task.FromResult(dataObject);
+        }
+
+        /// <summary>
         /// The method returns a data object in the collection/table based on a where predicate.
         /// </summary>
         /// <param name="wherePredicate">The where predicate to use against the collection/table.</param>

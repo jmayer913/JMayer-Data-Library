@@ -99,6 +99,14 @@ namespace JMayer.Data.Database.DataLayer
         Task<T?> GetSingleAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
+        /// The method returns the first data object in the collection/table based on a key.
+        /// </summary>
+        /// <param name="key">The key to search for.</param>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <returns>A DataObject.</returns>
+        Task<T?> GetSingleAsync(string key, CancellationToken cancellationToken = default);
+
+        /// <summary>
         /// The method returns a data object in the collection/table based on a where predicate.
         /// </summary>
         /// <param name="wherePredicate">The where predicate to use against the collection/table.</param>

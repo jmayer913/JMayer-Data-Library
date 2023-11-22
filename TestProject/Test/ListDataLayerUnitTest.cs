@@ -158,8 +158,8 @@ namespace TestProject.Test
             SimpleListDataLayer dataLayer = new();
             _ = await dataLayer.CreateAsync(new SimpleDataObject());
 
-            bool found = await dataLayer.ExistAsync(obj => obj.Key32 == 1);
-            bool notFound = await dataLayer.ExistAsync(obj => obj.Key32 == 2) == false;
+            bool found = await dataLayer.ExistAsync("1");
+            bool notFound = await dataLayer.ExistAsync("99") == false;
 
             Assert.True(found && notFound);
         }
@@ -279,6 +279,32 @@ namespace TestProject.Test
             bool notFound = await dataLayer.GetSingleAsync() == null;
             _ = await dataLayer.CreateAsync(new SimpleDataObject());
             bool found = await dataLayer.GetSingleAsync() != null;
+
+            Assert.True(found && notFound);
+        }
+
+        /// <summary>
+        /// The method confirms ListDataLayer.GetSingleAsync() works as intended for a key.
+        /// </summary>
+        /// <returns>A Task object for the async.</returns>
+        [Fact]
+        public async Task GetSingleAsyncKeyWorks()
+        {
+            SimpleListDataLayer dataLayer = new();
+
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 10 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 20 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 30 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 40 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 50 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 60 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 70 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 80 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 90 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 100 });
+
+            bool found = await dataLayer.GetSingleAsync("1") != null;
+            bool notFound = await dataLayer.GetSingleAsync("99") == null;
 
             Assert.True(found && notFound);
         }
