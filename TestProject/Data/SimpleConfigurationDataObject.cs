@@ -4,9 +4,9 @@ using System.ComponentModel.DataAnnotations;
 namespace TestProject.Data
 {
     /// <summary>
-    /// The represents a very simple data object to be used for testing.
+    /// The represents a very simple configuration data object to be used for testing.
     /// </summary>
-    internal class SimpleDataObject : DataObject
+    public class SimpleConfigurationDataObject : ConfigurationDataObject
     {
         /// <summary>
         /// The property gets/sets a value associated with the simple data object.
@@ -17,13 +17,13 @@ namespace TestProject.Data
         /// <summary>
         /// The default constructor.
         /// </summary>
-        public SimpleDataObject() { }
+        public SimpleConfigurationDataObject() { }
 
         /// <summary>
         /// The copy constructor.
         /// </summary>
         /// <param name="copy">The copy.</param>
-        public SimpleDataObject(SimpleDataObject copy) => MapProperties(copy);
+        public SimpleConfigurationDataObject(SimpleConfigurationDataObject copy) => MapProperties(copy);
 
         /// <summary>
         /// The method maps a SimpleDataObject to this object.
@@ -33,9 +33,9 @@ namespace TestProject.Data
         {
             base.MapProperties(dataObject);
 
-            if (dataObject is SimpleDataObject simpleDataObject)
+            if (dataObject is SimpleConfigurationDataObject simpleConfigurationDataObject)
             {
-                Value = simpleDataObject.Value;
+                Value = simpleConfigurationDataObject.Value;
             }
         }
     }

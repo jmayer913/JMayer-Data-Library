@@ -1,6 +1,9 @@
 ﻿using JMayer.Data.Data;
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
+using System.Runtime.InteropServices.ComTypes;
+
+#warning I wonder if CreateAsync() and UpdateAsync() should call ValidateAsync() and throw an exception if validation fails.
 
 namespace JMayer.Data.Database.DataLayer.MemoryStorage
 {
@@ -199,12 +202,6 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         }
 
         /// <summary>
-        /// The method returns the lock object.
-        /// </summary>
-        /// <returns>The lock object.</returns>
-        protected object GetDataStorageLock() => _dataStorageLock;
-
-        /// <summary>
         /// The method returns the first data object in the collection/table.
         /// </summary>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
@@ -239,6 +236,25 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
             ArgumentNullException.ThrowIfNull(wherePredicate);
             T? dataObject = QueryData(wherePredicate).FirstOrDefault();
             return await Task.FromResult(dataObject);
+        }
+
+        /// <summary>
+        /// The method returns a data object in the collection/table based on a key.
+        /// </summary>
+        /// <param name="key">The key to search for.</param>
+        /// <returns>A DataObject.</returns>
+        /// <remarks>
+        /// This does not return a copy. It's only meant to be called from a subclass
+        /// when the subclass needs access to data but not a copy of it; all the Get
+        /// methods return a copy to enforce the rule that UpdateAsync() updates the
+        /// actual data.
+        /// </remarks>
+        protected T? GetSingleNoCopy(string? key)
+        {
+            lock (_dataStorageLock)
+            {
+                return _dataStorage.FirstOrDefault(obj => obj.Key == key);
+            }
         }
 
         /// <summary>

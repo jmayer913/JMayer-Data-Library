@@ -25,6 +25,15 @@ namespace JMayer.Data.Database.DataLayer
         Task<List<ListView>> GetAllListViewAsync(Expression<Func<T, bool>> wherePredicate, CancellationToken cancellationToken = default);
 
         /// <summary>
+        /// The method returns all the data objects for the collection/table as a list view with an order.
+        /// </summary>
+        /// <param name="orderByPredicate">The order predicate to use against the collection/table.</param>
+        /// <param name="descending">False means the data is ordered ascending; true means the data is ordered descending.</param>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <returns>A list of DataObjects.</returns>
+        Task<List<ListView>> GetAllListViewAsync(Expression<Func<T, object>> orderByPredicate, bool descending = false, CancellationToken cancellationToken = default);
+
+        /// <summary>
         /// The method returns all the data objects for the collection/table as a list view based on a where predicate with an order.
         /// </summary>
         /// <param name="wherePredicate">The where predicate to use against the collection/table.</param>

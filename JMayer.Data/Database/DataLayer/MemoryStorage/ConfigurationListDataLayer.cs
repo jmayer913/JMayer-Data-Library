@@ -2,6 +2,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 
+#warning I wonder if CreateAsync() and UpdateAsync() should call ValidateAsync() and throw an exception if validation fails.
+
 namespace JMayer.Data.Database.DataLayer.MemoryStorage
 {
     /// <summary>
@@ -65,6 +67,21 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         }
 
         /// <summary>
+        /// The method returns all the data objects for the collection/table as a list view with an order.
+        /// </summary>
+        /// <param name="orderByPredicate">The order predicate to use against the collection/table.</param>
+        /// <param name="descending">False means the data is ordered ascending; true means the data is ordered descending.</param>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <returns>A list of DataObjects.</returns>
+        public async Task<List<ListView>> GetAllListViewAsync(Expression<Func<T, object>> orderByPredicate, bool descending = false, CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(orderByPredicate);
+            List<T> dataObjects = QueryData(null, orderByPredicate, descending);
+            List<ListView> dataObjectListViews = ConvertToListView(dataObjects);
+            return await Task.FromResult(dataObjectListViews);
+        }
+
+        /// <summary>
         /// The method returns all the data objects for the collection/table as a list view based on a where predicate with an order.
         /// </summary>
         /// <param name="wherePredicate">The where predicate to use against the collection/table.</param>
@@ -111,12 +128,11 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         {
             ArgumentNullException.ThrowIfNull(dataObject);
 
-            T? databaseDataObject = await GetSingleAsync(obj => obj.Key == dataObject.Key, cancellationToken);
+            T? databaseDataObject = GetSingleNoCopy(dataObject.Key);
 
             if (databaseDataObject == null)
             {
-#warning I feel like a more specific exception should be thrown.
-                throw new NullReferenceException($"Failed to find the {dataObject.Key} key in the data storage; could not update the data object.");
+                throw new KeyNotFoundException(dataObject.Key);
             }
 
             if (!AllowToUpdate(databaseDataObject, dataObject))
@@ -125,14 +141,12 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
             }
             else
             {
-                lock (GetDataStorageLock())
-                {
-                    PrepForUpdate(dataObject);
-                    databaseDataObject.MapProperties(dataObject);
-                }
+                PrepForUpdate(dataObject);
+                databaseDataObject.MapProperties(dataObject);
+                dataObject = CreateCopy(databaseDataObject);
             }
-            
-            return databaseDataObject;
+
+            return await Task.FromResult(dataObject);
         }
 
         /// <summary>
@@ -145,7 +159,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         {
             List<ValidationResult> validationResults = await base.ValidateAsync(dataObject, cancellationToken);
 
-            if (await ExistAsync(obj => obj.Name == dataObject.Name, cancellationToken) == true) 
+            if (await ExistAsync(obj => obj.Key != dataObject.Key && obj.Name == dataObject.Name, cancellationToken) == true) 
             {
                 validationResults.Add(new ValidationResult($"The {dataObject.Name} name already exists in the data store.", new List<string>() { nameof(dataObject.Key) }));
             }
