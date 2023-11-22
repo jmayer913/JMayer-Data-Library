@@ -8,7 +8,7 @@
         /// <summary>
         /// The default constructor.
         /// </summary>
-        public UpdateConflictException() { }
+        public UpdateConflictException() : base() { }
 
         /// <summary>
         /// The property constructor.

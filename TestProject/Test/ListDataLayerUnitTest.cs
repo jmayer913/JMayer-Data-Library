@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Linq.Expressions;
 using TestProject.Data;
 using TestProject.Database;
 
@@ -164,10 +165,161 @@ namespace TestProject.Test
         }
 
         /// <summary>
+        /// The method confirms if a null data object is passed to the ListDataLayer.GetAllAsync(), an exception is thrown.
+        /// </summary>
+        [Fact]
+        public void GetAllAsyncThrowsArgumentNullException()
+        {
+            Assert.ThrowsAnyAsync<ArgumentNullException>(() => new SimpleListDataLayer().GetAllAsync(null));
+            Assert.ThrowsAnyAsync<ArgumentNullException>(() => new SimpleListDataLayer().GetAllAsync(null, false));
+            Assert.ThrowsAnyAsync<ArgumentNullException>(() => new SimpleListDataLayer().GetAllAsync(obj => obj.Value == 0, null));
+        }
+
+        /// <summary>
+        /// The method confirms ListDataLayer.GetAllAsync() works as intended.
+        /// </summary>
+        /// <returns>A Task object for the async.</returns>
+        [Fact]
+        public async Task GetAllAsyncWorks()
+        {
+            SimpleListDataLayer dataLayer = new();
+            _ = await dataLayer.CreateAsync(new SimpleDataObject());
+            List<SimpleDataObject> dataObjects = await dataLayer.GetAllAsync();
+            Assert.True(dataObjects.Count == 1);
+        }
+
+        /// <summary>
+        /// The method confirms ListDataLayer.GetAllAsync() works as intended for the where predicate.
+        /// </summary>
+        /// <returns>A Task object for the async.</returns>
+        [Fact]
+        public async Task GetAllAsyncWherePredicateWorks()
+        {
+            SimpleListDataLayer dataLayer = new();
+
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 10 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 20 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 30 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 40 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 50 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 60 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 70 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 80 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 90 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 100 });
+
+            List<SimpleDataObject> lessThan40DataObjects = await dataLayer.GetAllAsync(obj => obj.Value < 40);
+            List<SimpleDataObject> greaterThan80DataObjects = await dataLayer.GetAllAsync(obj => obj.Value > 80);
+            List<SimpleDataObject> failedToFindDataObjects = await dataLayer.GetAllAsync(obj => obj.Value == 1);
+
+            Assert.True(lessThan40DataObjects.Count == 3 && greaterThan80DataObjects.Count == 2 && failedToFindDataObjects.Count == 0);
+        }
+
+        /// <summary>
+        /// The method confirms ListDataLayer.GetAllAsync() works as intended for the order predicate.
+        /// </summary>
+        /// <returns>A Task object for the async.</returns>
+        [Fact]
+        public async Task GetAllAsyncOrderPredicateWorks()
+        {
+            SimpleListDataLayer dataLayer = new();
+
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 10 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 20 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 30 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 40 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 50 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 60 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 70 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 80 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 90 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 100 });
+
+            List<SimpleDataObject> ascOrderByDataObjects = await dataLayer.GetAllAsync(obj => obj.Value);
+            List<SimpleDataObject> descOrderByDataObjects = await dataLayer.GetAllAsync(obj => obj.Value, true);
+
+            Assert.True(ascOrderByDataObjects.First().Value == 10 && descOrderByDataObjects.First().Value == 100);
+        }
+
+        /// <summary>
+        /// The method confirms ListDataLayer.GetAllAsync() works as intended for the where and order predicate.
+        /// </summary>
+        /// <returns>A Task object for the async.</returns>
+        [Fact]
+        public async Task GetAllAsyncWherePredicateOrderPredicateWorks()
+        {
+            SimpleListDataLayer dataLayer = new();
+
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 10 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 20 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 30 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 40 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 50 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 60 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 70 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 80 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 90 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 100 });
+
+            List<SimpleDataObject> whereAscOrderByDataObjects = await dataLayer.GetAllAsync(obj => obj.Value > 30, obj => obj.Value);
+            List<SimpleDataObject> whereDescOrderByDataObjects = await dataLayer.GetAllAsync(obj => obj.Value < 60, obj => obj.Value, true);
+
+            Assert.True(whereAscOrderByDataObjects.First().Value == 40 && whereDescOrderByDataObjects.First().Value == 50);
+        }
+
+        /// <summary>
+        /// The method confirms ListDataLayer.GetSingleAsync() works as intended.
+        /// </summary>
+        /// <returns>A Task object for the async.</returns>
+        [Fact]
+        public async Task GetSingleAsyncWorks()
+        {
+            SimpleListDataLayer dataLayer = new();
+
+            bool notFound = await dataLayer.GetSingleAsync() == null;
+            _ = await dataLayer.CreateAsync(new SimpleDataObject());
+            bool found = await dataLayer.GetSingleAsync() != null;
+
+            Assert.True(found && notFound);
+        }
+
+        /// <summary>
+        /// The method confirms ListDataLayer.GetSingleAsync() works as intended for the wherepredicate.
+        /// </summary>
+        /// <returns>A Task object for the async.</returns>
+        [Fact]
+        public async Task GetSingleAsyncWherePredicateWorks()
+        {
+            SimpleListDataLayer dataLayer = new();
+
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 10 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 20 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 30 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 40 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 50 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 60 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 70 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 80 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 90 });
+            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 100 });
+
+            bool found = await dataLayer.GetSingleAsync(obj => obj.Value == 70) != null;
+            bool notFound = await dataLayer.GetSingleAsync(obj => obj.Value == 71) == null;
+
+            Assert.True(found && notFound);
+        }
+
+        /// <summary>
         /// The method confirms if a null data object is passed to the ListDataLayer.UpdateAsync(), an exception is thrown.
         /// </summary>
         [Fact]
         public void UpdateAsyncThrowsArgumentNullException() => Assert.ThrowsAnyAsync<ArgumentNullException>(() => new SimpleListDataLayer().UpdateAsync(null));
+
+        /// <summary>
+        /// The method confirms if a non-existing key is passed to the ListDataLayer.UpdateAsync(), an exception is thrown.
+        /// </summary>
+        [Fact]
+        public void UpdateAsyncThrowsKeyNotFoundException() => Assert.ThrowsAnyAsync<KeyNotFoundException>(() => new SimpleListDataLayer().UpdateAsync(new SimpleDataObject() { Key = "99" }));
 
         /// <summary>
         /// The method confirms ListDataLayer.UpdateAsync() works as intended.
@@ -184,7 +336,61 @@ namespace TestProject.Test
         [Fact]
         public async Task UpdateAsyncWorks()
         {
-#warning The simple data object only has the key so there's nothing to update. I'll need to add a new property so this test can work.
+            SimpleListDataLayer dataLayer = new();
+            SimpleDataObject originalDataObject = await dataLayer.CreateAsync(new SimpleDataObject());
+
+            originalDataObject.Value = 10;
+            SimpleDataObject returnedCopiedDataObject = await dataLayer.UpdateAsync(originalDataObject);
+            SimpleDataObject? confirmedDataObject = await dataLayer.GetSingleAsync();
+
+            Assert.True
+            (
+                returnedCopiedDataObject != null //An object must have been returned.
+                && originalDataObject != returnedCopiedDataObject //Returned object must be a copy.
+                && originalDataObject.Value == confirmedDataObject?.Value //Confirm the data was updated.
+            );
+        }
+
+        /// <summary>
+        /// The method confirms if a null data object is passed to the ListDataLayer.ValidateAsync(), an exception is thrown.
+        /// </summary>
+        [Fact]
+        public void ValidateAsyncThrowsArgumentNullException() => Assert.ThrowsAnyAsync<ArgumentNullException>(() => new SimpleListDataLayer().ValidateAsync(null));
+
+        /// <summary>
+        /// The method confirms ListDataLayer.ValidateAsync() works as intended.
+        /// </summary>
+        /// <returns>A Task object for the async.</returns>
+        /// <remarks>
+        /// The ValidateAsync() does the following:
+        /// 
+        /// 1. Validate the data annotations on the object. (SimpleDataObject.Value has a Range data annotation.)
+        /// 2. Validate against any custom rules. (ListDataLayer needs the key to exists if the data object has one.)
+        /// 3. The results is returned.
+        /// </remarks>
+        [Fact]
+        public async Task ValidateAsyncWorks()
+        {
+            SimpleListDataLayer dataLayer = new();
+            SimpleDataObject dataObject = await dataLayer.CreateAsync(new SimpleDataObject());
+
+            dataObject.Value = 10;
+            List<ValidationResult> validationResults = await dataLayer.ValidateAsync(dataObject);
+            bool dataAnnotationValid = validationResults.Count == 0;
+
+            dataObject.Value = 9999;
+            validationResults = await dataLayer.ValidateAsync(dataObject);
+            bool dataAnnotationNotValided = validationResults.Count != 0;
+
+            dataObject.Value = 0;
+            validationResults = await dataLayer.ValidateAsync(dataObject);
+            bool keyExistsValid = validationResults.Count == 0;
+
+            dataObject.Key = "9999";
+            validationResults = await dataLayer.ValidateAsync(dataObject);
+            bool keyExistsNotValid = validationResults.Count != 0;
+
+            Assert.True(dataAnnotationValid && dataAnnotationNotValided && keyExistsValid && keyExistsNotValid);
         }
     }
 }

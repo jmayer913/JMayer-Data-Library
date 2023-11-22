@@ -73,6 +73,15 @@ namespace JMayer.Data.Database.DataLayer
         Task<List<T>> GetAllAsync(Expression<Func<T, bool>> wherePredicate, CancellationToken cancellationToken = default);
 
         /// <summary>
+        /// The method returns all the data objects for the collection/table with an order.
+        /// </summary>
+        /// <param name="orderByPredicate">The order predicate to use against the collection/table.</param>
+        /// <param name="descending">False means the data is ordered ascending; true means the data is ordered descending.</param>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <returns>A list of DataObjects.</returns>
+        Task<List<T>> GetAllAsync(Expression<Func<T, object>> orderByPredicate, bool descending = false, CancellationToken cancellationToken = default);
+
+        /// <summary>
         /// The method returns all the data objects for the collection/table based on a where predicate with an order.
         /// </summary>
         /// <param name="wherePredicate">The where predicate to use against the collection/table.</param>
@@ -80,7 +89,7 @@ namespace JMayer.Data.Database.DataLayer
         /// <param name="descending">False means the data is ordered ascending; true means the data is ordered descending.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
         /// <returns>A list of DataObjects.</returns>
-        Task<List<T>> GetAllAsync(Expression<Func<T, bool>> wherePredicate, Expression<Func<T, bool>> orderByPredicate, bool descending = false, CancellationToken cancellationToken = default);
+        Task<List<T>> GetAllAsync(Expression<Func<T, bool>> wherePredicate, Expression<Func<T, object>> orderByPredicate, bool descending = false, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// The method returns the first data object in the collection/table.

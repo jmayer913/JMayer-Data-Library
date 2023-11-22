@@ -169,6 +169,20 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         }
 
         /// <summary>
+        /// The method returns all the data objects for the collection/table with an order.
+        /// </summary>
+        /// <param name="orderByPredicate">The order predicate to use against the collection/table.</param>
+        /// <param name="descending">False means the data is ordered ascending; true means the data is ordered descending.</param>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <returns>A list of DataObjects.</returns>
+        public async Task<List<T>> GetAllAsync(Expression<Func<T, object>> orderByPredicate, bool descending = false, CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(orderByPredicate);
+            List<T> dataObjects = QueryData(null, orderByPredicate, descending);
+            return await Task.FromResult(dataObjects);
+        }
+
+        /// <summary>
         /// The method returns all the data objects for the collection/table based on a where predicate with an order.
         /// </summary>
         /// <param name="wherePredicate">The where predicate to use against the collection/table.</param>
@@ -176,7 +190,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// <param name="descending">False means the data is ordered ascending; true means the data is ordered descending.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
         /// <returns>A list of DataObjects.</returns>
-        public async virtual Task<List<T>> GetAllAsync(Expression<Func<T, bool>> wherePredicate, Expression<Func<T, bool>> orderByPredicate, bool descending = false, CancellationToken cancellationToken = default)
+        public async virtual Task<List<T>> GetAllAsync(Expression<Func<T, bool>> wherePredicate, Expression<Func<T, object>> orderByPredicate, bool descending = false, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(wherePredicate);
             ArgumentNullException.ThrowIfNull(orderByPredicate);
@@ -237,7 +251,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// <param name="orderByPredicate">The order predicate to use against the collection/table.</param>
         /// <param name="descending">False means the data is ordered ascending; true means the data is ordered descending.</param>
         /// <returns>A list of DataObjects.</returns>
-        protected List<T> QueryData(Expression<Func<T, bool>>? wherePredicate = null, Expression<Func<T, bool>>? orderByPredicate = null, bool descending = false)
+        protected List<T> QueryData(Expression<Func<T, bool>>? wherePredicate = null, Expression<Func<T, object>>? orderByPredicate = null, bool descending = false)
         {
             List<T> dataObjects;
 
@@ -284,8 +298,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
 
                 if (databaseDataObject == null)
                 {
-#warning I feel like a more specific exception should be thrown.
-                    throw new NullReferenceException($"Failed to find the {dataObject.Key} key in the data storage; could not update the data object.");
+                    throw new KeyNotFoundException(dataObject.Key);
                 }
 
                 PrepForUpdate(dataObject);
@@ -304,6 +317,8 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// <returns>The validation result.</returns>
         public async virtual Task<List<ValidationResult>> ValidateAsync(T dataObject, CancellationToken cancellationToken = default)
         {
+            ArgumentNullException.ThrowIfNull(dataObject);
+
             //First, validate against the data annotations on the object.
             List<ValidationResult> validationResults = ValidateDataAnnotations(dataObject);
 
@@ -324,7 +339,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         protected static List<ValidationResult> ValidateDataAnnotations(T dataObject)
         {
             List<ValidationResult> validationResults = [];
-            _ = Validator.TryValidateObject(dataObject, new ValidationContext(dataObject), validationResults);
+            _ = Validator.TryValidateObject(dataObject, new ValidationContext(dataObject), validationResults, true);
             return validationResults;
         }
     }

@@ -72,7 +72,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// <param name="descending">False means the data is ordered ascending; true means the data is ordered descending.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
         /// <returns>A list of DataObjects.</returns>
-        public async virtual Task<List<ListView>> GetAllListViewAsync(Expression<Func<T, bool>> wherePredicate, Expression<Func<T, bool>> orderByPredicate, bool descending = false, CancellationToken cancellationToken = default)
+        public async virtual Task<List<ListView>> GetAllListViewAsync(Expression<Func<T, bool>> wherePredicate, Expression<Func<T, object>> orderByPredicate, bool descending = false, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(wherePredicate);
             ArgumentNullException.ThrowIfNull(orderByPredicate);
