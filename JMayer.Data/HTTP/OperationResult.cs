@@ -11,7 +11,7 @@ namespace JMayer.Data.HTTP
         /// <summary>
         /// The property gets/sets the data object returned by the operation.
         /// </summary>
-        public DataObject? DataObject { get; private set; }
+        public DataObject? DataObject { get; private init; }
 
         /// <summary>
         /// The property gets if the operation was a success.
@@ -21,7 +21,7 @@ namespace JMayer.Data.HTTP
         /// <summary>
         /// The property gets/sets the HTTP status code returned by the remote operation.
         /// </summary>
-        public HttpStatusCode StatusCode { get; private set; }
+        public HttpStatusCode StatusCode { get; private init; }
 
         /// <summary>
         /// The property constructor.

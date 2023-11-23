@@ -1,4 +1,5 @@
 ﻿using JMayer.Data.Data;
+using JMayer.Data.Database.DataLayer;
 using System.ComponentModel.DataAnnotations;
 using TestProject.Data;
 using TestProject.Database;
@@ -17,6 +18,10 @@ namespace TestProject.Test
     /// ConfigurationListDataLayer class inherits from the ListDataLayer. Because of this,
     /// only new and override methods in the ConfigurationListDataLayer are tested because
     /// the ListDataLayerUnitTest already tests the ListDataLayer.
+    /// 
+    /// All tests associated with UpdateAsync() in the ListDataLayerUnitTest are included
+    /// here because ConfigurationListDataLayer overrides UpdateAsync() and it doesn't call
+    /// the base.
     /// </remarks>
     public class ConfigurationListDataLayerUnitTest
     {
@@ -163,10 +168,26 @@ namespace TestProject.Test
         public void UpdateAsyncThrowsArgumentNullException() => Assert.ThrowsAnyAsync<ArgumentNullException>(() => new SimpleListDataLayer().UpdateAsync(null));
 
         /// <summary>
+        /// The method confirms if an invalid data object is passed to the ListDataLayer.UpdateAsync(), an exception is thrown.
+        /// </summary>
+        [Fact]
+        public void UpdateAsyncThrowsDataObjectValidationException()
+        {
+            Assert.ThrowsAnyAsync<DataObjectValidationException>(async Task () =>
+            {
+                SimpleConfigurationListDataLayer dataLayer = new();
+                SimpleConfigurationDataObject dataObject = await dataLayer.CreateAsync(new SimpleConfigurationDataObject() { Name = "A Name" });
+
+                dataObject.Name = null;
+                _ = await dataLayer.UpdateAsync(dataObject);
+            });
+        }
+
+        /// <summary>
         /// The method confirms if a non-existing key is passed to the ConfigurationListDataLayer.UpdateAsync(), an exception is thrown.
         /// </summary>
         [Fact]
-        public void UpdateAsyncThrowsKeyNotFoundException() => Assert.ThrowsAnyAsync<KeyNotFoundException>(() => new SimpleListDataLayer().UpdateAsync(new SimpleDataObject() { Key = "99" }));
+        public void UpdateAsyncThrowsKeyNotFoundException() => Assert.ThrowsAnyAsync<JMayer.Data.Database.DataLayer.KeyNotFoundException>(() => new SimpleListDataLayer().UpdateAsync(new SimpleDataObject() { Key = "99" }));
 
         /// <summary>
         /// The method confirms if a non-existing key is passed to the ConfigurationListDataLayer.UpdateAsync(), an exception is thrown.
@@ -174,7 +195,7 @@ namespace TestProject.Test
         [Fact]
         public void UpdateAsyncThrowsUpdateConflictException()
         {
-            Assert.ThrowsAnyAsync<KeyNotFoundException>(async Task () =>
+            Assert.ThrowsAnyAsync<JMayer.Data.Database.DataLayer.KeyNotFoundException>(async Task () =>
             {
                 SimpleConfigurationListDataLayer dataLayer = new();
                 SimpleConfigurationDataObject originalDataObject = await dataLayer.CreateAsync(new SimpleConfigurationDataObject() { Name = "A Name" });

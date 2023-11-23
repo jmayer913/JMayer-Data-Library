@@ -2,8 +2,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 
-#warning I wonder if CreateAsync() and UpdateAsync() should call ValidateAsync() and throw an exception if validation fails.
-
 namespace JMayer.Data.Database.DataLayer.MemoryStorage
 {
     /// <summary>
@@ -12,6 +10,10 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
     /// <typeparam name="T">A ConfigurationDataObject which represents data in the collection/table.</typeparam>
     /// <remarks>
     /// The underlying data storage is a list so this shouldn't be used with very large datasets.
+    /// 
+    /// UpdateAsync() has conflict detection. Because the ConfigurationDataObject has a LastEditedOn property, 
+    /// update can now determine if the data object passed in is older than the record in memory. When this occurs, 
+    /// an exception is thrown with the idea the user will need to refresh the data to have the latest.
     /// </remarks>
     public class ConfigurationListDataLayer<T> : ListDataLayer<T>, IConfigurationDataLayer<T> where T : ConfigurationDataObject, new()
     {
@@ -57,6 +59,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// </summary>
         /// <param name="wherePredicate">The where predicate to use against the collection/table.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the wherePredicate parameter is null.</exception>
         /// <returns>A list of DataObjects.</returns>
         public async virtual Task<List<ListView>> GetAllListViewAsync(Expression<Func<T, bool>> wherePredicate, CancellationToken cancellationToken = default)
         {
@@ -72,6 +75,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// <param name="orderByPredicate">The order predicate to use against the collection/table.</param>
         /// <param name="descending">False means the data is ordered ascending; true means the data is ordered descending.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the orderByPredicate parameter is null.</exception>
         /// <returns>A list of DataObjects.</returns>
         public async Task<List<ListView>> GetAllListViewAsync(Expression<Func<T, object>> orderByPredicate, bool descending = false, CancellationToken cancellationToken = default)
         {
@@ -88,6 +92,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// <param name="orderByPredicate">The order predicate to use against the collection/table.</param>
         /// <param name="descending">False means the data is ordered ascending; true means the data is ordered descending.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the wherePredicate or orderByPredicate parameter is null.</exception>
         /// <returns>A list of DataObjects.</returns>
         public async virtual Task<List<ListView>> GetAllListViewAsync(Expression<Func<T, bool>> wherePredicate, Expression<Func<T, object>> orderByPredicate, bool descending = false, CancellationToken cancellationToken = default)
         {
@@ -123,10 +128,21 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// </summary>
         /// <param name="dataObject">The data object to update.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the dataObject parameter is null.</exception>
+        /// <exception cref="DataObjectUpdateConflictException">Thrown if the data object is older than the record in the collection/table.</exception>
+        /// <exception cref="DataObjectValidationException">Thrown if the data object fails validation.</exception>
+        /// <exception cref="KeyNotFoundException">Thrown if the data object's key is not found in the collection/table.</exception>
         /// <returns>The latest data object.</returns>
         public async override Task<T> UpdateAsync(T dataObject, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(dataObject);
+
+            List<ValidationResult> validationResults = await ValidateAsync(dataObject, cancellationToken);
+
+            if (validationResults.Count > 0)
+            {
+                throw new DataObjectValidationException(dataObject, validationResults);
+            }
 
             T? databaseDataObject = GetSingleNoCopy(dataObject.Key);
 
@@ -137,7 +153,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
 
             if (!AllowToUpdate(databaseDataObject, dataObject))
             {
-                throw new UpdateConflictException($"Failed to update because the data object was updated by {databaseDataObject.LastEditedBy ?? databaseDataObject.LastEditedByKey ?? string.Empty} on {databaseDataObject.LastEditedOn}.");
+                throw new DataObjectUpdateConflictException($"Failed to update because the data object was updated by {databaseDataObject.LastEditedBy ?? databaseDataObject.LastEditedByKey ?? string.Empty} on {databaseDataObject.LastEditedOn}.");
             }
             else
             {
@@ -154,6 +170,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// </summary>
         /// <param name="dataObject">The data object to validate.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the dataObject parameter is null.</exception>
         /// <returns>The validation result.</returns>
         public async override Task<List<ValidationResult>> ValidateAsync(T dataObject, CancellationToken cancellationToken = default)
         {

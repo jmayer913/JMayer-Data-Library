@@ -8,12 +8,12 @@
         /// <summary>
         /// The property gets/sets the error message.
         /// </summary>
-        public string? ErrorMessage { get; private set; }
+        public string? ErrorMessage { get; private init; }
 
         /// <summary>
         /// The property gets/sets the name of the property which is in error.
         /// </summary>
-        public string? PropertyName { get; private set; }
+        public string? PropertyName { get; private init; }
 
         /// <summary>
         /// The property constructor.

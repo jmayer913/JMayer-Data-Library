@@ -8,7 +8,7 @@
         /// <summary>
         /// The property gets the key associated with the missing record.
         /// </summary>
-        public string? Key { get; private set; }
+        public string? Key { get; private init; }
 
         /// <summary>
         /// The default constructor.
@@ -16,8 +16,9 @@
         public KeyNotFoundException() : base() { }
 
         /// <summary>
-        /// The default constructor.
+        /// The property constructor.
         /// </summary>
+        /// <param name="key">The key associated with the missing record.</param>
         public KeyNotFoundException(string? key) 
             : base($"The {key} key was not found.")
         {
@@ -27,6 +28,7 @@
         /// <summary>
         /// The property constructor.
         /// </summary>
+        /// <param name="key">The key associated with the missing record.</param>
         /// <param name="message">The message associated with the exception.</param>
         public KeyNotFoundException(string? key, string? message)
             : base(message) 
@@ -37,6 +39,7 @@
         /// <summary>
         /// The property constructor.
         /// </summary>
+        /// <param name="key">The key associated with the missing record.</param>
         /// <param name="message">The message associated with the exception.</param>
         /// <param name="innerException">The inner exception associated with this exception.</param>
         public KeyNotFoundException(string? key, string? message, Exception? innerException)

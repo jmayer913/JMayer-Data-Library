@@ -1,9 +1,6 @@
 ﻿using JMayer.Data.Data;
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
-using System.Runtime.InteropServices.ComTypes;
-
-#warning I wonder if CreateAsync() and UpdateAsync() should call ValidateAsync() and throw an exception if validation fails.
 
 namespace JMayer.Data.Database.DataLayer.MemoryStorage
 {
@@ -53,6 +50,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// </summary>
         /// <param name="wherePredicate">The where predicate to use against the collection/table.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the wherePredicate parameter is null.</exception>
         /// <returns>A count.</returns>
         public async virtual Task<int> CountAsync(Expression<Func<T, bool>> wherePredicate, CancellationToken cancellationToken = default)
         {
@@ -66,10 +64,19 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// </summary>
         /// <param name="dataObject">The data object to create.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the dataObject parameter is null.</exception>
+        /// <exception cref="DataObjectValidationException">Thrown if the data object fails validation.</exception>
         /// <returns>The created data object.</returns>
         public async virtual Task<T> CreateAsync(T dataObject, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(dataObject);
+
+            List<ValidationResult> validationResults = await ValidateAsync(dataObject, cancellationToken);
+
+            if (validationResults.Count > 0)
+            {
+                throw new DataObjectValidationException(dataObject, validationResults);
+            }
 
             lock (_dataStorageLock)
             {
@@ -105,6 +112,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// </summary>
         /// <param name="dataObject">The data object to delete.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the dataObject parameter is null.</exception>
         /// <returns>A Task object for the async.</returns>
         public async virtual Task DeleteAsync(T dataObject, CancellationToken cancellationToken = default)
         {
@@ -126,6 +134,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// </summary>
         /// <param name="key">The key to search for.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <exception cref="ArgumentException">Thrown if the key parameter is null or whitespace.</exception>
         /// <returns>True means the key exists; false means it does not.</returns>
         public async virtual Task<bool> ExistAsync(string key, CancellationToken cancellationToken = default)
         {
@@ -139,6 +148,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// </summary>
         /// <param name="wherePredicate">The where predicate to use against the collection/table.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the wherePredicate parameter is null.</exception>
         /// <returns>True means the data objects exists based on the expression; false means none do.</returns>
         public async virtual Task<bool> ExistAsync(Expression<Func<T, bool>> wherePredicate, CancellationToken cancellationToken = default)
         {
@@ -163,6 +173,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// </summary>
         /// <param name="wherePredicate">The where predicate to use against the collection/table.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the wherePredicate parameter is null.</exception>
         /// <returns>A list of DataObjects.</returns>
         public async virtual Task<List<T>> GetAllAsync(Expression<Func<T, bool>> wherePredicate, CancellationToken cancellationToken = default)
         {
@@ -177,6 +188,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// <param name="orderByPredicate">The order predicate to use against the collection/table.</param>
         /// <param name="descending">False means the data is ordered ascending; true means the data is ordered descending.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the orderByPredicate parameter is null.</exception>
         /// <returns>A list of DataObjects.</returns>
         public async Task<List<T>> GetAllAsync(Expression<Func<T, object>> orderByPredicate, bool descending = false, CancellationToken cancellationToken = default)
         {
@@ -191,6 +203,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// <param name="wherePredicate">The where predicate to use against the collection/table.</param>
         /// <param name="orderByPredicate">The order predicate to use against the collection/table.</param>
         /// <param name="descending">False means the data is ordered ascending; true means the data is ordered descending.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the wherePredicate or orderByPredicate parameter is null.</exception>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
         /// <returns>A list of DataObjects.</returns>
         public async virtual Task<List<T>> GetAllAsync(Expression<Func<T, bool>> wherePredicate, Expression<Func<T, object>> orderByPredicate, bool descending = false, CancellationToken cancellationToken = default)
@@ -217,6 +230,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// </summary>
         /// <param name="key">The key to search for.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <exception cref="ArgumentException">Thrown if the key parameter is null or whitespace.</exception>
         /// <returns>A DataObject.</returns>
         public async Task<T?> GetSingleAsync(string key, CancellationToken cancellationToken = default)
         {
@@ -230,6 +244,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// </summary>
         /// <param name="wherePredicate">The where predicate to use against the collection/table.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the wherePredicate parameter is null.</exception>
         /// <returns>A DataObject.</returns>
         public async virtual Task<T?> GetSingleAsync(Expression<Func<T, bool>> wherePredicate, CancellationToken cancellationToken = default)
         {
@@ -316,10 +331,19 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// </summary>
         /// <param name="dataObject">The data object to update.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the dataObject parameter is null.</exception>
+        /// <exception cref="DataObjectValidationException">Thrown if the data object fails validation.</exception>
         /// <returns>The latest data object.</returns>
         public async virtual Task<T> UpdateAsync(T dataObject, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(dataObject);
+
+            List<ValidationResult> validationResults = await ValidateAsync(dataObject, cancellationToken);
+
+            if (validationResults.Count > 0)
+            {
+                throw new DataObjectValidationException(dataObject, validationResults);
+            }
 
             lock (_dataStorageLock)
             {
@@ -343,6 +367,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// </summary>
         /// <param name="dataObject">The data object to validate.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the dataObject parameter is null.</exception>
         /// <returns>The validation result.</returns>
         public async virtual Task<List<ValidationResult>> ValidateAsync(T dataObject, CancellationToken cancellationToken = default)
         {
@@ -351,7 +376,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
             //First, validate against the data annotations on the object.
             List<ValidationResult> validationResults = dataObject.Validate();
 
-            //Now, validate against the database for with any custom rules.
+            //Now, validate against the collection/table with any custom rules.
             if (!string.IsNullOrWhiteSpace(dataObject.Key) && await ExistAsync(dataObject.Key, cancellationToken) == false)
             {
                 validationResults.Add(new ValidationResult($"The {dataObject.Key} key does not exist.", new List<string>() { nameof(dataObject.Key) }));

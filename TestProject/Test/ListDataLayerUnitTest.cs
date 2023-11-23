@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using JMayer.Data.Database.DataLayer;
+using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using TestProject.Data;
 using TestProject.Database;
@@ -61,6 +62,12 @@ namespace TestProject.Test
         /// </summary>
         [Fact]
         public void CreateAsyncThrowsArgumentNullException() => Assert.ThrowsAnyAsync<ArgumentNullException>(() => new SimpleListDataLayer().CreateAsync(null));
+
+        /// <summary>
+        /// The method confirms if an invalid data object is passed to the ListDataLayer.CreateAsync(), an exception is thrown.
+        /// </summary>
+        [Fact]
+        public void CreateAsyncThrowsDataObjectValidationException() => Assert.ThrowsAnyAsync<DataObjectValidationException>(() => new SimpleListDataLayer().CreateAsync(new SimpleDataObject() { Value = 9999 }));
 
         /// <summary>
         /// The method confirms ListDataLayer.CreateAsync() works as intended.
@@ -342,10 +349,26 @@ namespace TestProject.Test
         public void UpdateAsyncThrowsArgumentNullException() => Assert.ThrowsAnyAsync<ArgumentNullException>(() => new SimpleListDataLayer().UpdateAsync(null));
 
         /// <summary>
+        /// The method confirms if an invalid data object is passed to the ListDataLayer.UpdateAsync(), an exception is thrown.
+        /// </summary>
+        [Fact]
+        public void UpdateAsyncThrowsDataObjectValidationException()
+        {
+            Assert.ThrowsAnyAsync<DataObjectValidationException>(async Task () =>
+            {
+                SimpleListDataLayer dataLayer = new();
+                SimpleDataObject dataObject = await dataLayer.CreateAsync(new SimpleDataObject());
+
+                dataObject.Value = 9999;
+                _ = await dataLayer.UpdateAsync(dataObject);
+            });
+        }
+
+        /// <summary>
         /// The method confirms if a non-existing key is passed to the ListDataLayer.UpdateAsync(), an exception is thrown.
         /// </summary>
         [Fact]
-        public void UpdateAsyncThrowsKeyNotFoundException() => Assert.ThrowsAnyAsync<KeyNotFoundException>(() => new SimpleListDataLayer().UpdateAsync(new SimpleDataObject() { Key = "99" }));
+        public void UpdateAsyncThrowsKeyNotFoundException() => Assert.ThrowsAnyAsync<JMayer.Data.Database.DataLayer.KeyNotFoundException>(() => new SimpleListDataLayer().UpdateAsync(new SimpleDataObject() { Key = "99" }));
 
         /// <summary>
         /// The method confirms ListDataLayer.UpdateAsync() works as intended.

@@ -69,6 +69,7 @@ namespace JMayer.Data.HTTP
         /// </summary>
         /// <param name="dataObject">The data object to create.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the dataObject parameter is null.</exception>
         /// <returns>The results of the create operation.</returns>
         public async Task<OperationResult> CreateAsync(T dataObject, CancellationToken cancellationToken = default)
         {
@@ -90,6 +91,7 @@ namespace JMayer.Data.HTTP
         /// </summary>
         /// <param name="dataObject">The data object to delete.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the dataObject parameter is null.</exception>
         /// <returns>The results of the delete operation.</returns>
         public async Task<OperationResult> DeleteAsync(T dataObject, CancellationToken cancellationToken = default)
         {
@@ -139,6 +141,7 @@ namespace JMayer.Data.HTTP
         /// </summary>
         /// <param name="key">The key to filter for.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <exception cref="ArgumentException">Thrown if the key parameter is null or whitespace.</exception>
         /// <returns>A DataObject.</returns>
         public async Task<T?> GetSingleAsync(string key, CancellationToken cancellationToken = default)
         {
@@ -160,6 +163,7 @@ namespace JMayer.Data.HTTP
         /// </summary>
         /// <param name="dataObject">The data object to update.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the dataObject parameter is null.</exception>
         /// <returns>The results of the update operation.</returns>
         public async Task<OperationResult> UpdateAsync(T dataObject, CancellationToken cancellationToken = default)
         {
@@ -181,6 +185,7 @@ namespace JMayer.Data.HTTP
         /// </summary>
         /// <param name="dataObject">The data object to validate.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the dataObject parameter is null.</exception>
         /// <returns>The results of the validation.</returns>
         public async Task<ServerSideValidationResult?> ValidationAsync(T dataObject, CancellationToken cancellationToken = default)
         {
