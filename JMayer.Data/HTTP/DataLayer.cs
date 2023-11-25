@@ -96,7 +96,7 @@ namespace JMayer.Data.HTTP
         public async Task<OperationResult> DeleteAsync(T dataObject, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(dataObject);
-            HttpResponseMessage httpResponseMessage = await _httpClient.DeleteAsync($"{_typeName}/{dataObject.Key}", cancellationToken);
+            HttpResponseMessage httpResponseMessage = await _httpClient.DeleteAsync($"{_typeName}/{dataObject.StringID}", cancellationToken);
             return new OperationResult(null, httpResponseMessage.StatusCode);
         }
 
@@ -137,18 +137,18 @@ namespace JMayer.Data.HTTP
         }
 
         /// <summary>
-        /// The method returns the remote data object based on a key.
+        /// The method returns the remote data object based on an ID.
         /// </summary>
-        /// <param name="key">The key to filter for.</param>
+        /// <param name="id">The ID to filter for.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
-        /// <exception cref="ArgumentException">Thrown if the key parameter is null or whitespace.</exception>
+        /// <exception cref="ArgumentException">Thrown if the ID parameter is null or whitespace.</exception>
         /// <returns>A DataObject.</returns>
-        public async Task<T?> GetSingleAsync(string key, CancellationToken cancellationToken = default)
+        public async Task<T?> GetSingleAsync(string id, CancellationToken cancellationToken = default)
         {
-            ArgumentException.ThrowIfNullOrWhiteSpace(key);
+            ArgumentException.ThrowIfNullOrWhiteSpace(id);
 
             T? dataObject = null;
-            HttpResponseMessage httpResponseMessage = await _httpClient.GetAsync($"{_typeName}/Single/{key}", cancellationToken);
+            HttpResponseMessage httpResponseMessage = await _httpClient.GetAsync($"{_typeName}/Single/{id}", cancellationToken);
 
             if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
             {

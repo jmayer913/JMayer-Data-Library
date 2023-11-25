@@ -46,12 +46,12 @@ namespace JMayer.Data.HTTP
         Task<T?> GetSingleAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// The method returns the remote data object based on a key.
+        /// The method returns the remote data object based on an ID.
         /// </summary>
-        /// <param name="key">The key to filter for.</param>
+        /// <param name="id">The ID to filter for.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
         /// <returns>A DataObject.</returns>
-        Task<T?> GetSingleAsync(string key, CancellationToken cancellationToken = default);
+        Task<T?> GetSingleAsync(string id, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// The method updates a remote data object.

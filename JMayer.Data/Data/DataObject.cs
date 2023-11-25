@@ -1,48 +1,45 @@
-﻿#warning I wonder if the Key can be turned into an object that can handle any key combinations. Right now, this only handles monogo keys and SQL identity keys but it doesn't handle SQL complex keys.
-
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace JMayer.Data.Data
 {
     /// <summary>
-    /// The class represents generic data in the database.
+    /// The class represents a record in the database.
     /// </summary>
+    /// <remarks>
+    /// Data objects will inherit from this class and the subclasses
+    /// will further build out the data it represents. For example, an
+    /// account data object will have properties related to the account.
+    /// 
+    /// This only contains an integer or string ID and each is stored
+    /// indepedently. Because of this, it must be known beforehand which
+    /// will be used by the data object, data layer & UI. For example, mongodb
+    /// generates a unique ID hash which can be mapped to a string property so
+    /// the mongo data object, mongo data layer and UI need to use the StringID 
+    /// property.
+    /// </remarks>
     public class DataObject
     {
         /// <summary>
-        /// The property gets/sets the key for the data object.
-        /// </summary>
-        public string? Key { get; set; }
-
-        /// <summary>
-        /// The property gets the key for the data object as an 32-bit integer.
+        /// The property gets/sets the ID for the data object as an 32-bit integer.
         /// </summary>
         /// <remarks>
-        /// If the key cannot be converted into an integer, 0 is returned.
+        /// This wraps around the Integer64ID property.
         /// </remarks>
-        public int Key32
+        public int? Integer32ID
         {
-            get
-            {
-                _ = int.TryParse(Key, out int value);
-                return value;
-            }
+            get => (int?)Integer64ID;
+            set => Integer64ID = value;
         }
 
         /// <summary>
-        /// The property gets the key for the data object as an 64-bit integer.
+        /// The property gets/sets the ID for the data object as an 64-bit integer.
         /// </summary>
-        /// <remarks>
-        /// If the key cannot be converted into an integer, 0 is returned.
-        /// </remarks>
-        public long Key64
-        {
-            get 
-            {
-                _ = long.TryParse(Key, out long value);
-                return value;
-            }
-        }
+        public virtual long? Integer64ID { get; set; }
+
+        /// <summary>
+        /// The property gets/sets the ID for the data object as a string.
+        /// </summary>
+        public virtual string? StringID { get; set; }
 
         /// <summary>
         /// The default constructor.
@@ -62,7 +59,8 @@ namespace JMayer.Data.Data
         public virtual void MapProperties(DataObject dataObject)
         {
             ArgumentNullException.ThrowIfNull(dataObject);
-            Key = dataObject.Key;
+            Integer64ID = dataObject.Integer64ID;
+            StringID = dataObject.StringID;
         }
 
         /// <summary>

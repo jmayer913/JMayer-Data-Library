@@ -1,6 +1,5 @@
 ﻿using JMayer.Data.Database.DataLayer;
 using System.ComponentModel.DataAnnotations;
-using System.Linq.Expressions;
 using TestProject.Data;
 using TestProject.Database;
 
@@ -51,8 +50,8 @@ namespace TestProject.Test
             _ = await dataLayer.CreateAsync(new SimpleDataObject());
             _ = await dataLayer.CreateAsync(new SimpleDataObject());
             
-            int oneCount = await dataLayer.CountAsync(obj => obj.Key32 == 1);
-            int zeroCount = await dataLayer.CountAsync(obj => obj.Key32 == 99);
+            int oneCount = await dataLayer.CountAsync(obj => obj.Integer32ID == 1);
+            int zeroCount = await dataLayer.CountAsync(obj => obj.Integer32ID == 99);
 
             Assert.True(oneCount == 1 && zeroCount == 0);
         }
@@ -76,7 +75,7 @@ namespace TestProject.Test
         /// <remarks>
         /// The CreateAsync() does the following:
         /// 
-        /// 1. Preps the data object (key is set).
+        /// 1. Preps the data object (ID is set).
         /// 2. Data object is added to the data store.
         /// 3. Internal identity is increment.
         /// 4. A copy of the data object is returned.
@@ -95,8 +94,8 @@ namespace TestProject.Test
             (
                 firstReturnedCopiedDataObject != null && secondReturnedDataObject != null //An object must have been returned.
                 && originalDataObject != firstReturnedCopiedDataObject && originalDataObject != secondReturnedDataObject //Returned object must be a copy.
-                && firstReturnedCopiedDataObject.Key32 > 0 && secondReturnedDataObject.Key32 > 0 //Key must have been set.
-                && firstReturnedCopiedDataObject.Key32 != secondReturnedDataObject.Key32 && secondReturnedDataObject.Key32 - firstReturnedCopiedDataObject.Key32 == 1 //Internal identity must be incremented.
+                && firstReturnedCopiedDataObject.Integer32ID > 0 && secondReturnedDataObject.Integer32ID > 0 //ID must have been set.
+                && firstReturnedCopiedDataObject.Integer32ID != secondReturnedDataObject.Integer32ID && secondReturnedDataObject.Integer32ID - firstReturnedCopiedDataObject.Integer32ID == 1 //Internal identity must be incremented.
                 && count == 2 //Data object was added to the data store.
             );
         }
@@ -114,7 +113,7 @@ namespace TestProject.Test
         /// <remarks>
         /// The DeleteAsync() does the following:
         /// 
-        /// 1. Finds the data object using the key.
+        /// 1. Finds the data object using the ID.
         /// 2. Data object is deleted from the data store.
         /// </remarks>
         [Fact]
@@ -133,27 +132,7 @@ namespace TestProject.Test
         /// The method confirms if a null data object is passed to the ListDataLayer.ExistAsync(), an exception is thrown.
         /// </summary>
         [Fact]
-        public void ExistAsyncThrowsArgumentNullException() 
-        { 
-            Assert.ThrowsAnyAsync<ArgumentException>(() => new SimpleListDataLayer().ExistAsync((string)null));
-            Assert.ThrowsAnyAsync<ArgumentNullException>(() => new SimpleListDataLayer().ExistAsync((Expression<Func<SimpleDataObject, bool>>)null));
-        }
-
-        /// <summary>
-        /// The method confirms ListDataLayer.ExistAsync() works as intended.
-        /// </summary>
-        /// <returns>A Task object for the async.</returns>
-        [Fact]
-        public async Task ExistAsyncKeyWorks()
-        {
-            SimpleListDataLayer dataLayer = new();
-            _ = await dataLayer.CreateAsync(new SimpleDataObject());
-
-            bool found = await dataLayer.ExistAsync("1");
-            bool notFound = await dataLayer.ExistAsync("2") == false;
-
-            Assert.True(found && notFound);
-        }
+        public void ExistAsyncThrowsArgumentNullException() => Assert.ThrowsAnyAsync<ArgumentNullException>(() => new SimpleListDataLayer().ExistAsync(null));
 
         /// <summary>
         /// The method confirms ListDataLayer.ExistAsync() works as intended for the where predicate.
@@ -165,8 +144,8 @@ namespace TestProject.Test
             SimpleListDataLayer dataLayer = new();
             _ = await dataLayer.CreateAsync(new SimpleDataObject());
 
-            bool found = await dataLayer.ExistAsync("1");
-            bool notFound = await dataLayer.ExistAsync("99") == false;
+            bool found = await dataLayer.ExistAsync(obj => obj.Integer32ID == 1);
+            bool notFound = await dataLayer.ExistAsync(obj => obj.Integer32ID == 99) == false;
 
             Assert.True(found && notFound);
         }
@@ -291,32 +270,6 @@ namespace TestProject.Test
         }
 
         /// <summary>
-        /// The method confirms ListDataLayer.GetSingleAsync() works as intended for a key.
-        /// </summary>
-        /// <returns>A Task object for the async.</returns>
-        [Fact]
-        public async Task GetSingleAsyncKeyWorks()
-        {
-            SimpleListDataLayer dataLayer = new();
-
-            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 10 });
-            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 20 });
-            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 30 });
-            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 40 });
-            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 50 });
-            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 60 });
-            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 70 });
-            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 80 });
-            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 90 });
-            _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 100 });
-
-            bool found = await dataLayer.GetSingleAsync("1") != null;
-            bool notFound = await dataLayer.GetSingleAsync("99") == null;
-
-            Assert.True(found && notFound);
-        }
-
-        /// <summary>
         /// The method confirms ListDataLayer.GetSingleAsync() works as intended for the wherepredicate.
         /// </summary>
         /// <returns>A Task object for the async.</returns>
@@ -365,10 +318,10 @@ namespace TestProject.Test
         }
 
         /// <summary>
-        /// The method confirms if a non-existing key is passed to the ListDataLayer.UpdateAsync(), an exception is thrown.
+        /// The method confirms if a non-existing ID is passed to the ListDataLayer.UpdateAsync(), an exception is thrown.
         /// </summary>
         [Fact]
-        public void UpdateAsyncThrowsKeyNotFoundException() => Assert.ThrowsAnyAsync<JMayer.Data.Database.DataLayer.KeyNotFoundException>(() => new SimpleListDataLayer().UpdateAsync(new SimpleDataObject() { Key = "99" }));
+        public void UpdateAsyncThrowsIDNotFoundException() => Assert.ThrowsAnyAsync<IDNotFoundException>(() => new SimpleListDataLayer().UpdateAsync(new SimpleDataObject() { Integer32ID = 99 }));
 
         /// <summary>
         /// The method confirms ListDataLayer.UpdateAsync() works as intended.
@@ -377,7 +330,7 @@ namespace TestProject.Test
         /// <remarks>
         /// The UpdateAsync() does the following:
         /// 
-        /// 1. Finds the data object using the key.
+        /// 1. Finds the data object using the ID.
         /// 2. Preps the data object (does nothing).
         /// 3. Data object is update in the data store.
         /// 4. A copy of the data object is returned.
@@ -414,7 +367,7 @@ namespace TestProject.Test
         /// The ValidateAsync() does the following:
         /// 
         /// 1. Validate the data annotations on the object. (SimpleDataObject.Value has a Range data annotation.)
-        /// 2. Validate against any custom rules. (ListDataLayer needs the key to exists if the data object has one.)
+        /// 2. Validate against any custom rules. (ListDataLayer needs the ID to exists if the data object has one.)
         /// 3. The results is returned.
         /// </remarks>
         [Fact]
@@ -433,13 +386,13 @@ namespace TestProject.Test
 
             dataObject.Value = 0;
             validationResults = await dataLayer.ValidateAsync(dataObject);
-            bool keyExistsValid = validationResults.Count == 0;
+            bool idExistsValid = validationResults.Count == 0;
 
-            dataObject.Key = "9999";
+            dataObject.Integer32ID = 9999;
             validationResults = await dataLayer.ValidateAsync(dataObject);
-            bool keyExistsNotValid = validationResults.Count != 0;
+            bool idExistsNotValid = validationResults.Count != 0;
 
-            Assert.True(dataAnnotationValid && dataAnnotationNotValided && keyExistsValid && keyExistsNotValid);
+            Assert.True(dataAnnotationValid && dataAnnotationNotValided && idExistsValid && idExistsNotValid);
         }
     }
 }

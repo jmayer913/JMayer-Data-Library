@@ -9,7 +9,9 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
     /// </summary>
     /// <typeparam name="T">A DataObject which represents data in the collection/table.</typeparam>
     /// <remarks>
-    /// The underlying data storage is a list so this shouldn't be used with very large datasets.
+    /// This uses an 64-integer identity (auto-increments) ID so the DataObject.Integer64ID will be
+    /// used by this and any outside interactions with the data layer must use DataObject.Integer64ID. 
+    /// Also, the underlying data storage is a List so this shouldn't be used with very large datasets.
     /// </remarks>
     public class ListDataLayer<T> : IDataLayer<T> where T : DataObject, new()
     {
@@ -120,27 +122,13 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
 
             lock (_dataStorageLock)
             {
-                T? databaseDataObject = _dataStorage.FirstOrDefault(obj => obj.Key == dataObject.Key);
+                T? databaseDataObject = _dataStorage.FirstOrDefault(obj => obj.Integer64ID == dataObject.Integer64ID);
 
                 if (databaseDataObject != null)
                 {
                     _ = _dataStorage.Remove(databaseDataObject);
                 }
             }
-        }
-
-        /// <summary>
-        /// The method returns if the key exists in the collection/table.
-        /// </summary>
-        /// <param name="key">The key to search for.</param>
-        /// <param name="cancellationToken">A token used for task cancellations.</param>
-        /// <exception cref="ArgumentException">Thrown if the key parameter is null or whitespace.</exception>
-        /// <returns>True means the key exists; false means it does not.</returns>
-        public async virtual Task<bool> ExistAsync(string key, CancellationToken cancellationToken = default)
-        {
-            ArgumentException.ThrowIfNullOrWhiteSpace(key);
-            bool result = QueryData(obj => obj.Key == key).FirstOrDefault() != null;
-            return await Task.FromResult(result);
         }
 
         /// <summary>
@@ -226,20 +214,6 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         }
 
         /// <summary>
-        /// The method returns the first data object in the collection/table based on a key.
-        /// </summary>
-        /// <param name="key">The key to search for.</param>
-        /// <param name="cancellationToken">A token used for task cancellations.</param>
-        /// <exception cref="ArgumentException">Thrown if the key parameter is null or whitespace.</exception>
-        /// <returns>A DataObject.</returns>
-        public async Task<T?> GetSingleAsync(string key, CancellationToken cancellationToken = default)
-        {
-            ArgumentException.ThrowIfNullOrWhiteSpace(key);
-            T? dataObject = QueryData(obj => obj.Key == key).FirstOrDefault();
-            return await Task.FromResult(dataObject);
-        }
-
-        /// <summary>
         /// The method returns a data object in the collection/table based on a where predicate.
         /// </summary>
         /// <param name="wherePredicate">The where predicate to use against the collection/table.</param>
@@ -254,9 +228,9 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         }
 
         /// <summary>
-        /// The method returns a data object in the collection/table based on a key.
+        /// The method returns a data object in the collection/table based on a ID.
         /// </summary>
-        /// <param name="key">The key to search for.</param>
+        /// <param name="id">The ID to search for.</param>
         /// <returns>A DataObject.</returns>
         /// <remarks>
         /// This does not return a copy. It's only meant to be called from a subclass
@@ -264,11 +238,11 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// methods return a copy to enforce the rule that UpdateAsync() updates the
         /// actual data.
         /// </remarks>
-        protected T? GetSingleNoCopy(string? key)
+        protected T? GetSingleNoCopy(long? id)
         {
             lock (_dataStorageLock)
             {
-                return _dataStorage.FirstOrDefault(obj => obj.Key == key);
+                return _dataStorage.FirstOrDefault(obj => obj.Integer64ID == id);
             }
         }
 
@@ -279,7 +253,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// <returns>The data object.</returns>
         protected virtual void PrepForCreate(T dataObject)
         {
-            dataObject.Key = _identity.ToString();
+            dataObject.Integer64ID = _identity;
         }
 
         /// <summary>
@@ -347,11 +321,11 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
 
             lock (_dataStorageLock)
             {
-                T? databaseDataObject = _dataStorage.FirstOrDefault(obj => obj.Key == dataObject.Key);
+                T? databaseDataObject = _dataStorage.FirstOrDefault(obj => obj.Integer64ID == dataObject.Integer64ID);
 
                 if (databaseDataObject == null)
                 {
-                    throw new KeyNotFoundException(dataObject.Key);
+                    throw new IDNotFoundException(dataObject.Integer64ID.ToString());
                 }
 
                 PrepForUpdate(dataObject);
@@ -377,9 +351,9 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
             List<ValidationResult> validationResults = dataObject.Validate();
 
             //Now, validate against the collection/table with any custom rules.
-            if (!string.IsNullOrWhiteSpace(dataObject.Key) && await ExistAsync(dataObject.Key, cancellationToken) == false)
+            if (dataObject.Integer64ID != null && await ExistAsync(obj => obj.Integer64ID == dataObject.Integer64ID, cancellationToken) == false)
             {
-                validationResults.Add(new ValidationResult($"The {dataObject.Key} key does not exist.", new List<string>() { nameof(dataObject.Key) }));
+                validationResults.Add(new ValidationResult($"The {dataObject.Integer64ID} ID does not exist.", new List<string>() { nameof(dataObject.Integer64ID) }));
             }
 
             return validationResults;

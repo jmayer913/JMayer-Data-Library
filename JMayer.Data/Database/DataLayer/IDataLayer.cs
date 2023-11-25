@@ -42,14 +42,6 @@ namespace JMayer.Data.Database.DataLayer
         Task DeleteAsync(T dataObject, CancellationToken cancellationToken = default);
 
         /// <summary>
-        /// The method returns if the key exists in the collection/table.
-        /// </summary>
-        /// <param name="key">The key to search for.</param>
-        /// <param name="cancellationToken">A token used for task cancellations.</param>
-        /// <returns>True means the key exists; false means it does not.</returns>
-        Task<bool> ExistAsync(string key, CancellationToken cancellationToken = default);
-
-        /// <summary>
         /// The method returns if data objects exists in the collection/table based on a where predicate.
         /// </summary>
         /// <param name="wherePredicate">The where predicate to use against the collection/table.</param>
@@ -97,14 +89,6 @@ namespace JMayer.Data.Database.DataLayer
         /// <param name="cancellationToken">A token used for task cancellations.</param>
         /// <returns>A DataObject.</returns>
         Task<T?> GetSingleAsync(CancellationToken cancellationToken = default);
-
-        /// <summary>
-        /// The method returns the first data object in the collection/table based on a key.
-        /// </summary>
-        /// <param name="key">The key to search for.</param>
-        /// <param name="cancellationToken">A token used for task cancellations.</param>
-        /// <returns>A DataObject.</returns>
-        Task<T?> GetSingleAsync(string key, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// The method returns a data object in the collection/table based on a where predicate.

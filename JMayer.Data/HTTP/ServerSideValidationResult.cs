@@ -3,7 +3,7 @@
     /// <summary>
     /// The class represents the result of server side validation.
     /// </summary>
-    public class ServerSideValidationResult
+    public sealed class ServerSideValidationResult
     {
         /// <summary>
         /// The errors in the result.

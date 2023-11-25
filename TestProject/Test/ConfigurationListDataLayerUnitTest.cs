@@ -16,7 +16,7 @@ namespace TestProject.Test
     /// ConfigurationListDataLayer class.
     /// 
     /// ConfigurationListDataLayer class inherits from the ListDataLayer. Because of this,
-    /// only new and override methods in the ConfigurationListDataLayer are tested because
+    /// only new and overriden methods in the ConfigurationListDataLayer are tested because
     /// the ListDataLayerUnitTest already tests the ListDataLayer.
     /// 
     /// All tests associated with UpdateAsync() in the ListDataLayerUnitTest are included
@@ -32,7 +32,7 @@ namespace TestProject.Test
         /// <remarks>
         /// The CreateAsync() does the following:
         /// 
-        /// 1. Preps the data object (key and created on are set).
+        /// 1. Preps the data object (ID and created on are set).
         /// 2. Data object is added to the data store.
         /// 3. Internal identity is increment.
         /// 4. A copy of the data object is returned.
@@ -51,9 +51,9 @@ namespace TestProject.Test
             (
                 firstReturnedCopiedDataObject != null && secondReturnedDataObject != null //An object must have been returned.
                 && originalDataObject != firstReturnedCopiedDataObject && originalDataObject != secondReturnedDataObject //Returned object must be a copy.
-                && firstReturnedCopiedDataObject.Key32 > 0 && secondReturnedDataObject.Key32 > 0 //Key must have been set.
+                && firstReturnedCopiedDataObject.Integer32ID > 0 && secondReturnedDataObject.Integer32ID > 0 //ID must have been set.
                 && firstReturnedCopiedDataObject.CreatedOn > DateTime.MinValue && secondReturnedDataObject.CreatedOn > DateTime.MinValue //CreatedOn must have been set.
-                && firstReturnedCopiedDataObject.Key32 != secondReturnedDataObject.Key32 && secondReturnedDataObject.Key32 - firstReturnedCopiedDataObject.Key32 == 1 //Internal identity must be incremented.
+                && firstReturnedCopiedDataObject.Integer32ID != secondReturnedDataObject.Integer32ID && secondReturnedDataObject.Integer32ID - firstReturnedCopiedDataObject.Integer32ID == 1 //Internal identity must be incremented.
                 && count == 2 //Data object was added to the data store.
             );
         }
@@ -184,18 +184,18 @@ namespace TestProject.Test
         }
 
         /// <summary>
-        /// The method confirms if a non-existing key is passed to the ConfigurationListDataLayer.UpdateAsync(), an exception is thrown.
+        /// The method confirms if a non-existing ID is passed to the ConfigurationListDataLayer.UpdateAsync(), an exception is thrown.
         /// </summary>
         [Fact]
-        public void UpdateAsyncThrowsKeyNotFoundException() => Assert.ThrowsAnyAsync<JMayer.Data.Database.DataLayer.KeyNotFoundException>(() => new SimpleListDataLayer().UpdateAsync(new SimpleDataObject() { Key = "99" }));
+        public void UpdateAsyncThrowsIDNotFoundException() => Assert.ThrowsAnyAsync<IDNotFoundException>(() => new SimpleListDataLayer().UpdateAsync(new SimpleDataObject() { Integer32ID = 99 }));
 
         /// <summary>
-        /// The method confirms if a non-existing key is passed to the ConfigurationListDataLayer.UpdateAsync(), an exception is thrown.
+        /// The method confirms if old data is being updated in ConfigurationListDataLayer.UpdateAsync(), an exception is thrown.
         /// </summary>
         [Fact]
         public void UpdateAsyncThrowsUpdateConflictException()
         {
-            Assert.ThrowsAnyAsync<JMayer.Data.Database.DataLayer.KeyNotFoundException>(async Task () =>
+            Assert.ThrowsAnyAsync<DataObjectUpdateConflictException>(async Task () =>
             {
                 SimpleConfigurationListDataLayer dataLayer = new();
                 SimpleConfigurationDataObject originalDataObject = await dataLayer.CreateAsync(new SimpleConfigurationDataObject() { Name = "A Name" });
@@ -217,7 +217,7 @@ namespace TestProject.Test
         /// <remarks>
         /// The UpdateAsync() does the following:
         /// 
-        /// 1. Finds the data object using the key.
+        /// 1. Finds the data object using the ID.
         /// 2. Confirms if the data isn't old.
         /// 3. Preps the data object (sets last edited on).
         /// 4. Data object is update in the data store.
@@ -279,15 +279,15 @@ namespace TestProject.Test
             validationResults = await dataLayer.ValidateAsync(dataObject);
             bool keyExistsValid = validationResults.Count == 0;
 
-            dataObject.Key = "9999";
+            dataObject.Integer32ID = 9999;
             validationResults = await dataLayer.ValidateAsync(dataObject);
             bool keyExistsNotValid = validationResults.Count != 0;
 
-            dataObject.Key = "1";
+            dataObject.Integer32ID = 1;
             validationResults = await dataLayer.ValidateAsync(dataObject);
             bool nameValid = validationResults.Count == 0;
 
-            dataObject.Key = "2";
+            dataObject.Integer32ID = 2;
             dataObject.Name = "A Name";
             validationResults = await dataLayer.ValidateAsync(dataObject);
             bool nameNotValid = validationResults.Count != 0;

@@ -3,7 +3,7 @@
     /// <summary>
     /// The class represents the validation error for a property.
     /// </summary>
-    public class ServerSideValidationError
+    public sealed class ServerSideValidationError
     {
         /// <summary>
         /// The property gets/sets the error message.

@@ -1,44 +1,31 @@
 ﻿namespace JMayer.Data.Data
 {
     /// <summary>
-    /// The class represents simple name data to be listed in UI.
+    /// The class represents simple name & ID data to be listed in UI.
     /// </summary>
-    public class ListView
+    public sealed class ListView
     {
         /// <summary>
-        /// The property gets/sets the key for the data object.
-        /// </summary>
-        public string? Key { get; set; }
-
-        /// <summary>
-        /// The property gets the key for the data object as an 32-bit integer.
+        /// The property gets/sets the ID for the data object as an 32-bit integer.
         /// </summary>
         /// <remarks>
-        /// If the key cannot be converted into an integer, 0 is returned.
+        /// This wraps around the Integer64ID property.
         /// </remarks>
-        public int Key32
+        public int? Integer32ID
         {
-            get
-            {
-                _ = int.TryParse(Key, out int value);
-                return value;
-            }
+            get => (int?)Integer64ID;
+            set => Integer64ID = value;
         }
 
         /// <summary>
-        /// The property gets the key for the data object as an 64-bit integer.
+        /// The property gets/sets the ID for the data object as an 64-bit integer.
         /// </summary>
-        /// <remarks>
-        /// If the key cannot be converted into an integer, 0 is returned.
-        /// </remarks>
-        public long Key64
-        {
-            get
-            {
-                _ = long.TryParse(Key, out long value);
-                return value;
-            }
-        }
+        public long? Integer64ID { get; set; }
+
+        /// <summary>
+        /// The property gets/sets the ID for the data object as a string.
+        /// </summary>
+        public string? StringID { get; set; }
 
         /// <summary>
         /// The property gets/sets the name of the configuration.
@@ -57,7 +44,8 @@
         public ListView(ListView copy)
         {
             ArgumentNullException.ThrowIfNull(copy);
-            Key = copy.Key;
+            Integer64ID = copy.Integer64ID;
+            StringID = copy.StringID;
             Name = copy.Name;
         }
 
@@ -68,7 +56,8 @@
         public ListView(ConfigurationDataObject copy)
         {
             ArgumentNullException.ThrowIfNull(copy);
-            Key = copy.Key;
+            Integer64ID = copy.Integer64ID;
+            StringID = copy.StringID;
             Name = copy.Name;
         }
     }

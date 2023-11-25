@@ -23,9 +23,9 @@ namespace JMayer.Data.Data
         public string? LastEditedBy { get; set; }
 
         /// <summary>
-        /// The property gets/sets the key for who last edited the configuration.
+        /// The property gets/sets the ID for who last edited the configuration.
         /// </summary>
-        public string? LastEditedByKey { get; set; }
+        public string? LastEditedByID { get; set; }
 
         /// <summary>
         /// The property gets/sets the last time the configuration was edited.
@@ -62,7 +62,7 @@ namespace JMayer.Data.Data
                 CreatedOn = configurationDataObject.CreatedOn;
                 Description = configurationDataObject.Description;
                 LastEditedBy = configurationDataObject.LastEditedBy;
-                LastEditedByKey = configurationDataObject.LastEditedByKey;
+                LastEditedByID = configurationDataObject.LastEditedByID;
                 LastEditedOn = configurationDataObject.LastEditedOn;
                 Name = configurationDataObject.Name;
             }

@@ -1,51 +1,51 @@
 ﻿namespace JMayer.Data.Database.DataLayer
 {
     /// <summary>
-    /// The class represents an exception caused when a key is not found.
+    /// The class represents an exception caused when an ID is not found.
     /// </summary>
-    public class KeyNotFoundException : Exception
+    public class IDNotFoundException : Exception
     {
         /// <summary>
-        /// The property gets the key associated with the missing record.
+        /// The property gets the ID associated with the missing record.
         /// </summary>
-        public string? Key { get; private init; }
+        public string? ID { get; private init; }
 
         /// <summary>
         /// The default constructor.
         /// </summary>
-        public KeyNotFoundException() : base() { }
+        public IDNotFoundException() : base() { }
 
         /// <summary>
         /// The property constructor.
         /// </summary>
-        /// <param name="key">The key associated with the missing record.</param>
-        public KeyNotFoundException(string? key) 
-            : base($"The {key} key was not found.")
+        /// <param name="id">The ID associated with the missing record.</param>
+        public IDNotFoundException(string? id) 
+            : base($"The {id} ID was not found.")
         {
-            Key = key;
+            ID = id;
         }
 
         /// <summary>
         /// The property constructor.
         /// </summary>
-        /// <param name="key">The key associated with the missing record.</param>
+        /// <param name="id">The ID associated with the missing record.</param>
         /// <param name="message">The message associated with the exception.</param>
-        public KeyNotFoundException(string? key, string? message)
+        public IDNotFoundException(string? id, string? message)
             : base(message) 
         { 
-            Key = key;
+            ID = id;
         }
 
         /// <summary>
         /// The property constructor.
         /// </summary>
-        /// <param name="key">The key associated with the missing record.</param>
+        /// <param name="id">The ID associated with the missing record.</param>
         /// <param name="message">The message associated with the exception.</param>
         /// <param name="innerException">The inner exception associated with this exception.</param>
-        public KeyNotFoundException(string? key, string? message, Exception? innerException)
+        public IDNotFoundException(string? id, string? message, Exception? innerException)
             : base(message, innerException)
         { 
-            Key = key;
+            ID = id;
         }
     }
 }

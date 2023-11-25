@@ -9,7 +9,9 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
     /// </summary>
     /// <typeparam name="T">A ConfigurationDataObject which represents data in the collection/table.</typeparam>
     /// <remarks>
-    /// The underlying data storage is a list so this shouldn't be used with very large datasets.
+    /// This uses an 64-integer identity (auto-increments) ID so the DataObject.Integer64ID will be
+    /// used by this and any outside interactions with the data layer must use DataObject.Integer64ID. 
+    /// Also, the underlying data storage is a List so this shouldn't be used with very large datasets.
     /// 
     /// UpdateAsync() has conflict detection. Because the ConfigurationDataObject has a LastEditedOn property, 
     /// update can now determine if the data object passed in is older than the record in memory. When this occurs, 
@@ -37,7 +39,8 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         {
             return dataObjects.ConvertAll(obj => new ListView()
             {
-                Key = obj.Key,
+                Integer64ID = obj.Integer64ID,
+                StringID = obj.StringID,
                 Name = obj.Name,
             });
         }
@@ -131,7 +134,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// <exception cref="ArgumentNullException">Thrown if the dataObject parameter is null.</exception>
         /// <exception cref="DataObjectUpdateConflictException">Thrown if the data object is older than the record in the collection/table.</exception>
         /// <exception cref="DataObjectValidationException">Thrown if the data object fails validation.</exception>
-        /// <exception cref="KeyNotFoundException">Thrown if the data object's key is not found in the collection/table.</exception>
+        /// <exception cref="IDNotFoundException">Thrown if the data object's ID is not found in the collection/table.</exception>
         /// <returns>The latest data object.</returns>
         public async override Task<T> UpdateAsync(T dataObject, CancellationToken cancellationToken = default)
         {
@@ -144,16 +147,16 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
                 throw new DataObjectValidationException(dataObject, validationResults);
             }
 
-            T? databaseDataObject = GetSingleNoCopy(dataObject.Key);
+            T? databaseDataObject = GetSingleNoCopy(dataObject.Integer64ID);
 
             if (databaseDataObject == null)
             {
-                throw new KeyNotFoundException(dataObject.Key);
+                throw new IDNotFoundException(dataObject.Integer64ID.ToString());
             }
 
             if (!AllowToUpdate(databaseDataObject, dataObject))
             {
-                throw new DataObjectUpdateConflictException($"Failed to update because the data object was updated by {databaseDataObject.LastEditedBy ?? databaseDataObject.LastEditedByKey ?? string.Empty} on {databaseDataObject.LastEditedOn}.");
+                throw new DataObjectUpdateConflictException($"Failed to update because the data object was updated by {databaseDataObject.LastEditedBy ?? databaseDataObject.LastEditedByID ?? string.Empty} on {databaseDataObject.LastEditedOn}.");
             }
             else
             {
@@ -176,9 +179,9 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         {
             List<ValidationResult> validationResults = await base.ValidateAsync(dataObject, cancellationToken);
 
-            if (await ExistAsync(obj => obj.Key != dataObject.Key && obj.Name == dataObject.Name, cancellationToken) == true) 
+            if (await ExistAsync(obj => obj.Integer64ID != dataObject.Integer64ID && obj.Name == dataObject.Name, cancellationToken) == true) 
             {
-                validationResults.Add(new ValidationResult($"The {dataObject.Name} name already exists in the data store.", new List<string>() { nameof(dataObject.Key) }));
+                validationResults.Add(new ValidationResult($"The {dataObject.Name} name already exists in the data store.", new List<string>() { nameof(dataObject.Integer64ID) }));
             }
 
             return validationResults;
