@@ -64,9 +64,9 @@ namespace TestProject.Test
         [Fact]
         public void GetAllListViewAsyncThrowsArgumentNullException()
         {
-            Assert.ThrowsAnyAsync<ArgumentNullException>(() => new SimpleConfigurationListDataLayer().GetAllListViewAsync(null));
-            Assert.ThrowsAnyAsync<ArgumentNullException>(() => new SimpleConfigurationListDataLayer().GetAllListViewAsync(null, false));
-            Assert.ThrowsAnyAsync<ArgumentNullException>(() => new SimpleConfigurationListDataLayer().GetAllListViewAsync(obj => obj.Value == 0, null));
+            Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleConfigurationListDataLayer().GetAllListViewAsync(null));
+            Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleConfigurationListDataLayer().GetAllListViewAsync(null, false));
+            Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleConfigurationListDataLayer().GetAllListViewAsync(obj => obj.Value == 0, null));
         }
 
         /// <summary>
@@ -165,7 +165,7 @@ namespace TestProject.Test
         /// The method confirms if a null data object is passed to the ConfigurationListDataLayer.UpdateAsync(), an exception is thrown.
         /// </summary>
         [Fact]
-        public void UpdateAsyncThrowsArgumentNullException() => Assert.ThrowsAnyAsync<ArgumentNullException>(() => new SimpleListDataLayer().UpdateAsync(null));
+        public void UpdateAsyncThrowsArgumentNullException() => Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleListDataLayer().UpdateAsync(null));
 
         /// <summary>
         /// The method confirms if an invalid data object is passed to the ListDataLayer.UpdateAsync(), an exception is thrown.
@@ -173,7 +173,7 @@ namespace TestProject.Test
         [Fact]
         public void UpdateAsyncThrowsDataObjectValidationException()
         {
-            Assert.ThrowsAnyAsync<DataObjectValidationException>(async Task () =>
+            Assert.ThrowsAsync<DataObjectValidationException>(async Task () =>
             {
                 SimpleConfigurationListDataLayer dataLayer = new();
                 SimpleConfigurationDataObject dataObject = await dataLayer.CreateAsync(new SimpleConfigurationDataObject() { Name = "A Name" });
@@ -187,7 +187,7 @@ namespace TestProject.Test
         /// The method confirms if a non-existing ID is passed to the ConfigurationListDataLayer.UpdateAsync(), an exception is thrown.
         /// </summary>
         [Fact]
-        public void UpdateAsyncThrowsIDNotFoundException() => Assert.ThrowsAnyAsync<IDNotFoundException>(() => new SimpleListDataLayer().UpdateAsync(new SimpleDataObject() { Integer32ID = 99 }));
+        public void UpdateAsyncThrowsIDNotFoundException() => Assert.ThrowsAsync<IDNotFoundException>(() => new SimpleListDataLayer().UpdateAsync(new SimpleDataObject() { Integer32ID = 99 }));
 
         /// <summary>
         /// The method confirms if old data is being updated in ConfigurationListDataLayer.UpdateAsync(), an exception is thrown.
@@ -195,7 +195,7 @@ namespace TestProject.Test
         [Fact]
         public void UpdateAsyncThrowsUpdateConflictException()
         {
-            Assert.ThrowsAnyAsync<DataObjectUpdateConflictException>(async Task () =>
+            Assert.ThrowsAsync<DataObjectUpdateConflictException>(async Task () =>
             {
                 SimpleConfigurationListDataLayer dataLayer = new();
                 SimpleConfigurationDataObject originalDataObject = await dataLayer.CreateAsync(new SimpleConfigurationDataObject() { Name = "A Name" });
@@ -246,7 +246,7 @@ namespace TestProject.Test
         /// The method confirms if a null data object is passed to the ConfigurationListDataLayer.ValidateAsync(), an exception is thrown.
         /// </summary>
         [Fact]
-        public void ValidateAsyncThrowsArgumentNullException() => Assert.ThrowsAnyAsync<ArgumentNullException>(() => new SimpleListDataLayer().ValidateAsync(null));
+        public void ValidateAsyncThrowsArgumentNullException() => Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleListDataLayer().ValidateAsync(null));
 
         /// <summary>
         /// The method confirms ConfigurationListDataLayer.ValidateAsync() works as intended.
