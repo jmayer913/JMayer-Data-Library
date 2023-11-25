@@ -40,7 +40,7 @@ namespace TestProject.Test
         [Fact]
         public async Task CreateAsyncWorks()
         {
-            SimpleConfigurationDataObject originalDataObject = new();
+            SimpleConfigurationDataObject originalDataObject = new() { Name = "A Name" };
             SimpleConfigurationListDataLayer dataLayer = new();
 
             SimpleConfigurationDataObject firstReturnedCopiedDataObject = await dataLayer.CreateAsync(originalDataObject);
@@ -77,7 +77,7 @@ namespace TestProject.Test
         public async Task GetAllListViewAsyncWorks()
         {
             SimpleConfigurationListDataLayer dataLayer = new();
-            _ = await dataLayer.CreateAsync(new SimpleConfigurationDataObject());
+            _ = await dataLayer.CreateAsync(new SimpleConfigurationDataObject() { Name = "A Name" });
             List<ListView> listViews = await dataLayer.GetAllListViewAsync();
             Assert.True(listViews.Count == 1);
         }
