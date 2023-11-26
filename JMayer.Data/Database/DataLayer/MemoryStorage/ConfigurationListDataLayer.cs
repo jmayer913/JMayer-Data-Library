@@ -163,6 +163,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
                 PrepForUpdate(dataObject);
                 databaseDataObject.MapProperties(dataObject);
                 dataObject = CreateCopy(databaseDataObject);
+                OnUpdated(new UpdatedEventArgs([dataObject]));
             }
 
             return await Task.FromResult(dataObject);

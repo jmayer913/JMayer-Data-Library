@@ -31,6 +31,21 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         private long _identity = 1;
 
         /// <summary>
+        /// A event for when a data object is created in the data layer.
+        /// </summary>
+        public event EventHandler<CreatedEventArgs>? Created;
+
+        /// <summary>
+        /// A event for when a data object is deleted in the data layer.
+        /// </summary>
+        public event EventHandler<DeletedEventArgs>? Deleted;
+
+        /// <summary>
+        /// A event for when a data object is updated in the data layer.
+        /// </summary>
+        public event EventHandler<UpdatedEventArgs>? Updated;
+
+        /// <summary>
         /// The method returns the total count of data objects in a collection/table.
         /// </summary>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
@@ -86,6 +101,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
                 _dataStorage.Add(dataObject);
                 _identity += 1;
                 dataObject = CreateCopy(dataObject); //Create a copy so its independent of the data storage.
+                OnCreated(new CreatedEventArgs([dataObject]));
             }
 
             return await Task.FromResult(dataObject);
@@ -127,6 +143,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
                 if (databaseDataObject != null)
                 {
                     _ = _dataStorage.Remove(databaseDataObject);
+                    OnDeleted(new DeletedEventArgs([databaseDataObject]));
                 }
             }
         }
@@ -247,6 +264,24 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         }
 
         /// <summary>
+        /// The method calls the Created event so any registered handler can react to the event.
+        /// </summary>
+        /// <param name="e">The arguments associated with the event.</param>
+        protected virtual void OnCreated(CreatedEventArgs e) => Created?.Invoke(this, e);
+
+        /// <summary>
+        /// The method calls the Deleted event so any registered handler can react to the event.
+        /// </summary>
+        /// <param name="e">The arguments associated with the event.</param>
+        protected virtual void OnDeleted(DeletedEventArgs e) => Deleted?.Invoke(this, e);
+
+        /// <summary>
+        /// The method calls the Updated event so any registered handler can react to the event.
+        /// </summary>
+        /// <param name="e">The arguments associated with the event.</param>
+        protected virtual void OnUpdated(UpdatedEventArgs e) => Updated?.Invoke(this, e);
+
+        /// <summary>
         /// The method preps the data object for a create operation.
         /// </summary>
         /// <param name="dataObject">The data object that needs to be preped.</param>
@@ -331,6 +366,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
                 PrepForUpdate(dataObject);
                 databaseDataObject.MapProperties(dataObject);
                 dataObject = CreateCopy(databaseDataObject);
+                OnUpdated(new UpdatedEventArgs([dataObject]));
             }
 
             return await Task.FromResult(dataObject);

@@ -57,6 +57,21 @@ namespace TestProject.Test
         }
 
         /// <summary>
+        /// The method confirms the ListDataLayer.Created event fires when ListDataLayer.CreateAsync() is called.
+        /// </summary>
+        [Fact]
+        public void CreateAsyncFiresCreatedEvent()
+        {
+            SimpleListDataLayer dataLayer = new();
+            Assert.RaisesAsync<CreatedEventArgs>
+            (
+                handler => dataLayer.Created += handler, 
+                handler => dataLayer.Created -= handler, 
+                () => dataLayer.CreateAsync(new SimpleDataObject())
+            );
+        }
+
+        /// <summary>
         /// The method confirms if a null data object is passed to the ListDataLayer.CreateAsync(), an exception is thrown.
         /// </summary>
         [Fact]
@@ -97,6 +112,25 @@ namespace TestProject.Test
                 && firstReturnedCopiedDataObject.Integer32ID > 0 && secondReturnedDataObject.Integer32ID > 0 //ID must have been set.
                 && firstReturnedCopiedDataObject.Integer32ID != secondReturnedDataObject.Integer32ID && secondReturnedDataObject.Integer32ID - firstReturnedCopiedDataObject.Integer32ID == 1 //Internal identity must be incremented.
                 && count == 2 //Data object was added to the data store.
+            );
+        }
+
+        /// <summary>
+        /// The method confirms the ListDataLayer.Deleted event fires when ListDataLayer.DeleteAsync() is called.
+        /// </summary>
+        [Fact]
+        public void DeleteAsyncFiresDeletedEvent()
+        {
+            SimpleListDataLayer dataLayer = new();
+            Assert.RaisesAsync<DeletedEventArgs>
+            (
+                handler => dataLayer.Deleted += handler, 
+                handler => dataLayer.Deleted -= handler, 
+                async Task () =>
+                {
+                    SimpleDataObject dataObject = await dataLayer.CreateAsync(new SimpleDataObject());
+                    await dataLayer.DeleteAsync(dataObject);
+                }
             );
         }
 
@@ -293,6 +327,26 @@ namespace TestProject.Test
             bool notFound = await dataLayer.GetSingleAsync(obj => obj.Value == 71) == null;
 
             Assert.True(found && notFound);
+        }
+
+        /// <summary>
+        /// The method confirms the ListDataLayer.Updated event fires when ListDataLayer.UpdateAsync() is called.
+        /// </summary>
+        [Fact]
+        public void UpdateAsyncFiresUpdatedEvent()
+        {
+            SimpleListDataLayer dataLayer = new();
+            Assert.RaisesAsync<DeletedEventArgs>
+            (
+                handler => dataLayer.Deleted += handler, 
+                handler => dataLayer.Deleted -= handler, 
+                async Task () =>
+                {
+                    SimpleDataObject dataObject = await dataLayer.CreateAsync(new SimpleDataObject());
+                    dataObject.Value = 9999;
+                    _ = await dataLayer.UpdateAsync(dataObject);
+                }
+            );
         }
 
         /// <summary>

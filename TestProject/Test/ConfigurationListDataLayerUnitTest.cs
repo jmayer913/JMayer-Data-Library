@@ -1,6 +1,7 @@
 ﻿using JMayer.Data.Data;
 using JMayer.Data.Database.DataLayer;
 using System.ComponentModel.DataAnnotations;
+using System.Xml.Linq;
 using TestProject.Data;
 using TestProject.Database;
 
@@ -159,6 +160,26 @@ namespace TestProject.Test
             List<ListView> whereDescOrderByDataObjects = await dataLayer.GetAllListViewAsync(obj => obj.Value < 60, obj => obj.Value, true);
 
             Assert.True(whereAscOrderByDataObjects.First().Name == "40" && whereDescOrderByDataObjects.First().Name == "50");
+        }
+
+        /// <summary>
+        /// The method confirms the ListDataLayer.Updated event fires when ListDataLayer.UpdateAsync() is called.
+        /// </summary>
+        [Fact]
+        public void UpdateAsyncFiresUpdatedEvent()
+        {
+            SimpleConfigurationListDataLayer dataLayer = new();
+            Assert.RaisesAsync<DeletedEventArgs>
+            (
+                handler => dataLayer.Deleted += handler, 
+                handler => dataLayer.Deleted -= handler, 
+                async Task () =>
+                {
+                    SimpleConfigurationDataObject dataObject = await dataLayer.CreateAsync(new SimpleConfigurationDataObject() { Name = "A Name" });
+                    dataObject.Value = 9999;
+                    _ = await dataLayer.UpdateAsync(dataObject);
+                }
+            );
         }
 
         /// <summary>

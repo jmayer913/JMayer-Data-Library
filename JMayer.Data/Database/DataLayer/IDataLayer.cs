@@ -11,6 +11,21 @@ namespace JMayer.Data.Database.DataLayer
     public interface IDataLayer<T> where T : DataObject
     {
         /// <summary>
+        /// A event for when a data object is created in the data layer.
+        /// </summary>
+        event EventHandler<CreatedEventArgs>? Created;
+
+        /// <summary>
+        /// A event for when a data object is deleted in the data layer.
+        /// </summary>
+        event EventHandler<DeletedEventArgs>? Deleted;
+
+        /// <summary>
+        /// A event for when a data object is updated in the data layer.
+        /// </summary>
+        event EventHandler<UpdatedEventArgs>? Updated;
+
+        /// <summary>
         /// The method returns the total count of data objects in a collection/table.
         /// </summary>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
