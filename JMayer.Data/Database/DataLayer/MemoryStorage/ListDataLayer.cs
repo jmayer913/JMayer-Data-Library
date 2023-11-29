@@ -21,14 +21,38 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         private readonly List<T> _dataStorage = [];
 
         /// <summary>
+        /// The property gets the data storage for this database.
+        /// </summary>
+        protected List<T> DataStorage
+        {
+            get => _dataStorage;
+        }
+
+        /// <summary>
         /// The lock used when accessing the data storage.
         /// </summary>
         private readonly object _dataStorageLock = new();
 
         /// <summary>
-        /// The last identity.
+        /// The property gets the lock used when accessing the data storage.
+        /// </summary>
+        protected object DataStorageLock 
+        { 
+            get => _dataStorageLock; 
+        }
+
+        /// <summary>
+        /// The identity of the last created record.
         /// </summary>
         private long _identity = 1;
+
+        /// <summary>
+        /// The property gets the identity of the last created record.
+        /// </summary>
+        protected long Identity
+        {
+            get => _identity;
+        }
 
         /// <summary>
         /// A event for when a data object is created in the data layer.
@@ -54,9 +78,9 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         {
             int count = 0;
 
-            lock (_dataStorageLock)
+            lock (DataStorageLock)
             {
-                count = _dataStorage.Count;
+                count = DataStorage.Count;
             }
 
             return await Task.FromResult(count);
@@ -95,16 +119,60 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
                 throw new DataObjectValidationException(dataObject, validationResults);
             }
 
-            lock (_dataStorageLock)
+            lock (DataStorageLock)
             {
                 PrepForCreate(dataObject);
-                _dataStorage.Add(dataObject);
-                _identity += 1;
+                DataStorage.Add(dataObject);
+                IncrementIdentity();
                 dataObject = CreateCopy(dataObject); //Create a copy so its independent of the data storage.
-                OnCreated(new CreatedEventArgs([dataObject]));
             }
 
+            OnCreated(new CreatedEventArgs([dataObject]));
+
             return await Task.FromResult(dataObject);
+        }
+
+        /// <summary>
+        /// The method creates multiple data objects in the collection/table.
+        /// </summary>
+        /// <param name="dataObjects">The data objects to create.</param>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the dataObjects parameter is null.</exception>
+        /// <exception cref="DataObjectValidationException">Thrown if the data object fails validation.</exception>
+        /// <returns>The created data object.</returns>
+        public async virtual Task<List<T>> CreateAsync(List<T> dataObjects, CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(dataObjects);
+
+            //Confirm validation because this wants all or none created.
+            foreach (T dataObject in dataObjects)
+            {
+                List<ValidationResult> validationResults = await ValidateAsync(dataObject, cancellationToken);
+
+                if (validationResults.Count > 0)
+                {
+                    throw new DataObjectValidationException(dataObject, validationResults);
+                }
+            }
+
+            List<T> returnDataObjects = [];
+
+            lock (DataStorageLock)
+            {
+                foreach (T dataObject in dataObjects)
+                {
+                    PrepForCreate(dataObject);
+                    DataStorage.Add(dataObject);
+                    IncrementIdentity();
+
+                    T returnDataObject = CreateCopy(dataObject);
+                    returnDataObjects.Add(returnDataObject); //Create a copy so its independent of the data storage.
+                }
+            }
+
+            OnCreated(new CreatedEventArgs([.. returnDataObjects]));
+
+            return await Task.FromResult(returnDataObjects);
         }
 
         /// <summary>
@@ -136,16 +204,60 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         {
             ArgumentNullException.ThrowIfNull(dataObject);
 
-            lock (_dataStorageLock)
+            lock (DataStorageLock)
             {
-                T? databaseDataObject = _dataStorage.FirstOrDefault(obj => obj.Integer64ID == dataObject.Integer64ID);
+                T? databaseDataObject = DataStorage.FirstOrDefault(obj => obj.Integer64ID == dataObject.Integer64ID);
 
                 if (databaseDataObject != null)
                 {
-                    _ = _dataStorage.Remove(databaseDataObject);
+                    _ = DataStorage.Remove(databaseDataObject);
                     OnDeleted(new DeletedEventArgs([databaseDataObject]));
                 }
             }
+        }
+
+        /// <summary>
+        /// The method deletes multiple data objects in the collection/table.
+        /// </summary>
+        /// <param name="dataObjects">The data objects to delete.</param>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the dataObjects parameter is null.</exception>
+        /// <returns>A Task object for the async.</returns>
+        public async virtual Task DeleteAsync(List<T> dataObjects, CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(dataObjects);
+
+            List<long> ids = dataObjects.Select(obj => obj.Integer64ID ?? 0).ToList();
+            List<T> databaseDataObjects = await GetAllAsync(obj => ids.Any(id => id == obj.Integer64ID));
+
+            lock (DataStorageLock)
+            {
+                _ = DataStorage.RemoveAll(obj => ids.Any(id => id == obj.Integer64ID));
+            }
+
+            OnDeleted(new DeletedEventArgs([.. databaseDataObjects]));
+        }
+
+        /// <summary>
+        /// The method deletes multiple data objects in the collection/table.
+        /// </summary>
+        /// <param name="wherePredicate">The where predicate to use when deleting records.</param>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the wherePredicate parameter is null.</exception>
+        /// <returns>A Task object for the async.</returns>
+        public async virtual Task DeleteAsync(Expression<Func<T, bool>> wherePredicate, CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(wherePredicate);
+
+            List<T> dataObjects = await GetAllAsync(wherePredicate, cancellationToken);
+            List<long> ids = dataObjects.Select(obj => obj.Integer64ID ?? 0).ToList();
+
+            lock (DataStorageLock)
+            {
+                _ = DataStorage.RemoveAll(obj => ids.Any(id => id == obj.Integer64ID));
+            }
+
+            OnDeleted(new DeletedEventArgs([.. dataObjects]));
         }
 
         /// <summary>
@@ -245,22 +357,11 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         }
 
         /// <summary>
-        /// The method returns a data object in the collection/table based on a ID.
+        /// The method increments the identity.
         /// </summary>
-        /// <param name="id">The ID to search for.</param>
-        /// <returns>A DataObject.</returns>
-        /// <remarks>
-        /// This does not return a copy. It's only meant to be called from a subclass
-        /// when the subclass needs access to data but not a copy of it; all the Get
-        /// methods return a copy to enforce the rule that UpdateAsync() updates the
-        /// actual data.
-        /// </remarks>
-        protected T? GetSingleNoCopy(long? id)
+        protected void IncrementIdentity()
         {
-            lock (_dataStorageLock)
-            {
-                return _dataStorage.FirstOrDefault(obj => obj.Integer64ID == id);
-            }
+            _identity += 1;
         }
 
         /// <summary>
@@ -288,7 +389,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// <returns>The data object.</returns>
         protected virtual void PrepForCreate(T dataObject)
         {
-            dataObject.Integer64ID = _identity;
+            dataObject.Integer64ID = Identity;
         }
 
         /// <summary>
@@ -308,9 +409,9 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         {
             List<T> dataObjects;
 
-            lock (_dataStorageLock)
+            lock (DataStorageLock)
             {
-                IEnumerable<T> dataObjectEnumerable = _dataStorage.AsEnumerable();
+                IEnumerable<T> dataObjectEnumerable = DataStorage.AsEnumerable();
 
                 if (wherePredicate != null)
                 {
@@ -342,6 +443,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// <param name="cancellationToken">A token used for task cancellations.</param>
         /// <exception cref="ArgumentNullException">Thrown if the dataObject parameter is null.</exception>
         /// <exception cref="DataObjectValidationException">Thrown if the data object fails validation.</exception>
+        /// <exception cref="IDNotFoundException">Thrown if the data object's ID is not found in the collection/table.</exception>
         /// <returns>The latest data object.</returns>
         public async virtual Task<T> UpdateAsync(T dataObject, CancellationToken cancellationToken = default)
         {
@@ -354,9 +456,9 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
                 throw new DataObjectValidationException(dataObject, validationResults);
             }
 
-            lock (_dataStorageLock)
+            lock (DataStorageLock)
             {
-                T? databaseDataObject = _dataStorage.FirstOrDefault(obj => obj.Integer64ID == dataObject.Integer64ID);
+                T? databaseDataObject = DataStorage.FirstOrDefault(obj => obj.Integer64ID == dataObject.Integer64ID);
 
                 if (databaseDataObject == null)
                 {
@@ -366,10 +468,68 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
                 PrepForUpdate(dataObject);
                 databaseDataObject.MapProperties(dataObject);
                 dataObject = CreateCopy(databaseDataObject);
-                OnUpdated(new UpdatedEventArgs([dataObject]));
             }
 
+            OnUpdated(new UpdatedEventArgs([dataObject]));
+
             return await Task.FromResult(dataObject);
+        }
+
+        /// <summary>
+        /// The method updates multiple data objects in the collection/table.
+        /// </summary>
+        /// <param name="dataObjects">The data objects to update.</param>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the dataObjects parameter is null.</exception>
+        /// <exception cref="DataObjectValidationException">Thrown if any data object fails validation.</exception>
+        /// <exception cref="IDNotFoundException">Thrown if any data objects' ID is not found in the collection/table.</exception>
+        /// <returns>The latest data object.</returns>
+        public async virtual Task<List<T>> UpdateAsync(List<T> dataObjects, CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(dataObjects);
+
+            //Confirm validation because this wants all or none updated.
+            foreach (T dataObject in dataObjects)
+            {
+                List<ValidationResult> validationResults = await ValidateAsync(dataObject, cancellationToken);
+
+                if (validationResults.Count > 0)
+                {
+                    throw new DataObjectValidationException(dataObject, validationResults);
+                }
+            }
+
+            List<T> returnDataObjects = [];
+
+            lock (DataStorageLock)
+            {
+                List<T> databaseDataObjects = [];
+
+                foreach (T dataObject in dataObjects)
+                {
+                    T? databaseDataObject = DataStorage.FirstOrDefault(obj => obj.Integer64ID == dataObject.Integer64ID);
+
+                    if (databaseDataObject == null)
+                    {
+                        throw new IDNotFoundException(dataObject.Integer64ID.ToString());
+                    }
+
+                    databaseDataObjects.Add(databaseDataObject);
+                }
+
+                for (int index = 0; index < dataObjects.Count; ++index)
+                {
+                    PrepForUpdate(dataObjects[index]);
+                    databaseDataObjects[index].MapProperties(dataObjects[index]);
+
+                    T returnDataObject = CreateCopy(databaseDataObjects[index]);
+                    returnDataObjects.Add(returnDataObject);
+                }
+            }
+
+            OnUpdated(new UpdatedEventArgs([.. returnDataObjects]));
+
+            return await Task.FromResult(returnDataObjects);
         }
 
         /// <summary>
@@ -379,20 +539,15 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
         /// <param name="cancellationToken">A token used for task cancellations.</param>
         /// <exception cref="ArgumentNullException">Thrown if the dataObject parameter is null.</exception>
         /// <returns>The validation result.</returns>
+        /// <remarks>
+        /// //This only validates the data annotations on the object but subclasses can override this method to 
+        /// add custom rules that validate against the records in the database.
+        /// </remarks>
         public async virtual Task<List<ValidationResult>> ValidateAsync(T dataObject, CancellationToken cancellationToken = default)
         {
             ArgumentNullException.ThrowIfNull(dataObject);
-
-            //First, validate against the data annotations on the object.
             List<ValidationResult> validationResults = dataObject.Validate();
-
-            //Now, validate against the collection/table with any custom rules.
-            if (dataObject.Integer64ID != null && await ExistAsync(obj => obj.Integer64ID == dataObject.Integer64ID, cancellationToken) == false)
-            {
-                validationResults.Add(new ValidationResult($"The {dataObject.Integer64ID} ID does not exist.", new List<string>() { nameof(dataObject.Integer64ID) }));
-            }
-
-            return validationResults;
+            return await Task.FromResult(validationResults);
         }
     }
 }

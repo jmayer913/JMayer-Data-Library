@@ -37,6 +37,7 @@ namespace JMayer.Data.Database.DataLayer
         /// </summary>
         /// <param name="wherePredicate">The where predicate to use against the collection/table.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the wherePredicate parameter is null.</exception>
         /// <returns>A count.</returns>
         Task<int> CountAsync(Expression<Func<T, bool>> wherePredicate, CancellationToken cancellationToken = default);
 
@@ -45,22 +46,54 @@ namespace JMayer.Data.Database.DataLayer
         /// </summary>
         /// <param name="dataObject">The data object to create.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the dataObject parameter is null.</exception>
+        /// <exception cref="DataObjectValidationException">Thrown if the data object fails validation.</exception>
         /// <returns>The created data object.</returns>
         Task<T> CreateAsync(T dataObject, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// The method creates multiple data objects in the collection/table.
+        /// </summary>
+        /// <param name="dataObjects">The data objects to create.</param>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the dataObjects parameter is null.</exception>
+        /// <exception cref="DataObjectValidationException">Thrown if the data object fails validation.</exception>
+        /// <returns>The created data object.</returns>
+        Task<List<T>> CreateAsync(List<T> dataObjects, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// The method deletes a data object in the table or collection.
         /// </summary>
         /// <param name="dataObject">The data object to delete.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the dataObject parameter is null.</exception>
         /// <returns>A Task object for the async.</returns>
         Task DeleteAsync(T dataObject, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// The method deletes multiple data objects in the collection/table.
+        /// </summary>
+        /// <param name="dataObjects">The data objects to delete.</param>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the dataObjects parameter is null.</exception>
+        /// <returns>A Task object for the async.</returns>
+        Task DeleteAsync(List<T> dataObjects, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// The method deletes multiple data objects in the collection/table.
+        /// </summary>
+        /// <param name="wherePredicate">The where predicate to use when deleting records.</param>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the wherePredicate parameter is null.</exception>
+        /// <returns>A Task object for the async.</returns>
+        Task DeleteAsync(Expression<Func<T, bool>> wherePredicate, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// The method returns if data objects exists in the collection/table based on a where predicate.
         /// </summary>
         /// <param name="wherePredicate">The where predicate to use against the collection/table.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the wherePredicate parameter is null.</exception>
         /// <returns>True means the data objects exists based on the expression; false means none do.</returns>
         Task<bool> ExistAsync(Expression<Func<T, bool>> wherePredicate, CancellationToken cancellationToken = default);
 
@@ -76,6 +109,7 @@ namespace JMayer.Data.Database.DataLayer
         /// </summary>
         /// <param name="wherePredicate">The where predicate to use against the collection/table.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the wherePredicate parameter is null.</exception>
         /// <returns>A list of DataObjects.</returns>
         Task<List<T>> GetAllAsync(Expression<Func<T, bool>> wherePredicate, CancellationToken cancellationToken = default);
 
@@ -85,6 +119,7 @@ namespace JMayer.Data.Database.DataLayer
         /// <param name="orderByPredicate">The order predicate to use against the collection/table.</param>
         /// <param name="descending">False means the data is ordered ascending; true means the data is ordered descending.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the orderByPredicate parameter is null.</exception>
         /// <returns>A list of DataObjects.</returns>
         Task<List<T>> GetAllAsync(Expression<Func<T, object>> orderByPredicate, bool descending = false, CancellationToken cancellationToken = default);
 
@@ -95,6 +130,7 @@ namespace JMayer.Data.Database.DataLayer
         /// <param name="orderByPredicate">The order predicate to use against the collection/table.</param>
         /// <param name="descending">False means the data is ordered ascending; true means the data is ordered descending.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the wherePredicate or orderByPredicate parameters are null.</exception>
         /// <returns>A list of DataObjects.</returns>
         Task<List<T>> GetAllAsync(Expression<Func<T, bool>> wherePredicate, Expression<Func<T, object>> orderByPredicate, bool descending = false, CancellationToken cancellationToken = default);
 
@@ -110,6 +146,7 @@ namespace JMayer.Data.Database.DataLayer
         /// </summary>
         /// <param name="wherePredicate">The where predicate to use against the collection/table.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the wherePredicate parameter is null.</exception>
         /// <returns>A DataObject.</returns>
         Task<T?> GetSingleAsync(Expression<Func<T, bool>> wherePredicate, CancellationToken cancellationToken = default);
 
@@ -118,14 +155,29 @@ namespace JMayer.Data.Database.DataLayer
         /// </summary>
         /// <param name="dataObject">The data object to update.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the dataObject parameter is null.</exception>
+        /// <exception cref="DataObjectValidationException">Thrown if the data object fails validation.</exception>
+        /// <exception cref="IDNotFoundException">Thrown if the data object's ID is not found in the collection/table.</exception>
         /// <returns>The latest data object.</returns>
         Task<T> UpdateAsync(T dataObject, CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// The method updates multiple data objects in the collection/table.
+        /// </summary>
+        /// <param name="dataObjects">The data objects to update.</param>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the dataObjects parameter is null.</exception>
+        /// <exception cref="DataObjectValidationException">Thrown if any data object fails validation.</exception>
+        /// <exception cref="IDNotFoundException">Thrown if any data objects' ID is not found in the collection/table.</exception>
+        /// <returns>The latest data objects.</returns>
+        Task<List<T>> UpdateAsync(List<T> dataObjects, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// The method validates a data object.
         /// </summary>
         /// <param name="dataObject">The data object to validate.</param>
         /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the dataObject parameter is null.</exception>
         /// <returns>The validation result.</returns>
         Task<List<ValidationResult>> ValidateAsync(T dataObject, CancellationToken cancellationToken = default);
     }

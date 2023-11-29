@@ -1,7 +1,6 @@
 ﻿using JMayer.Data.Data;
 using JMayer.Data.Database.DataLayer;
 using System.ComponentModel.DataAnnotations;
-using System.Xml.Linq;
 using TestProject.Data;
 using TestProject.Database;
 
@@ -13,7 +12,7 @@ namespace TestProject.Test
     /// <remarks>
     /// The tests are against a SimpleConfigurationListDataLayer object which inherits from 
     /// the ConfigurationListDataLayer and the SimpleConfigurationListDataLayer doesn't override 
-    /// any of the base methods because of this, we're testing the methods in the 
+    /// any of the base methods. Because of this, we're testing the methods in the 
     /// ConfigurationListDataLayer class.
     /// 
     /// ConfigurationListDataLayer class inherits from the ListDataLayer. Because of this,
@@ -52,9 +51,9 @@ namespace TestProject.Test
             (
                 firstReturnedCopiedDataObject != null && secondReturnedDataObject != null //An object must have been returned.
                 && originalDataObject != firstReturnedCopiedDataObject && originalDataObject != secondReturnedDataObject //Returned object must be a copy.
-                && firstReturnedCopiedDataObject.Integer32ID > 0 && secondReturnedDataObject.Integer32ID > 0 //ID must have been set.
+                && firstReturnedCopiedDataObject.Integer64ID > 0 && secondReturnedDataObject.Integer64ID > 0 //ID must have been set.
                 && firstReturnedCopiedDataObject.CreatedOn > DateTime.MinValue && secondReturnedDataObject.CreatedOn > DateTime.MinValue //CreatedOn must have been set.
-                && firstReturnedCopiedDataObject.Integer32ID != secondReturnedDataObject.Integer32ID && secondReturnedDataObject.Integer32ID - firstReturnedCopiedDataObject.Integer32ID == 1 //Internal identity must be incremented.
+                && firstReturnedCopiedDataObject.Integer64ID != secondReturnedDataObject.Integer64ID && secondReturnedDataObject.Integer64ID - firstReturnedCopiedDataObject.Integer64ID == 1 //Internal identity must be incremented.
                 && count == 2 //Data object was added to the data store.
             );
         }
@@ -63,11 +62,11 @@ namespace TestProject.Test
         /// The method confirms if a null data object is passed to the ConfigurationListDataLayer.GetAllListViewAsync(), an exception is thrown.
         /// </summary>
         [Fact]
-        public void GetAllListViewAsyncThrowsArgumentNullException()
+        public async Task GetAllListViewAsyncThrowsArgumentNullException()
         {
-            Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleConfigurationListDataLayer().GetAllListViewAsync(null));
-            Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleConfigurationListDataLayer().GetAllListViewAsync(null, false));
-            Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleConfigurationListDataLayer().GetAllListViewAsync(obj => obj.Value == 0, null));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleConfigurationListDataLayer().GetAllListViewAsync(null));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleConfigurationListDataLayer().GetAllListViewAsync(null, false));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleConfigurationListDataLayer().GetAllListViewAsync(obj => obj.Value == 0, null));
         }
 
         /// <summary>
@@ -163,75 +162,6 @@ namespace TestProject.Test
         }
 
         /// <summary>
-        /// The method confirms the ListDataLayer.Updated event fires when ListDataLayer.UpdateAsync() is called.
-        /// </summary>
-        [Fact]
-        public void UpdateAsyncFiresUpdatedEvent()
-        {
-            SimpleConfigurationListDataLayer dataLayer = new();
-            Assert.RaisesAsync<DeletedEventArgs>
-            (
-                handler => dataLayer.Deleted += handler, 
-                handler => dataLayer.Deleted -= handler, 
-                async Task () =>
-                {
-                    SimpleConfigurationDataObject dataObject = await dataLayer.CreateAsync(new SimpleConfigurationDataObject() { Name = "A Name" });
-                    dataObject.Value = 9999;
-                    _ = await dataLayer.UpdateAsync(dataObject);
-                }
-            );
-        }
-
-        /// <summary>
-        /// The method confirms if a null data object is passed to the ConfigurationListDataLayer.UpdateAsync(), an exception is thrown.
-        /// </summary>
-        [Fact]
-        public void UpdateAsyncThrowsArgumentNullException() => Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleListDataLayer().UpdateAsync(null));
-
-        /// <summary>
-        /// The method confirms if an invalid data object is passed to the ListDataLayer.UpdateAsync(), an exception is thrown.
-        /// </summary>
-        [Fact]
-        public void UpdateAsyncThrowsDataObjectValidationException()
-        {
-            Assert.ThrowsAsync<DataObjectValidationException>(async Task () =>
-            {
-                SimpleConfigurationListDataLayer dataLayer = new();
-                SimpleConfigurationDataObject dataObject = await dataLayer.CreateAsync(new SimpleConfigurationDataObject() { Name = "A Name" });
-
-                dataObject.Name = null;
-                _ = await dataLayer.UpdateAsync(dataObject);
-            });
-        }
-
-        /// <summary>
-        /// The method confirms if a non-existing ID is passed to the ConfigurationListDataLayer.UpdateAsync(), an exception is thrown.
-        /// </summary>
-        [Fact]
-        public void UpdateAsyncThrowsIDNotFoundException() => Assert.ThrowsAsync<IDNotFoundException>(() => new SimpleListDataLayer().UpdateAsync(new SimpleDataObject() { Integer32ID = 99 }));
-
-        /// <summary>
-        /// The method confirms if old data is being updated in ConfigurationListDataLayer.UpdateAsync(), an exception is thrown.
-        /// </summary>
-        [Fact]
-        public void UpdateAsyncThrowsUpdateConflictException()
-        {
-            Assert.ThrowsAsync<DataObjectUpdateConflictException>(async Task () =>
-            {
-                SimpleConfigurationListDataLayer dataLayer = new();
-                SimpleConfigurationDataObject originalDataObject = await dataLayer.CreateAsync(new SimpleConfigurationDataObject() { Name = "A Name" });
-                
-                _ = await dataLayer.UpdateAsync(new SimpleConfigurationDataObject(originalDataObject)
-                {
-                    Value = 10,
-                });
-
-                originalDataObject.Value = 20;
-                _ = await dataLayer.UpdateAsync(originalDataObject);
-            });
-        }
-
-        /// <summary>
         /// The method confirms ConfigurationListDataLayer.UpdateAsync() works as intended.
         /// </summary>
         /// <returns>A Task object for the async.</returns>
@@ -245,7 +175,7 @@ namespace TestProject.Test
         /// 5. A copy of the data object is returned.
         /// </remarks>
         [Fact]
-        public async Task UpdateAsyncWorks()
+        public async Task UpdateAsyncDataObjectWorks()
         {
             SimpleConfigurationListDataLayer dataLayer = new();
             SimpleConfigurationDataObject originalDataObject = await dataLayer.CreateAsync(new SimpleConfigurationDataObject() { Name = "A Name" });
@@ -264,10 +194,156 @@ namespace TestProject.Test
         }
 
         /// <summary>
+        /// The method confirms the ListDataLayer.Updated event fires when ListDataLayer.UpdateAsync() is called.
+        /// </summary>
+        [Fact]
+        public async Task UpdateAsyncFiresUpdatedEvent()
+        {
+            SimpleConfigurationListDataLayer dataLayer = new();
+            await Assert.RaisesAsync<UpdatedEventArgs>
+            (
+                handler => dataLayer.Updated += handler,
+                handler => dataLayer.Updated -= handler,
+                async Task () =>
+                {
+                    SimpleConfigurationDataObject dataObject = await dataLayer.CreateAsync(new SimpleConfigurationDataObject() { Name = "A Name" });
+                    dataObject.Value = 10;
+                    _ = await dataLayer.UpdateAsync(dataObject);
+                }
+            );
+            await Assert.RaisesAsync<UpdatedEventArgs>
+            (
+                handler => dataLayer.Updated += handler,
+                handler => dataLayer.Updated -= handler,
+                async Task () =>
+                {
+                    List<SimpleConfigurationDataObject> dataObjects = await dataLayer.CreateAsync([new SimpleConfigurationDataObject() { Name = "Another Name" }, new SimpleConfigurationDataObject() { Name = " Yet Another Name" }]);
+
+                    dataObjects[0].Value = 10;
+                    dataObjects[1].Value = 20;
+
+                    _ = await dataLayer.UpdateAsync(dataObjects);
+                }
+            );
+        }
+
+        /// <summary>
+        /// The method confirms ListDataLayer.UpdateAsync() works as intended.
+        /// </summary>
+        /// <returns>A Task object for the async.</returns>
+        /// <remarks>
+        /// The UpdateAsync() does the following:
+        /// 
+        /// 1. Finds the data object using the ID.
+        /// 2. Confirms if the data isn't old.
+        /// 3. Preps the data object (sets last edited on).
+        /// 4. Data object is update in the data store.
+        /// 5. A copy of the data object is returned.
+        /// </remarks>
+        [Fact]
+        public async Task UpdateAsyncListWorks()
+        {
+            SimpleConfigurationListDataLayer dataLayer = new();
+            List<SimpleConfigurationDataObject> originalDataObjects = await dataLayer.CreateAsync([new SimpleConfigurationDataObject() { Name = "A Name" }, new SimpleConfigurationDataObject() { Name = "Another Name" }]);
+
+            originalDataObjects[0].Value = 10;
+            originalDataObjects[1].Value = 20;
+
+            List<SimpleConfigurationDataObject> returnedCopiedDataObjects = await dataLayer.UpdateAsync(originalDataObjects);
+            List<SimpleConfigurationDataObject> confirmedDataObjects = await dataLayer.GetAllAsync();
+
+            Assert.True
+            (
+                returnedCopiedDataObjects != null && returnedCopiedDataObjects.Count == 2 //An object must have been returned and the same amount updated must be returned.
+                && originalDataObjects[0] != returnedCopiedDataObjects[0] && originalDataObjects[1] != returnedCopiedDataObjects[1] //Returned objects must be a copy.
+                && originalDataObjects[0].Value == confirmedDataObjects[0].Value && originalDataObjects[1].Value == confirmedDataObjects[1].Value //Confirm the data was updated.
+            );
+        }
+
+        /// <summary>
+        /// The method confirms if a null data object is passed to the ConfigurationListDataLayer.UpdateAsync(), an exception is thrown.
+        /// </summary>
+        [Fact]
+        public async Task UpdateAsyncThrowsArgumentNullException()
+        {
+            await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleConfigurationListDataLayer().UpdateAsync((SimpleConfigurationDataObject?)null));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleConfigurationListDataLayer().UpdateAsync((List<SimpleConfigurationDataObject>)null));
+        }
+
+        /// <summary>
+        /// The method confirms if an invalid data object is passed to the ListDataLayer.UpdateAsync(), an exception is thrown.
+        /// </summary>
+        [Fact]
+        public async Task UpdateAsyncThrowsDataObjectValidationException()
+        {
+            await Assert.ThrowsAsync<DataObjectValidationException>(async Task () =>
+            {
+                SimpleConfigurationListDataLayer dataLayer = new();
+                SimpleConfigurationDataObject dataObject = await dataLayer.CreateAsync(new SimpleConfigurationDataObject() { Name = "A Name" });
+
+                dataObject.Name = null;
+                _ = await dataLayer.UpdateAsync(dataObject);
+            });
+            await Assert.ThrowsAsync<DataObjectValidationException>(async Task () =>
+            {
+                SimpleConfigurationListDataLayer dataLayer = new();
+                List<SimpleConfigurationDataObject> dataObjects = await dataLayer.CreateAsync([new SimpleConfigurationDataObject() { Name = "A Name" }, new SimpleConfigurationDataObject() { Name = "Another Name" }]);
+
+                dataObjects[0].Value = 1;
+                dataObjects[1].Value = 9999;
+
+                _ = await dataLayer.UpdateAsync(dataObjects);
+            });
+        }
+
+        /// <summary>
+        /// The method confirms if a non-existing ID is passed to the ConfigurationListDataLayer.UpdateAsync(), an exception is thrown.
+        /// </summary>
+        [Fact]
+        public async Task UpdateAsyncThrowsIDNotFoundException()
+        {
+            await Assert.ThrowsAsync<IDNotFoundException>(() => new SimpleConfigurationListDataLayer().UpdateAsync(new SimpleConfigurationDataObject() { Integer64ID = 99, Name = "A Name" }));
+            await Assert.ThrowsAsync<IDNotFoundException>(() => new SimpleConfigurationListDataLayer().UpdateAsync([new SimpleConfigurationDataObject() { Integer64ID = 99, Name = "A Name" }, new SimpleConfigurationDataObject() { Integer64ID = 100, Name = "Another Name" }]));
+        }
+
+        /// <summary>
+        /// The method confirms if old data is being updated in ConfigurationListDataLayer.UpdateAsync(), an exception is thrown.
+        /// </summary>
+        [Fact]
+        public async Task UpdateAsyncThrowsUpdateConflictException()
+        {
+            await Assert.ThrowsAsync<DataObjectUpdateConflictException>(async Task () =>
+            {
+                SimpleConfigurationListDataLayer dataLayer = new();
+                SimpleConfigurationDataObject originalDataObject = await dataLayer.CreateAsync(new SimpleConfigurationDataObject() { Name = "A Name" });
+
+                _ = await dataLayer.UpdateAsync(new SimpleConfigurationDataObject(originalDataObject)
+                {
+                    Value = 10,
+                });
+
+                originalDataObject.Value = 20;
+                _ = await dataLayer.UpdateAsync(originalDataObject);
+            });
+            await Assert.ThrowsAsync<DataObjectUpdateConflictException>(async Task () =>
+            {
+                SimpleConfigurationListDataLayer dataLayer = new();
+                List<SimpleConfigurationDataObject> originalDataObjects = await dataLayer.CreateAsync([new SimpleConfigurationDataObject() { Name = "A Name" }, new SimpleConfigurationDataObject() { Name = "Another Name" }]);
+
+                _ = await dataLayer.UpdateAsync([new SimpleConfigurationDataObject(originalDataObjects[0]) { Value = 10 }, new SimpleConfigurationDataObject(originalDataObjects[1]) { Value = 20 }]);
+
+                originalDataObjects[0].Value = 20;
+                originalDataObjects[1].Value = 30;
+
+                _ = await dataLayer.UpdateAsync(originalDataObjects);
+            });
+        }
+
+        /// <summary>
         /// The method confirms if a null data object is passed to the ConfigurationListDataLayer.ValidateAsync(), an exception is thrown.
         /// </summary>
         [Fact]
-        public void ValidateAsyncThrowsArgumentNullException() => Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleListDataLayer().ValidateAsync(null));
+        public async Task ValidateAsyncThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleConfigurationListDataLayer().ValidateAsync(null));
 
         /// <summary>
         /// The method confirms ConfigurationListDataLayer.ValidateAsync() works as intended.
@@ -277,7 +353,7 @@ namespace TestProject.Test
         /// The ValidateAsync() does the following:
         /// 
         /// 1. Validate the data annotations on the object. (SimpleConfigurationDataObject.Value has a Range data annotation.)
-        /// 2. Validate against any custom rules. (ConfigurationListDataLayer needs the key to exists if the data object has one and the name must unique.)
+        /// 2. Validate against any custom rules. (ConfigurationListDataLayer must have a unique name in the collection/table.)
         /// 3. The results is returned.
         /// </remarks>
         [Fact]
@@ -285,7 +361,7 @@ namespace TestProject.Test
         {
             SimpleConfigurationListDataLayer dataLayer = new();
             SimpleConfigurationDataObject dataObject = await dataLayer.CreateAsync(new SimpleConfigurationDataObject() { Name = "A Name" });
-            _ = await dataLayer.CreateAsync(new SimpleConfigurationDataObject() { Name = "A Name 2" });
+            _ = await dataLayer.CreateAsync(new SimpleConfigurationDataObject() { Name = "Another Name" });
 
             dataObject.Name = "Different Name";
             dataObject.Value = 10;
@@ -298,22 +374,14 @@ namespace TestProject.Test
 
             dataObject.Value = 0;
             validationResults = await dataLayer.ValidateAsync(dataObject);
-            bool keyExistsValid = validationResults.Count == 0;
-
-            dataObject.Integer32ID = 9999;
-            validationResults = await dataLayer.ValidateAsync(dataObject);
-            bool keyExistsNotValid = validationResults.Count != 0;
-
-            dataObject.Integer32ID = 1;
-            validationResults = await dataLayer.ValidateAsync(dataObject);
             bool nameValid = validationResults.Count == 0;
 
-            dataObject.Integer32ID = 2;
+            dataObject.Integer64ID = 2;
             dataObject.Name = "A Name";
             validationResults = await dataLayer.ValidateAsync(dataObject);
             bool nameNotValid = validationResults.Count != 0;
 
-            Assert.True(dataAnnotationValid && dataAnnotationNotValided && keyExistsValid && keyExistsNotValid && nameValid && nameNotValid);
+            Assert.True(dataAnnotationValid && dataAnnotationNotValided && nameValid && nameNotValid);
         }
     }
 }

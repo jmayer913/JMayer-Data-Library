@@ -147,26 +147,93 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage
                 throw new DataObjectValidationException(dataObject, validationResults);
             }
 
-            T? databaseDataObject = GetSingleNoCopy(dataObject.Integer64ID);
+            lock (DataStorageLock)
+            {
+                T? databaseDataObject = DataStorage.FirstOrDefault(obj => obj.Integer64ID == dataObject.Integer64ID);
 
-            if (databaseDataObject == null)
-            {
-                throw new IDNotFoundException(dataObject.Integer64ID.ToString());
+                if (databaseDataObject == null)
+                {
+                    throw new IDNotFoundException(dataObject.Integer64ID.ToString());
+                }
+
+                if (!AllowToUpdate(databaseDataObject, dataObject))
+                {
+                    throw new DataObjectUpdateConflictException($"Failed to update because the data object was updated by {databaseDataObject.LastEditedBy ?? databaseDataObject.LastEditedByID ?? string.Empty} on {databaseDataObject.LastEditedOn}.");
+                }
+                else
+                {
+                    PrepForUpdate(dataObject);
+                    databaseDataObject.MapProperties(dataObject);
+                    dataObject = CreateCopy(databaseDataObject);
+                }
             }
 
-            if (!AllowToUpdate(databaseDataObject, dataObject))
-            {
-                throw new DataObjectUpdateConflictException($"Failed to update because the data object was updated by {databaseDataObject.LastEditedBy ?? databaseDataObject.LastEditedByID ?? string.Empty} on {databaseDataObject.LastEditedOn}.");
-            }
-            else
-            {
-                PrepForUpdate(dataObject);
-                databaseDataObject.MapProperties(dataObject);
-                dataObject = CreateCopy(databaseDataObject);
-                OnUpdated(new UpdatedEventArgs([dataObject]));
-            }
+            OnUpdated(new UpdatedEventArgs([dataObject]));
 
             return await Task.FromResult(dataObject);
+        }
+
+        /// <summary>
+        /// The method updates multiple data objects in the collection/table.
+        /// </summary>
+        /// <param name="dataObjects">The data objects to update.</param>
+        /// <param name="cancellationToken">A token used for task cancellations.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the dataObjects parameter is null.</exception>
+        /// <exception cref="DataObjectValidationException">Thrown if any data object fails validation.</exception>
+        /// <exception cref="IDNotFoundException">Thrown if any data objects' ID is not found in the collection/table.</exception>
+        /// <returns>The latest data object.</returns>
+        public async override Task<List<T>> UpdateAsync(List<T> dataObjects, CancellationToken cancellationToken = default)
+        {
+            ArgumentNullException.ThrowIfNull(dataObjects);
+
+            //Confirm validation because this wants all or none updated.
+            foreach (T dataObject in dataObjects)
+            {
+                List<ValidationResult> validationResults = await ValidateAsync(dataObject, cancellationToken);
+
+                if (validationResults.Count > 0)
+                {
+                    throw new DataObjectValidationException(dataObject, validationResults);
+                }
+            }
+
+            List<T> returnDataObjects = [];
+
+            lock (DataStorageLock)
+            {
+                List<T> databaseDataObjects = [];
+
+                //Confirm the ID exists and the data object isn't old because this wants all or none updated.
+                foreach (T dataObject in dataObjects)
+                {
+                    T? databaseDataObject = DataStorage.FirstOrDefault(obj => obj.Integer64ID == dataObject.Integer64ID);
+
+                    if (databaseDataObject == null)
+                    {
+                        throw new IDNotFoundException(dataObject.Integer64ID.ToString());
+                    }
+
+                    if (!AllowToUpdate(databaseDataObject, dataObject))
+                    {
+                        throw new DataObjectUpdateConflictException($"Failed to update because the data object was updated by {databaseDataObject.LastEditedBy ?? databaseDataObject.LastEditedByID ?? string.Empty} on {databaseDataObject.LastEditedOn}.");
+                    }
+
+                    databaseDataObjects.Add(databaseDataObject);
+                }
+
+                for (int index = 0; index < dataObjects.Count; ++index)
+                {
+                    PrepForUpdate(dataObjects[index]);
+                    databaseDataObjects[index].MapProperties(dataObjects[index]);
+
+                    T returnDataObject = CreateCopy(databaseDataObjects[index]);
+                    returnDataObjects.Add(returnDataObject);
+                }
+            }
+
+            OnUpdated(new UpdatedEventArgs([.. returnDataObjects]));
+
+            return await Task.FromResult(returnDataObjects);
         }
 
         /// <summary>

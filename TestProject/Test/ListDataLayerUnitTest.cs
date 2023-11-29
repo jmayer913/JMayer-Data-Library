@@ -1,5 +1,6 @@
 ﻿using JMayer.Data.Database.DataLayer;
 using System.ComponentModel.DataAnnotations;
+using System.Linq.Expressions;
 using TestProject.Data;
 using TestProject.Database;
 
@@ -10,7 +11,7 @@ namespace TestProject.Test
     /// </summary>
     /// <remarks>
     /// The tests are against a SimpleListDataLayer object which inherits from the ListDataLayer and
-    /// the SimpleListDataLayer doesn't override any of the base methods because of this, we're testing 
+    /// the SimpleListDataLayer doesn't override any of the base methods. Because of this, we're testing 
     /// the methods in the ListDataLayer class.
     /// </remarks>
     public class ListDataLayerUnitTest
@@ -19,7 +20,7 @@ namespace TestProject.Test
         /// The method confirms if a null data object is passed to the ListDataLayer.CountAsync(), an exception is thrown.
         /// </summary>
         [Fact]
-        public void CountAsyncThrowsArgumentNullException() => Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleListDataLayer().CountAsync(null));
+        public async Task CountAsyncThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleListDataLayer().CountAsync(null));
 
         /// <summary>
         /// The method confirms the ListDataLayer.CountAsync() works as intended.
@@ -50,38 +51,11 @@ namespace TestProject.Test
             _ = await dataLayer.CreateAsync(new SimpleDataObject());
             _ = await dataLayer.CreateAsync(new SimpleDataObject());
             
-            int oneCount = await dataLayer.CountAsync(obj => obj.Integer32ID == 1);
-            int zeroCount = await dataLayer.CountAsync(obj => obj.Integer32ID == 99);
+            int oneCount = await dataLayer.CountAsync(obj => obj.Integer64ID == 1);
+            int zeroCount = await dataLayer.CountAsync(obj => obj.Integer64ID == 99);
 
             Assert.True(oneCount == 1 && zeroCount == 0);
         }
-
-        /// <summary>
-        /// The method confirms the ListDataLayer.Created event fires when ListDataLayer.CreateAsync() is called.
-        /// </summary>
-        [Fact]
-        public void CreateAsyncFiresCreatedEvent()
-        {
-            SimpleListDataLayer dataLayer = new();
-            Assert.RaisesAsync<CreatedEventArgs>
-            (
-                handler => dataLayer.Created += handler, 
-                handler => dataLayer.Created -= handler, 
-                () => dataLayer.CreateAsync(new SimpleDataObject())
-            );
-        }
-
-        /// <summary>
-        /// The method confirms if a null data object is passed to the ListDataLayer.CreateAsync(), an exception is thrown.
-        /// </summary>
-        [Fact]
-        public void CreateAsyncThrowsArgumentNullException() => Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleListDataLayer().CreateAsync(null));
-
-        /// <summary>
-        /// The method confirms if an invalid data object is passed to the ListDataLayer.CreateAsync(), an exception is thrown.
-        /// </summary>
-        [Fact]
-        public void CreateAsyncThrowsDataObjectValidationException() => Assert.ThrowsAsync<DataObjectValidationException>(() => new SimpleListDataLayer().CreateAsync(new SimpleDataObject() { Value = 9999 }));
 
         /// <summary>
         /// The method confirms ListDataLayer.CreateAsync() works as intended.
@@ -96,49 +70,97 @@ namespace TestProject.Test
         /// 4. A copy of the data object is returned.
         /// </remarks>
         [Fact]
-        public async Task CreateAsyncWorks()
+        public async Task CreateAsyncDataObjectWorks()
         {
-            SimpleDataObject originalDataObject = new();
             SimpleListDataLayer dataLayer = new();
 
+            SimpleDataObject originalDataObject = new();
             SimpleDataObject firstReturnedCopiedDataObject = await dataLayer.CreateAsync(originalDataObject);
             SimpleDataObject secondReturnedDataObject = await dataLayer.CreateAsync(originalDataObject);
             int count = await dataLayer.CountAsync();
-            
+
             Assert.True
             (
                 firstReturnedCopiedDataObject != null && secondReturnedDataObject != null //An object must have been returned.
                 && originalDataObject != firstReturnedCopiedDataObject && originalDataObject != secondReturnedDataObject //Returned object must be a copy.
-                && firstReturnedCopiedDataObject.Integer32ID > 0 && secondReturnedDataObject.Integer32ID > 0 //ID must have been set.
-                && firstReturnedCopiedDataObject.Integer32ID != secondReturnedDataObject.Integer32ID && secondReturnedDataObject.Integer32ID - firstReturnedCopiedDataObject.Integer32ID == 1 //Internal identity must be incremented.
+                && firstReturnedCopiedDataObject.Integer64ID > 0 && secondReturnedDataObject.Integer64ID > 0 //ID must have been set.
+                && firstReturnedCopiedDataObject.Integer64ID != secondReturnedDataObject.Integer64ID && secondReturnedDataObject.Integer64ID - firstReturnedCopiedDataObject.Integer64ID == 1 //Internal identity must be incremented.
                 && count == 2 //Data object was added to the data store.
             );
         }
 
         /// <summary>
-        /// The method confirms the ListDataLayer.Deleted event fires when ListDataLayer.DeleteAsync() is called.
+        /// The method confirms the ListDataLayer.Created event fires when ListDataLayer.CreateAsync() is called.
         /// </summary>
         [Fact]
-        public void DeleteAsyncFiresDeletedEvent()
+        public async Task CreateAsyncFiresCreatedEvent()
         {
             SimpleListDataLayer dataLayer = new();
-            Assert.RaisesAsync<DeletedEventArgs>
+            await Assert.RaisesAsync<CreatedEventArgs>
             (
-                handler => dataLayer.Deleted += handler, 
-                handler => dataLayer.Deleted -= handler, 
-                async Task () =>
-                {
-                    SimpleDataObject dataObject = await dataLayer.CreateAsync(new SimpleDataObject());
-                    await dataLayer.DeleteAsync(dataObject);
-                }
+                handler => dataLayer.Created += handler,
+                handler => dataLayer.Created -= handler,
+                () => dataLayer.CreateAsync(new SimpleDataObject())
+            );
+            await Assert.RaisesAsync<CreatedEventArgs>
+            (
+                handler => dataLayer.Created += handler,
+                handler => dataLayer.Created -= handler,
+                () => dataLayer.CreateAsync([new SimpleDataObject(), new SimpleDataObject()])
             );
         }
 
         /// <summary>
-        /// The method confirms if a null data object is passed to the ListDataLayer.DeleteAsync(), an exception is thrown.
+        /// The method confirms ListDataLayer.CreateAsync() works as intended.
+        /// </summary>
+        /// <returns>A Task object for the async.</returns>
+        /// <remarks>
+        /// The CreateAsync() does the following:
+        /// 
+        /// 1. Preps the data object (ID is set).
+        /// 2. Data object is added to the data store.
+        /// 3. Internal identity is increment.
+        /// 4. A copy of the data object is returned.
+        /// </remarks>
+        [Fact]
+        public async Task CreateAsyncListWorks()
+        {
+            SimpleListDataLayer dataLayer = new();
+
+            SimpleDataObject firstOriginalDataObject = new();
+            SimpleDataObject secondOriginalDataObject = new();
+            List<SimpleDataObject> returnedDataObjects = await dataLayer.CreateAsync([firstOriginalDataObject, secondOriginalDataObject]);
+            int count = await dataLayer.CountAsync();
+
+            Assert.True
+            (
+                returnedDataObjects != null && returnedDataObjects.Count == 2 //An object must have been returned and the same amount added must be returned.
+                && firstOriginalDataObject != returnedDataObjects[0] && firstOriginalDataObject != returnedDataObjects[1] //Returned objects must be a copy.
+                && returnedDataObjects[0].Integer64ID > 0 && returnedDataObjects[1].Integer64ID > 0 //ID must have been set.
+                && returnedDataObjects[0].Integer64ID != returnedDataObjects[1].Integer64ID && returnedDataObjects[1].Integer64ID - returnedDataObjects[0].Integer64ID == 1 //Internal identity must be incremented.
+                && count == 2 //Data objects were added to the data store.
+            );
+        }
+
+        /// <summary>
+        /// The method confirms if a null data object is passed to the ListDataLayer.CreateAsync(), an exception is thrown.
         /// </summary>
         [Fact]
-        public void DeleteAsyncThrowsArgumentNullException() => Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleListDataLayer().DeleteAsync(null));
+        public async Task CreateAsyncThrowsArgumentNullException()
+        {
+            await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleListDataLayer().CreateAsync((SimpleDataObject)null));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleListDataLayer().CreateAsync((List<SimpleDataObject>)null));
+        }
+
+        /// <summary>
+        /// The method confirms if an invalid data object is passed to the ListDataLayer.CreateAsync(), an exception is thrown.
+        /// </summary>
+        [Fact]
+        public async Task CreateAsyncThrowsDataObjectValidationException()
+        {
+            await Assert.ThrowsAsync<DataObjectValidationException>(() => new SimpleListDataLayer().CreateAsync(new SimpleDataObject() { Value = 9999 }));
+            await Assert.ThrowsAsync<DataObjectValidationException>(() => new SimpleListDataLayer().CreateAsync([ new SimpleDataObject() { Value = 1 }, new SimpleDataObject() { Value = 9999 } ]));
+        }
 
         /// <summary>
         /// The method confirms ListDataLayer.DeleteAsync() works as intended.
@@ -151,7 +173,7 @@ namespace TestProject.Test
         /// 2. Data object is deleted from the data store.
         /// </remarks>
         [Fact]
-        public async Task DeleteAsyncWorks()
+        public async Task DeleteAsyncDataObjectWorks()
         {
             SimpleListDataLayer dataLayer = new();
 
@@ -163,10 +185,113 @@ namespace TestProject.Test
         }
 
         /// <summary>
+        /// The method confirms the ListDataLayer.Deleted event fires when ListDataLayer.DeleteAsync() is called.
+        /// </summary>
+        [Fact]
+        public async Task DeleteAsyncFiresDeletedEvent()
+        {
+            SimpleListDataLayer dataLayer = new();
+            await Assert.RaisesAsync<DeletedEventArgs>
+            (
+                handler => dataLayer.Deleted += handler,
+                handler => dataLayer.Deleted -= handler,
+                async Task () =>
+                {
+                    SimpleDataObject dataObject = await dataLayer.CreateAsync(new SimpleDataObject());
+                    await dataLayer.DeleteAsync(dataObject);
+                }
+            );
+            await Assert.RaisesAsync<DeletedEventArgs>
+            (
+                handler => dataLayer.Deleted += handler,
+                handler => dataLayer.Deleted -= handler,
+                async Task () =>
+                {
+                    List<SimpleDataObject> dataObjects = await dataLayer.CreateAsync([new SimpleDataObject(), new SimpleDataObject()]);
+                    await dataLayer.DeleteAsync(dataObjects);
+                }
+            );
+            await Assert.RaisesAsync<DeletedEventArgs>
+            (
+                handler => dataLayer.Deleted += handler,
+                handler => dataLayer.Deleted -= handler,
+                async Task () =>
+                {
+                    _ = await dataLayer.CreateAsync([new SimpleDataObject(), new SimpleDataObject(), new SimpleDataObject(), new SimpleDataObject()]);
+                    await dataLayer.DeleteAsync(obj => obj.Integer64ID > 1);
+                }
+            );
+        }
+
+        /// <summary>
+        /// The method confirms ListDataLayer.DeleteAsync() works as intended.
+        /// </summary>
+        /// <returns>A Task object for the async.</returns>
+        /// <remarks>
+        /// The DeleteAsync() does the following:
+        /// 
+        /// 1. Finds the data objects using the ID.
+        /// 2. Data objects are deleted from the data store.
+        /// </remarks>
+        [Fact]
+        public async Task DeleteAsyncListWorks()
+        {
+            SimpleListDataLayer dataLayer = new();
+            List<SimpleDataObject> dataObjects = [];
+
+            dataObjects.Add(await dataLayer.CreateAsync(new SimpleDataObject()));
+            dataObjects.Add(await dataLayer.CreateAsync(new SimpleDataObject()));
+            dataObjects.Add(await dataLayer.CreateAsync(new SimpleDataObject()));
+            dataObjects.Add(await dataLayer.CreateAsync(new SimpleDataObject()));
+
+            await dataLayer.DeleteAsync(dataObjects);
+            int count = await dataLayer.CountAsync();
+
+            Assert.Equal(0, count);
+        }
+
+        /// <summary>
+        /// The method confirms if a null data object is passed to the ListDataLayer.DeleteAsync(), an exception is thrown.
+        /// </summary>
+        [Fact]
+        public async Task DeleteAsyncThrowsArgumentNullException()
+        {
+            await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleListDataLayer().DeleteAsync((SimpleDataObject)null));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleListDataLayer().DeleteAsync((List<SimpleDataObject>)null));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleListDataLayer().DeleteAsync((Expression<Func<SimpleDataObject, bool>>)null));
+        }
+
+        /// <summary>
+        /// The method confirms ListDataLayer.DeleteAsync() works as intended.
+        /// </summary>
+        /// <returns>A Task object for the async.</returns>
+        /// <remarks>
+        /// The DeleteAsync() does the following:
+        /// 
+        /// 1. Finds the data objects using the where predicate.
+        /// 2. Data objects are deleted from the data store.
+        /// </remarks>
+        [Fact]
+        public async Task DeleteAsyncWherePredicateWorks()
+        {
+            SimpleListDataLayer dataLayer = new();
+
+            _ = await dataLayer.CreateAsync(new SimpleDataObject());
+            _ = await dataLayer.CreateAsync(new SimpleDataObject());
+            _ = await dataLayer.CreateAsync(new SimpleDataObject());
+            _ = await dataLayer.CreateAsync(new SimpleDataObject());
+
+            await dataLayer.DeleteAsync(obj => obj.Integer64ID > 2);
+            int count = await dataLayer.CountAsync();
+
+            Assert.Equal(2, count);
+        }
+
+        /// <summary>
         /// The method confirms if a null data object is passed to the ListDataLayer.ExistAsync(), an exception is thrown.
         /// </summary>
         [Fact]
-        public void ExistAsyncThrowsArgumentNullException() => Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleListDataLayer().ExistAsync(null));
+        public async Task ExistAsyncThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleListDataLayer().ExistAsync(null));
 
         /// <summary>
         /// The method confirms ListDataLayer.ExistAsync() works as intended for the where predicate.
@@ -178,8 +303,8 @@ namespace TestProject.Test
             SimpleListDataLayer dataLayer = new();
             _ = await dataLayer.CreateAsync(new SimpleDataObject());
 
-            bool found = await dataLayer.ExistAsync(obj => obj.Integer32ID == 1);
-            bool notFound = await dataLayer.ExistAsync(obj => obj.Integer32ID == 99) == false;
+            bool found = await dataLayer.ExistAsync(obj => obj.Integer64ID == 1);
+            bool notFound = await dataLayer.ExistAsync(obj => obj.Integer64ID == 99) == false;
 
             Assert.True(found && notFound);
         }
@@ -188,11 +313,11 @@ namespace TestProject.Test
         /// The method confirms if a null data object is passed to the ListDataLayer.GetAllAsync(), an exception is thrown.
         /// </summary>
         [Fact]
-        public void GetAllAsyncThrowsArgumentNullException()
+        public async Task GetAllAsyncThrowsArgumentNullException()
         {
-            Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleListDataLayer().GetAllAsync(null));
-            Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleListDataLayer().GetAllAsync(null, false));
-            Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleListDataLayer().GetAllAsync(obj => obj.Value == 0, null));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleListDataLayer().GetAllAsync(null));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleListDataLayer().GetAllAsync(null, false));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleListDataLayer().GetAllAsync(obj => obj.Value == 0, null));
         }
 
         /// <summary>
@@ -330,54 +455,6 @@ namespace TestProject.Test
         }
 
         /// <summary>
-        /// The method confirms the ListDataLayer.Updated event fires when ListDataLayer.UpdateAsync() is called.
-        /// </summary>
-        [Fact]
-        public void UpdateAsyncFiresUpdatedEvent()
-        {
-            SimpleListDataLayer dataLayer = new();
-            Assert.RaisesAsync<DeletedEventArgs>
-            (
-                handler => dataLayer.Deleted += handler, 
-                handler => dataLayer.Deleted -= handler, 
-                async Task () =>
-                {
-                    SimpleDataObject dataObject = await dataLayer.CreateAsync(new SimpleDataObject());
-                    dataObject.Value = 9999;
-                    _ = await dataLayer.UpdateAsync(dataObject);
-                }
-            );
-        }
-
-        /// <summary>
-        /// The method confirms if a null data object is passed to the ListDataLayer.UpdateAsync(), an exception is thrown.
-        /// </summary>
-        [Fact]
-        public void UpdateAsyncThrowsArgumentNullException() => Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleListDataLayer().UpdateAsync(null));
-
-        /// <summary>
-        /// The method confirms if an invalid data object is passed to the ListDataLayer.UpdateAsync(), an exception is thrown.
-        /// </summary>
-        [Fact]
-        public void UpdateAsyncThrowsDataObjectValidationException()
-        {
-            Assert.ThrowsAsync<DataObjectValidationException>(async Task () =>
-            {
-                SimpleListDataLayer dataLayer = new();
-                SimpleDataObject dataObject = await dataLayer.CreateAsync(new SimpleDataObject());
-
-                dataObject.Value = 9999;
-                _ = await dataLayer.UpdateAsync(dataObject);
-            });
-        }
-
-        /// <summary>
-        /// The method confirms if a non-existing ID is passed to the ListDataLayer.UpdateAsync(), an exception is thrown.
-        /// </summary>
-        [Fact]
-        public void UpdateAsyncThrowsIDNotFoundException() => Assert.ThrowsAsync<IDNotFoundException>(() => new SimpleListDataLayer().UpdateAsync(new SimpleDataObject() { Integer32ID = 99 }));
-
-        /// <summary>
         /// The method confirms ListDataLayer.UpdateAsync() works as intended.
         /// </summary>
         /// <returns>A Task object for the async.</returns>
@@ -390,7 +467,7 @@ namespace TestProject.Test
         /// 4. A copy of the data object is returned.
         /// </remarks>
         [Fact]
-        public async Task UpdateAsyncWorks()
+        public async Task UpdateAsyncDataObjectWorks()
         {
             SimpleListDataLayer dataLayer = new();
             SimpleDataObject originalDataObject = await dataLayer.CreateAsync(new SimpleDataObject());
@@ -408,10 +485,123 @@ namespace TestProject.Test
         }
 
         /// <summary>
+        /// The method confirms the ListDataLayer.Updated event fires when ListDataLayer.UpdateAsync() is called.
+        /// </summary>
+        [Fact]
+        public async Task UpdateAsyncFiresUpdatedEvent()
+        {
+            SimpleListDataLayer dataLayer = new();
+            await Assert.RaisesAsync<UpdatedEventArgs>
+            (
+                handler => dataLayer.Updated += handler,
+                handler => dataLayer.Updated -= handler,
+                async Task () =>
+                {
+                    SimpleDataObject dataObject = await dataLayer.CreateAsync(new SimpleDataObject());
+                    dataObject.Value = 10;
+                    _ = await dataLayer.UpdateAsync(dataObject);
+                }
+            );
+            await Assert.RaisesAsync<UpdatedEventArgs>
+            (
+                handler => dataLayer.Updated += handler,
+                handler => dataLayer.Updated -= handler,
+                async Task () =>
+                {
+                    List<SimpleDataObject> dataObjects = await dataLayer.CreateAsync([new SimpleDataObject(), new SimpleDataObject()]);
+
+                    dataObjects[0].Value = 10;
+                    dataObjects[1].Value = 20;
+
+                    _ = await dataLayer.UpdateAsync(dataObjects);
+                }
+            );
+        }
+
+        /// <summary>
+        /// The method confirms ListDataLayer.UpdateAsync() works as intended.
+        /// </summary>
+        /// <returns>A Task object for the async.</returns>
+        /// <remarks>
+        /// The UpdateAsync() does the following:
+        /// 
+        /// 1. Finds the data object using the ID.
+        /// 2. Preps the data object (does nothing).
+        /// 3. Data object is update in the data store.
+        /// 4. A copy of the data object is returned.
+        /// </remarks>
+        [Fact]
+        public async Task UpdateAsyncListWorks()
+        {
+            SimpleListDataLayer dataLayer = new();
+            List<SimpleDataObject> originalDataObjects = await dataLayer.CreateAsync([new SimpleDataObject(), new SimpleDataObject()]);
+
+            originalDataObjects[0].Value = 10;
+            originalDataObjects[1].Value = 20;
+
+            List<SimpleDataObject> returnedCopiedDataObjects = await dataLayer.UpdateAsync(originalDataObjects);
+            List<SimpleDataObject> confirmedDataObjects = await dataLayer.GetAllAsync();
+
+            Assert.True
+            (
+                returnedCopiedDataObjects != null && returnedCopiedDataObjects.Count == 2 //An object must have been returned and the same amount updated must be returned.
+                && originalDataObjects[0] != returnedCopiedDataObjects[0] && originalDataObjects[1] != returnedCopiedDataObjects[1] //Returned objects must be a copy.
+                && originalDataObjects[0].Value == confirmedDataObjects[0].Value && originalDataObjects[1].Value == confirmedDataObjects[1].Value //Confirm the data was updated.
+            );
+        }
+
+        /// <summary>
+        /// The method confirms if a null data object is passed to the ListDataLayer.UpdateAsync(), an exception is thrown.
+        /// </summary>
+        [Fact]
+        public async Task UpdateAsyncThrowsArgumentNullException()
+        {
+            await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleListDataLayer().UpdateAsync((SimpleDataObject)null));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleListDataLayer().UpdateAsync((List<SimpleDataObject>)null));
+        }
+
+        /// <summary>
+        /// The method confirms if an invalid data object is passed to the ListDataLayer.UpdateAsync(), an exception is thrown.
+        /// </summary>
+        [Fact]
+        public async Task UpdateAsyncThrowsDataObjectValidationException()
+        {
+            await Assert.ThrowsAsync<DataObjectValidationException>(async Task () =>
+            {
+                SimpleListDataLayer dataLayer = new();
+                SimpleDataObject dataObject = await dataLayer.CreateAsync(new SimpleDataObject());
+
+                dataObject.Value = 9999;
+                
+                _ = await dataLayer.UpdateAsync(dataObject);
+            });
+            await Assert.ThrowsAsync<DataObjectValidationException>(async Task () =>
+            {
+                SimpleListDataLayer dataLayer = new();
+                List<SimpleDataObject> dataObjects = await dataLayer.CreateAsync([new SimpleDataObject(), new SimpleDataObject()]);
+
+                dataObjects[0].Value = 1;
+                dataObjects[1].Value = 9999;
+                
+                _ = await dataLayer.UpdateAsync(dataObjects);
+            });
+        }
+
+        /// <summary>
+        /// The method confirms if a non-existing ID is passed to the ListDataLayer.UpdateAsync(), an exception is thrown.
+        /// </summary>
+        [Fact]
+        public async Task UpdateAsyncThrowsIDNotFoundException()
+        {
+            await Assert.ThrowsAsync<IDNotFoundException>(() => new SimpleListDataLayer().UpdateAsync(new SimpleDataObject() { Integer64ID = 99 }));
+            await Assert.ThrowsAsync<IDNotFoundException>(() => new SimpleListDataLayer().UpdateAsync([new SimpleDataObject() { Integer64ID = 99 }]));
+        }
+
+        /// <summary>
         /// The method confirms if a null data object is passed to the ListDataLayer.ValidateAsync(), an exception is thrown.
         /// </summary>
         [Fact]
-        public void ValidateAsyncThrowsArgumentNullException() => Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleListDataLayer().ValidateAsync(null));
+        public async Task ValidateAsyncThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleListDataLayer().ValidateAsync(null));
 
         /// <summary>
         /// The method confirms ListDataLayer.ValidateAsync() works as intended.
@@ -421,8 +611,7 @@ namespace TestProject.Test
         /// The ValidateAsync() does the following:
         /// 
         /// 1. Validate the data annotations on the object. (SimpleDataObject.Value has a Range data annotation.)
-        /// 2. Validate against any custom rules. (ListDataLayer needs the ID to exists if the data object has one.)
-        /// 3. The results is returned.
+        /// 2. The results is returned.
         /// </remarks>
         [Fact]
         public async Task ValidateAsyncWorks()
@@ -438,15 +627,7 @@ namespace TestProject.Test
             validationResults = await dataLayer.ValidateAsync(dataObject);
             bool dataAnnotationNotValided = validationResults.Count != 0;
 
-            dataObject.Value = 0;
-            validationResults = await dataLayer.ValidateAsync(dataObject);
-            bool idExistsValid = validationResults.Count == 0;
-
-            dataObject.Integer32ID = 9999;
-            validationResults = await dataLayer.ValidateAsync(dataObject);
-            bool idExistsNotValid = validationResults.Count != 0;
-
-            Assert.True(dataAnnotationValid && dataAnnotationNotValided && idExistsValid && idExistsNotValid);
+            Assert.True(dataAnnotationValid && dataAnnotationNotValided);
         }
     }
 }

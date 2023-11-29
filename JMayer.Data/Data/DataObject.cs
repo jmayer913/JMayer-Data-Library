@@ -10,7 +10,7 @@ namespace JMayer.Data.Data
     /// will further build out the data it represents. For example, an
     /// account data object will have properties related to the account.
     /// 
-    /// This only contains an integer or string ID and each is stored
+    /// This contains an integer or string ID and each is stored
     /// indepedently. Because of this, it must be known beforehand which
     /// will be used by the data object, data layer & UI. For example, mongodb
     /// generates a unique ID hash which can be mapped to a string property so
