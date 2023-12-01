@@ -96,7 +96,7 @@ public class DataLayer<T> : IDataLayer<T> where T : DataObject
     public async Task<OperationResult> DeleteAsync(T dataObject, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(dataObject);
-        HttpResponseMessage httpResponseMessage = await _httpClient.DeleteAsync($"/api/{_typeName}/{dataObject.StringID}", cancellationToken);
+        HttpResponseMessage httpResponseMessage = await _httpClient.DeleteAsync($"/api/{_typeName}/{(!string.IsNullOrWhiteSpace(dataObject.StringID) ? dataObject.StringID : dataObject.Integer64ID)}", cancellationToken);
         return new OperationResult(null, httpResponseMessage.StatusCode);
     }
 
