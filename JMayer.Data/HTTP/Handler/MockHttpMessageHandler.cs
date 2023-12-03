@@ -54,6 +54,14 @@ public class MockHttpMessageHandler : HttpMessageHandler
     private StringContent _responseStringContent = new(string.Empty);
 
     /// <summary>
+    /// The Json serializer options.
+    /// </summary>
+    private readonly JsonSerializerOptions _serializerOptions = new()
+    {
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+    };
+
+    /// <summary>
     /// The method returns the HTTP client to be used in the unit test.
     /// </summary>
     /// <returns>A HttpClient object.</returns>
@@ -135,7 +143,7 @@ public class MockHttpMessageHandler : HttpMessageHandler
     /// <param name="dataObject">The data object to be serialized into Json content.</param>
     /// <exception cref="ArgumentNullException">Thrown if the dataObject parameter is null.</exception>
     /// <returns>Itself for the fluent style.</returns>
-    public MockHttpMessageHandler RespondingJsonContent<T>(T dataObject) where T : DataObject
+    public MockHttpMessageHandler RespondingJsonContent<T>(T dataObject) where T : class
     {
         ArgumentNullException.ThrowIfNull(dataObject);
         string stringContent = JsonSerializer.Serialize(dataObject);
@@ -150,7 +158,7 @@ public class MockHttpMessageHandler : HttpMessageHandler
     /// <param name="dataObjects">The data objects to be serialized into Json content.</param>
     /// <exception cref="ArgumentNullException">Thrown if the dataObjects parameter is null.</exception>
     /// <returns>Itself for the fluent style.</returns>
-    public MockHttpMessageHandler RespondingJsonContent<T>(List<T> dataObjects) where T : DataObject
+    public MockHttpMessageHandler RespondingJsonContent<T>(List<T> dataObjects) where T : class
     {
         ArgumentNullException.ThrowIfNull(dataObjects);
         string stringContent = JsonSerializer.Serialize(dataObjects);
@@ -162,7 +170,7 @@ public class MockHttpMessageHandler : HttpMessageHandler
     /// The method sets the string content to respond with.
     /// </summary>
     /// <typeparam name="T">Must be a primitive type; primitives are IConvertible.</typeparam>
-    /// <param name="obj">The object to respond with.</param>
+    /// <param name="value">The string value to respond with; a non-string will be converted into a string.</param>
     /// <returns>Itself for the fluent style.</returns>
     public MockHttpMessageHandler RespondingStringContent<T>(T value) where T : IConvertible
     {
@@ -187,8 +195,6 @@ public class MockHttpMessageHandler : HttpMessageHandler
     /// <returns>The HTTP response message.</returns>
     protected async override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
-#warning I'll need to determine the correct responses for the negative checks.
-
         if (request.RequestUri != new Uri(_baseAddress, $"{_route}{GetRouteParameters(!_route.EndsWith('/'))}{GetQueryString()}"))
         {
             return await Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
@@ -236,30 +242,44 @@ public class MockHttpMessageHandler : HttpMessageHandler
     }
 
     /// <summary>
-    /// The method sets the content to be expected in the request.
+    /// The method sets the json content to be expected in the request.
     /// </summary>
     /// <typeparam name="T">A DataObject must be serialized.</typeparam>
     /// <param name="dataObject">The data object to be expected; will be serialized into json.</param>
     /// <exception cref="ArgumentNullException">Thrown if the dataObjects parameter is null.</exception>
     /// <returns>Itself for the fluent style.</returns>
-    public MockHttpMessageHandler WithContent<T>(T dataObject) where T : DataObject
+    public MockHttpMessageHandler WithJsonContent<T>(T dataObject) where T : class
     {
         ArgumentNullException.ThrowIfNull(dataObject);
-        _requestContent = JsonSerializer.Serialize(dataObject);
+        _requestContent = JsonSerializer.Serialize(dataObject, _serializerOptions);
         return this;
     }
 
     /// <summary>
-    /// The method sets the content to be expected in the request.
+    /// The method sets the json content to be expected in the request.
     /// </summary>
     /// <typeparam name="T">A DataObject must be serialized.</typeparam>
     /// <param name="dataObjects">The data objects to be expected; will be serialized into json.</param>
     /// <exception cref="ArgumentNullException">Thrown if the dataObjects parameter is null.</exception>
     /// <returns>Itself for the fluent style.</returns>
-    public MockHttpMessageHandler WithContent<T>(List<T> dataObjects) where T : DataObject
+    public MockHttpMessageHandler WithJsonContent<T>(List<T> dataObjects) where T : class
     {
         ArgumentNullException.ThrowIfNull(dataObjects);
-        _requestContent = JsonSerializer.Serialize(dataObjects);
+        _requestContent = JsonSerializer.Serialize(dataObjects, _serializerOptions);
+        return this;
+    }
+
+    /// <summary>
+    /// The method sets the string content to be expected in the request.
+    /// </summary>
+    /// <typeparam name="T">Must be a primitive type; primitives are IConvertible.</typeparam>
+    /// <param name="value">The value to be expected; a non-string will be converted into a string.</param>
+    /// <exception cref="ArgumentNullException">Thrown if the value parameter is null.</exception>
+    /// <returns>Itself for the fluent style.</returns>
+    public MockHttpMessageHandler WithStringContent<T>(T value) where T : IConvertible
+    {
+        ArgumentNullException.ThrowIfNull(value);
+        _requestContent = Convert.ToString(value);
         return this;
     }
 
