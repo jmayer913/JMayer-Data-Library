@@ -11,15 +11,6 @@ namespace JMayer.Data.HTTP.DataLayer;
 public class DataLayer<T> : IDataLayer<T> where T : DataObject
 {
     /// <summary>
-    /// The property gets/sets the base address for the data layer.
-    /// </summary>
-    public Uri? BaseAddress
-    {
-        get => _httpClient.BaseAddress;
-        set => _httpClient.BaseAddress = value;
-    }
-
-    /// <summary>
     /// The HTTP client used to interact with the remote server.
     /// </summary>
     protected readonly HttpClient _httpClient = new();
@@ -29,7 +20,7 @@ public class DataLayer<T> : IDataLayer<T> where T : DataObject
     /// </summary>
     /// <remarks>
     /// The type name is used in the route for the API. It uses 
-    /// the standard format, api/type name/action.
+    /// the standard format, api/typeName/action.
     /// </remarks>
     protected readonly string _typeName = typeof(T).Name;
 
@@ -75,15 +66,20 @@ public class DataLayer<T> : IDataLayer<T> where T : DataObject
     {
         ArgumentNullException.ThrowIfNull(dataObject);
 
-        T? lastDataObject = null;
+        T? latestDataObject = null;
+        ServerSideValidationResult? validationResult = null;
         HttpResponseMessage httpResponseMessage = await _httpClient.PostAsJsonAsync($"/api/{_typeName}", dataObject, cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
         {
-            lastDataObject = await httpResponseMessage.Content.ReadFromJsonAsync<T?>(cancellationToken);
+            latestDataObject = await httpResponseMessage.Content.ReadFromJsonAsync<T?>(cancellationToken);
+        }
+        else if (!httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode == HttpStatusCode.BadRequest)
+        {
+            validationResult = await httpResponseMessage.Content.ReadFromJsonAsync<ServerSideValidationResult>(cancellationToken);
         }
 
-        return new OperationResult(lastDataObject, httpResponseMessage.StatusCode);
+        return new OperationResult(latestDataObject, validationResult, httpResponseMessage.StatusCode);
     }
 
     /// <summary>
@@ -97,7 +93,7 @@ public class DataLayer<T> : IDataLayer<T> where T : DataObject
     {
         ArgumentNullException.ThrowIfNull(dataObject);
         HttpResponseMessage httpResponseMessage = await _httpClient.DeleteAsync($"/api/{_typeName}/{(!string.IsNullOrWhiteSpace(dataObject.StringID) ? dataObject.StringID : dataObject.Integer64ID)}", cancellationToken);
-        return new OperationResult(null, httpResponseMessage.StatusCode);
+        return new OperationResult(null, null, httpResponseMessage.StatusCode);
     }
 
     /// <summary>
@@ -169,15 +165,20 @@ public class DataLayer<T> : IDataLayer<T> where T : DataObject
     {
         ArgumentNullException.ThrowIfNull(dataObject);
 
-        T? lastDataObject = null;
+        T? latestDataObject = null;
+        ServerSideValidationResult? validationResult = null;
         HttpResponseMessage httpResponseMessage = await _httpClient.PutAsJsonAsync($"/api/{_typeName}", dataObject, cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
         {
-            lastDataObject = await httpResponseMessage.Content.ReadFromJsonAsync<T?>(cancellationToken);
+            latestDataObject = await httpResponseMessage.Content.ReadFromJsonAsync<T?>(cancellationToken);
+        }
+        else if (!httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode == HttpStatusCode.BadRequest)
+        {
+            validationResult = await httpResponseMessage.Content.ReadFromJsonAsync<ServerSideValidationResult>(cancellationToken);
         }
 
-        return new OperationResult(lastDataObject, httpResponseMessage.StatusCode);
+        return new OperationResult(latestDataObject, validationResult, httpResponseMessage.StatusCode);
     }
 
     /// <summary>

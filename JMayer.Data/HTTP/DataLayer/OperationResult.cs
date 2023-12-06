@@ -9,7 +9,7 @@ namespace JMayer.Data.HTTP.DataLayer;
 public class OperationResult
 {
     /// <summary>
-    /// The property gets/sets the data object returned by the operation.
+    /// The property gets the data object returned by the operation.
     /// </summary>
     public DataObject? DataObject { get; private init; }
 
@@ -19,7 +19,12 @@ public class OperationResult
     public bool IsSuccessStatusCode { get => StatusCode == HttpStatusCode.OK; }
 
     /// <summary>
-    /// The property gets/sets the HTTP status code returned by the remote operation.
+    /// The property gets the server side validation result.
+    /// </summary>
+    public ServerSideValidationResult? ServerSideValidationResult { get; private init; }
+
+    /// <summary>
+    /// The property gets the HTTP status code returned by the remote operation.
     /// </summary>
     public HttpStatusCode StatusCode { get; private init; }
 
@@ -27,10 +32,12 @@ public class OperationResult
     /// The property constructor.
     /// </summary>
     /// <param name="dataObject">The data object returned by the operation.</param>
+    /// <param name="serverSideValidationResult">The server side validation result returned by the operation.</param>
     /// <param name="httpStatusCode">The HTTP status code returned by the remote operation.</param>
-    public OperationResult(DataObject? dataObject, HttpStatusCode httpStatusCode)
+    public OperationResult(DataObject? dataObject, ServerSideValidationResult? serverSideValidationResult, HttpStatusCode httpStatusCode)
     {
         DataObject = dataObject;
+        ServerSideValidationResult = serverSideValidationResult;
         StatusCode = httpStatusCode;
     }
 }

@@ -1,5 +1,4 @@
-﻿using JMayer.Data.Data;
-using System.Net;
+﻿using System.Net;
 using System.Text.Json;
 
 namespace JMayer.Data.HTTP.Handler;
@@ -8,8 +7,9 @@ namespace JMayer.Data.HTTP.Handler;
 /// The class mocks a HTTP message handler.
 /// </summary>
 /// <remarks>
-/// This will create mocked HTTP responses based on how
-/// you configured it using the fluent style.
+/// Only use this for testing. This will create mocked 
+/// HTTP responses based on how you configured it using 
+/// the fluent style.
 /// </remarks>
 public class MockHttpMessageHandler : HttpMessageHandler
 {
