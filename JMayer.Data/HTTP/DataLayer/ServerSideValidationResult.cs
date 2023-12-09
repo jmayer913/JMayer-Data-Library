@@ -1,4 +1,6 @@
-﻿namespace JMayer.Data.HTTP.DataLayer;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace JMayer.Data.HTTP.DataLayer;
 
 #warning I don't know if HTTP json deserialization works with an init property or not. TO DO: Test when implementing the stack.
 
@@ -24,4 +26,22 @@ public sealed class ServerSideValidationResult
     /// The default constructor.
     /// </summary>
     public ServerSideValidationResult() { }
+
+    /// <summary>
+    /// The conversion constructor.
+    /// </summary>
+    /// <param name="validationResults">The data annotation results to convert into this object.</param>
+    public ServerSideValidationResult(List<ValidationResult> validationResults)
+    {
+        ArgumentNullException.ThrowIfNull(validationResults);
+
+        foreach (ValidationResult validationResult in validationResults)
+        {
+            Errors.Add(new ServerSideValidationError()
+            {
+                ErrorMessage = validationResult.ErrorMessage,
+                PropertyName = validationResult.MemberNames.First(),
+            });
+        }
+    }
 }

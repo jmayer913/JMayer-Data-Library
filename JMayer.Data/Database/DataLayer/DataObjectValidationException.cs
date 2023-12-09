@@ -16,7 +16,7 @@ public class DataObjectValidationException : Exception
     /// <summary>
     /// The property gets the validation results for the data object.
     /// </summary>
-    public List<ValidationResult>? ValidationResults { get; private init; }
+    public List<ValidationResult> ValidationResults { get; private init; } = [];
 
     /// <summary>
     /// The default constructor.
@@ -28,9 +28,12 @@ public class DataObjectValidationException : Exception
     /// </summary>
     /// <param name="dataObject">The data object that had a validation issue.</param>
     /// <param name="validationResults">The validation results for the data object.</param>
-    public DataObjectValidationException(DataObject? dataObject, List<ValidationResult>? validationResults)
+    public DataObjectValidationException(DataObject dataObject, List<ValidationResult> validationResults)
         : base($"The data object failed validation.")
     {
+        ArgumentNullException.ThrowIfNull(dataObject);
+        ArgumentNullException.ThrowIfNull(validationResults);
+
         DataObject = dataObject;
         ValidationResults = validationResults;
     }
@@ -41,9 +44,12 @@ public class DataObjectValidationException : Exception
     /// <param name="dataObject">The data object that had a validation issue.</param>
     /// <param name="validationResults">The validation results for the data object.</param>
     /// <param name="message">The message associated with the exception.</param>
-    public DataObjectValidationException(DataObject? dataObject, List<ValidationResult>? validationResults, string? message)
+    public DataObjectValidationException(DataObject dataObject, List<ValidationResult> validationResults, string? message)
         : base(message)
     {
+        ArgumentNullException.ThrowIfNull(dataObject);
+        ArgumentNullException.ThrowIfNull(validationResults);
+
         DataObject = dataObject;
         ValidationResults = validationResults;
     }
@@ -55,9 +61,12 @@ public class DataObjectValidationException : Exception
     /// <param name="validationResults">The validation results for the data object.</param>
     /// <param name="message">The message associated with the exception.</param>
     /// <param name="innerException">The inner exception associated with this exception.</param>
-    public DataObjectValidationException(DataObject? dataObject, List<ValidationResult>? validationResults, string? message, Exception? innerException)
+    public DataObjectValidationException(DataObject dataObject, List<ValidationResult> validationResults, string? message, Exception? innerException)
         : base(message, innerException)
     {
+        ArgumentNullException.ThrowIfNull(dataObject);
+        ArgumentNullException.ThrowIfNull(validationResults);
+
         DataObject = dataObject;
         ValidationResults = validationResults;
     }

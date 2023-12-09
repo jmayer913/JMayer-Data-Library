@@ -8,7 +8,7 @@ public class IDNotFoundException : Exception
     /// <summary>
     /// The property gets the ID associated with the missing record.
     /// </summary>
-    public string? ID { get; private init; }
+    public string ID { get; private init; } = string.Empty;
 
     /// <summary>
     /// The default constructor.
@@ -19,14 +19,24 @@ public class IDNotFoundException : Exception
     /// The property constructor.
     /// </summary>
     /// <param name="id">The ID associated with the missing record.</param>
-    public IDNotFoundException(string? id) : base($"The {id} ID was not found.") => ID = id;
+    public IDNotFoundException(string id)
+        : base($"The {id} ID was not found.") 
+    { 
+        ArgumentException.ThrowIfNullOrWhiteSpace(id);
+        ID = id; 
+    }
 
     /// <summary>
     /// The property constructor.
     /// </summary>
     /// <param name="id">The ID associated with the missing record.</param>
     /// <param name="message">The message associated with the exception.</param>
-    public IDNotFoundException(string? id, string? message) : base(message) => ID = id;
+    public IDNotFoundException(string id, string? message) 
+        : base(message)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(id);
+        ID = id;
+    }
 
     /// <summary>
     /// The property constructor.
@@ -34,5 +44,10 @@ public class IDNotFoundException : Exception
     /// <param name="id">The ID associated with the missing record.</param>
     /// <param name="message">The message associated with the exception.</param>
     /// <param name="innerException">The inner exception associated with this exception.</param>
-    public IDNotFoundException(string? id, string? message, Exception? innerException) : base(message, innerException) => ID = id;
+    public IDNotFoundException(string id, string? message, Exception? innerException) 
+        : base(message, innerException)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(id);
+        ID = id;
+    }
 }
