@@ -7,17 +7,17 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage;
 /// <summary>
 /// The class manages CRUD interactions with a list memory storage.
 /// </summary>
-/// <typeparam name="T">A ConfigurationDataObject which represents data in the collection/table.</typeparam>
+/// <typeparam name="T">A UserEditableDataObject which represents data in the collection/table.</typeparam>
 /// <remarks>
 /// This uses an 64-integer identity (auto-increments) ID so the DataObject.Integer64ID will be
 /// used by this and any outside interactions with the data layer must use DataObject.Integer64ID. 
 /// Also, the underlying data storage is a List so this shouldn't be used with very large datasets.
 /// 
-/// UpdateAsync() has conflict detection. Because the ConfigurationDataObject has a LastEditedOn property, 
+/// UpdateAsync() has conflict detection. Because the UserEditableDataObject has a LastEditedOn property, 
 /// update can now determine if the data object passed in is older than the record in memory. When this occurs, 
 /// an exception is thrown with the idea the user will need to refresh the data to have the latest.
 /// </remarks>
-public class ConfigurationListDataLayer<T> : MemoryDataLayer<T>, IConfigurationDataLayer<T> where T : ConfigurationDataObject, new()
+public class UserEditableMemoryDataLayer<T> : MemoryDataLayer<T>, IUserEditableDataLayer<T> where T : UserEditableDataObject, new()
 {
     /// <summary>
     /// The method returns if there's no update conflict.
@@ -31,7 +31,7 @@ public class ConfigurationListDataLayer<T> : MemoryDataLayer<T>, IConfigurationD
     }
 
     /// <summary>
-    /// The method converts the configuration data objects to list view objects.
+    /// The method converts the user editable data objects to list view objects.
     /// </summary>
     /// <param name="dataObjects">The data objects to convert.</param>
     /// <returns>A list of ListView objects.</returns>

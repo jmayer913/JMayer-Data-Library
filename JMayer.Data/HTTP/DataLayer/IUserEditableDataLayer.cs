@@ -1,14 +1,14 @@
 ﻿using JMayer.Data.Data;
 
-#warning I feel like there should be more to this. Maybe configuration can do export/import?
+#warning I feel like there should be more to this. Maybe user editable can do export/import?
 
 namespace JMayer.Data.HTTP.DataLayer;
 
 /// <summary>
 /// The interface for interacting with remote data using CRUD operations.
 /// </summary>
-/// <typeparam name="T">A ConfigurationDataObject which represents data on the remote server.</typeparam>
-public interface IConfigurationDataLayer<T> : IStandardCRUDDataLayer<T> where T : ConfigurationDataObject
+/// <typeparam name="T">An UserEditableDataObject which represents data on the remote server.</typeparam>
+public interface IUserEditableDataLayer<T> : IStandardCRUDDataLayer<T> where T : UserEditableDataObject
 {
     /// <summary>
     /// The method returns all the remote data objects as a list view.

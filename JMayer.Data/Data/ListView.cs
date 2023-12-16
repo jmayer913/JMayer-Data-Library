@@ -1,7 +1,7 @@
 ﻿namespace JMayer.Data.Data;
 
 /// <summary>
-/// The class represents simple name & ID data to be listed in UI.
+/// The class represents a simple name & ID data to be listed in UI.
 /// </summary>
 public sealed class ListView
 {
@@ -53,7 +53,7 @@ public sealed class ListView
     /// A copy constructor.
     /// </summary>
     /// <param name="copy">The copy.</param>
-    public ListView(ConfigurationDataObject copy)
+    public ListView(UserEditableDataObject copy)
     {
         ArgumentNullException.ThrowIfNull(copy);
         Integer64ID = copy.Integer64ID;

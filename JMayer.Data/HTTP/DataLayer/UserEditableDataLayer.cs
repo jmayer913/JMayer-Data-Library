@@ -2,15 +2,15 @@
 using System.Net;
 using System.Net.Http.Json;
 
-#warning I feel like there should be more to this. Maybe configuration can do export/import?
+#warning I feel like there should be more to this. Maybe user editable can do export/import?
 
 namespace JMayer.Data.HTTP.DataLayer;
 
 /// <summary>
 /// The class for interacting with remote data via HTTP using CRUD operations.
 /// </summary>
-/// <typeparam name="T">A ConfigurationDataObject which represents data on the remote server.</typeparam>
-public class ConfigurationDataLayer<T> : StandardCRUDDataLayer<T>, IConfigurationDataLayer<T> where T : ConfigurationDataObject
+/// <typeparam name="T">A UserEditableDataObject which represents data on the remote server.</typeparam>
+public class UserEditableDataLayer<T> : StandardCRUDDataLayer<T>, IUserEditableDataLayer<T> where T : UserEditableDataObject
 {
     /// <summary>
     /// The method returns all the remote data objects as a list view.
