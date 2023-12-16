@@ -8,7 +8,7 @@ namespace JMayer.Data.HTTP.DataLayer;
 /// The class for interacting with remote data via HTTP using CRUD operations.
 /// </summary>
 /// <typeparam name="T">A DataObject which represents data on the remote server.</typeparam>
-public class DataLayer<T> : IDataLayer<T> where T : DataObject
+public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : DataObject
 {
     /// <summary>
     /// The HTTP client used to interact with the remote server.
@@ -27,13 +27,13 @@ public class DataLayer<T> : IDataLayer<T> where T : DataObject
     /// <summary>
     /// The default constructor.
     /// </summary>
-    public DataLayer() { }
+    public StandardCRUDDataLayer() { }
 
     /// <summary>
     /// The constructor which takes the HTTP client.
     /// </summary>
     /// <param name="httpClient">The HTTP client used to interact with the remote server.</param>
-    public DataLayer(HttpClient httpClient) => _httpClient = httpClient;
+    public StandardCRUDDataLayer(HttpClient httpClient) => _httpClient = httpClient;
 
     /// <summary>
     /// The method creates a remote data object.

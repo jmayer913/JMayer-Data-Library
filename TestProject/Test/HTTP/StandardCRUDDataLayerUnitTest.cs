@@ -11,11 +11,11 @@ namespace TestProject.Test.HTTP;
 /// The class manages tests for the HTTP DataLayer object.
 /// </summary>
 /// <remarks>
-/// The tests are against a SimpleDataLayer object which inherits from the DataLayer and
+/// The tests are against a SimpleDataLayer object which inherits from the StandardCRUDDataLayer and
 /// the SimpleDataLayer doesn't override any of the base methods. Because of this, we're testing 
-/// the methods in the DataLayer class.
+/// the methods in the StandardCRUDDataLayer class.
 /// </remarks>
-public class DataLayerUnitTest
+public class StandardCRUDDataLayerUnitTest
 {
     /// <summary>
     /// The method confirms the DataLayer.CountAsync() works as intended.
@@ -52,14 +52,14 @@ public class DataLayerUnitTest
     }
 
     /// <summary>
-    /// The method confirms if a null data object is passed to the DataLayer.CreateAsync(), an exception is thrown.
+    /// The method confirms if a null data object is passed to the StandardCRUDDataLayer.CreateAsync(), an exception is thrown.
     /// </summary>
     /// <returns>A Task object for the async.</returns>
     [Fact]
     public async Task CreateAsyncThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleDataLayer().CreateAsync(null));
 
     /// <summary>
-    /// The method confirms if DataLayer.CreateAsync() receives an empty string in the response, an exception is thrown.
+    /// The method confirms if StandardCRUDDataLayer.CreateAsync() receives an empty string in the response, an exception is thrown.
     /// </summary>
     /// <param name="httpStatusCode">The status to test against.</param>
     /// <returns>A Task object for the async.</returns>
@@ -89,7 +89,7 @@ public class DataLayerUnitTest
     }
 
     /// <summary>
-    /// The method confirms the DataLayer.CreateAsync() works as intended.
+    /// The method confirms the StandardCRUDDataLayer.CreateAsync() works as intended.
     /// </summary>
     /// <param name="httpStatusCode">The status to test against.</param>
     /// <returns>A Task object for the async.</returns>
@@ -177,14 +177,14 @@ public class DataLayerUnitTest
     }
 
     /// <summary>
-    /// The method confirms if a null data object is passed to the DataLayer.DeleteAsync(), an exception is thrown.
+    /// The method confirms if a null data object is passed to the StandardCRUDDataLayer.DeleteAsync(), an exception is thrown.
     /// </summary>
     /// <returns>A Task object for the async.</returns>
     [Fact]
     public async Task DeleteAsyncThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleDataLayer().DeleteAsync(null));
 
     /// <summary>
-    /// The method confirms the DataLayer.DeleteAsync() works as intended.
+    /// The method confirms the StandardCRUDDataLayer.DeleteAsync() works as intended.
     /// </summary>
     /// <returns>A Task object for the async.</returns>
     [Theory]
@@ -210,7 +210,7 @@ public class DataLayerUnitTest
     }
 
     /// <summary>
-    /// The method confirms the DataLayer.GetAllAsync() works as intended.
+    /// The method confirms the StandardCRUDDataLayer.GetAllAsync() works as intended.
     /// </summary>
     /// <returns>A Task object for the async.</returns>
     [Theory]
@@ -261,7 +261,7 @@ public class DataLayerUnitTest
     }
 
     /// <summary>
-    /// The method confirms the DataLayer.GetSingleAsync() works as intended.
+    /// The method confirms the StandardCRUDDataLayer.GetSingleAsync() works as intended.
     /// </summary>
     /// <returns>A Task object for the async.</returns>
     [Theory]
@@ -305,7 +305,7 @@ public class DataLayerUnitTest
     }
 
     /// <summary>
-    /// The method confirms the DataLayer.GetSingleAsync() works as intended.
+    /// The method confirms the StandardCRUDDataLayer.GetSingleAsync() works as intended.
     /// </summary>
     /// <returns>A Task object for the async.</returns>
     [Theory]
@@ -347,14 +347,14 @@ public class DataLayerUnitTest
     }
 
     /// <summary>
-    /// The method confirms if a null data object is passed to the DataLayer.UpdateAsync(), an exception is thrown.
+    /// The method confirms if a null data object is passed to the StandardCRUDDataLayer.UpdateAsync(), an exception is thrown.
     /// </summary>
     /// <returns>A Task object for the async.</returns>
     [Fact]
     public async Task UpdateAsyncThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleDataLayer().UpdateAsync(null));
 
     /// <summary>
-    /// The method confirms if DataLayer.UpdateAsync() receives an empty string in the response, an exception is thrown.
+    /// The method confirms if StandardCRUDDataLayer.UpdateAsync() receives an empty string in the response, an exception is thrown.
     /// </summary>
     /// <param name="httpStatusCode">The status to test against.</param>
     /// <returns>A Task object for the async.</returns>
@@ -384,7 +384,7 @@ public class DataLayerUnitTest
     }
 
     /// <summary>
-    /// The method confirms the DataLayer.UpdateAsync() works as intended.
+    /// The method confirms the StandardCRUDDataLayer.UpdateAsync() works as intended.
     /// </summary>
     /// <param name="httpStatusCode">The status to test against.</param>
     /// <returns>A Task object for the async.</returns>
@@ -470,14 +470,14 @@ public class DataLayerUnitTest
     }
 
     /// <summary>
-    /// The method confirms if a null data object is passed to the DataLayer.ValidationAsync(), an exception is thrown.
+    /// The method confirms if a null data object is passed to the StandardCRUDDataLayer.ValidationAsync(), an exception is thrown.
     /// </summary>
     /// <returns>A Task object for the async.</returns>
     [Fact]
     public async Task ValidateAsyncThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleDataLayer().ValidationAsync(null));
 
     /// <summary>
-    /// The method confirms the DataLayer.UpdateAsync() works as intended.
+    /// The method confirms the StandardCRUDDataLayer.UpdateAsync() works as intended.
     /// </summary>
     /// <returns>A Task object for the async.</returns>
     [Theory]

@@ -8,7 +8,7 @@ namespace JMayer.Data.HTTP.DataLayer;
 /// The interface for interacting with remote data using CRUD operations.
 /// </summary>
 /// <typeparam name="T">A ConfigurationDataObject which represents data on the remote server.</typeparam>
-public interface IConfigurationDataLayer<T> : IDataLayer<T> where T : ConfigurationDataObject
+public interface IConfigurationDataLayer<T> : IStandardCRUDDataLayer<T> where T : ConfigurationDataObject
 {
     /// <summary>
     /// The method returns all the remote data objects as a list view.

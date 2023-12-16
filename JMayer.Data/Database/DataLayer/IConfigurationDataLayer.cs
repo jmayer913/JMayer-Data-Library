@@ -7,7 +7,7 @@ namespace JMayer.Data.Database.DataLayer;
 /// The interface for interacting with a collection/table in a database using CRUD operations.
 /// </summary>
 /// <typeparam name="T">A ConfigurationDataObject which represents data in the collection/table.</typeparam>
-public interface IConfigurationDataLayer<T> : IDataLayer<T> where T : ConfigurationDataObject
+public interface IConfigurationDataLayer<T> : IStandardCRUDDataLayer<T> where T : ConfigurationDataObject
 {
     /// <summary>
     /// The method returns all the data objects for the table or collection as a list view.
