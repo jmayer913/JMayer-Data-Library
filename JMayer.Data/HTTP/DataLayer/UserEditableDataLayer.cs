@@ -12,6 +12,9 @@ namespace JMayer.Data.HTTP.DataLayer;
 /// <typeparam name="T">A UserEditableDataObject which represents data on the remote server.</typeparam>
 public class UserEditableDataLayer<T> : StandardCRUDDataLayer<T>, IUserEditableDataLayer<T> where T : UserEditableDataObject
 {
+    /// <inheritdoc/>
+    public UserEditableDataLayer(HttpClient httpClient) : base(httpClient) { }
+
     /// <summary>
     /// The method returns all the remote data objects as a list view.
     /// </summary>

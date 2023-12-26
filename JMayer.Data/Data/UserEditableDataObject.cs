@@ -49,10 +49,7 @@ public class UserEditableDataObject : DataObject
     /// <param name="copy">The copy.</param>
     public UserEditableDataObject(UserEditableDataObject copy) => MapProperties(copy);
 
-    /// <summary>
-    /// The method maps a UserEditableDataObject to this object.
-    /// </summary>
-    /// <param name="dataObject">The data object.</param>
+    /// <inheritdoc/>
     public override void MapProperties(DataObject dataObject)
     {
         base.MapProperties(dataObject);
