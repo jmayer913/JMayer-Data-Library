@@ -249,7 +249,7 @@ public class UserEditableMemoryDataLayer<T> : MemoryDataLayer<T>, IUserEditableD
 
         if (await ExistAsync(obj => obj.Integer64ID != dataObject.Integer64ID && obj.Name == dataObject.Name, cancellationToken) == true) 
         {
-            validationResults.Add(new ValidationResult($"The {dataObject.Name} name already exists in the data store.", new List<string>() { nameof(dataObject.Integer64ID) }));
+            validationResults.Add(new ValidationResult($"The {dataObject.Name} name already exists in the data store.", new List<string>() { nameof(dataObject.Name) }));
         }
 
         return validationResults;

@@ -10,12 +10,12 @@ public sealed class ServerSideValidationError
     /// <summary>
     /// The property gets/sets the error message.
     /// </summary>
-    public string? ErrorMessage { get; set; }
+    public string ErrorMessage { get; set; } = string.Empty;
 
     /// <summary>
     /// The property gets/sets the name of the property which is in error.
     /// </summary>
-    public string? PropertyName { get; set; }
+    public string PropertyName { get; set; } = string.Empty;
 
     /// <summary>
     /// The default constructor.

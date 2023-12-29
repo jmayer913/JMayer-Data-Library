@@ -39,7 +39,7 @@ public sealed class ServerSideValidationResult
         {
             Errors.Add(new ServerSideValidationError()
             {
-                ErrorMessage = validationResult.ErrorMessage,
+                ErrorMessage = validationResult.ErrorMessage ?? string.Empty,
                 PropertyName = validationResult.MemberNames.First(),
             });
         }
