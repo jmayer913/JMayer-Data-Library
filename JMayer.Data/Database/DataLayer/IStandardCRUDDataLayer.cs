@@ -1,4 +1,5 @@
 ﻿using JMayer.Data.Data;
+using JMayer.Data.Data.Query;
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 
@@ -133,6 +134,15 @@ public interface IStandardCRUDDataLayer<T> where T : DataObject
     /// <exception cref="ArgumentNullException">Thrown if the wherePredicate or orderByPredicate parameters are null.</exception>
     /// <returns>A list of DataObjects.</returns>
     Task<List<T>> GetAllAsync(Expression<Func<T, bool>> wherePredicate, Expression<Func<T, object>> orderByPredicate, bool descending = false, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// The method returns a page of data objects for the collection/table.
+    /// </summary>
+    /// <param name="queryDefinition">Defines how the data should be queried; includes filtering, paging and sorting.</param>
+    /// <param name="cancellationToken">A token used for task cancellations.</param>
+    /// <exception cref="ArgumentNullException">Thrown if the queryDefinition parameter is null.</exception>
+    /// <returns>A list of DataObjects.</returns>
+    Task<List<T>> GetPageAsync(QueryDefinition queryDefinition, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// The method returns the first data object in the collection/table.
