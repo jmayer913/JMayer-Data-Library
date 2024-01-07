@@ -332,7 +332,7 @@ public class MemoryDataLayer<T> : IStandardCRUDDataLayer<T> where T : DataObject
         {
             IEnumerable<T> dataObjectEnumerable = DataStorage.AsEnumerable();
 
-            foreach (FilterDefinition filterDefinition in queryDefinition.Filters)
+            foreach (FilterDefinition filterDefinition in queryDefinition.FilterDefinitions)
             {
                 dataObjectEnumerable = dataObjectEnumerable.Where(filterDefinition.ToExpression<T>().Compile());
             }
@@ -351,7 +351,7 @@ public class MemoryDataLayer<T> : IStandardCRUDDataLayer<T> where T : DataObject
 
             if (queryDefinition.Take > 0)
             {
-                dataObjectEnumerable = dataObjectEnumerable.Skip(queryDefinition.Skip);
+                dataObjectEnumerable = dataObjectEnumerable.Skip(queryDefinition.Skip * queryDefinition.Take);
                 dataObjectEnumerable = dataObjectEnumerable.Take(queryDefinition.Take);
             }
 

@@ -35,12 +35,14 @@ public class FilterDefinition
     /// <returns>A contains expression to be used for filtering.</returns>
     private Expression<Func<T, bool>> ToContainsExpression<T>()
     {
-        MethodInfo? methodInfo = typeof(string).GetMethod("Contains", [typeof(string)]);
+        MethodInfo? stringContainsMethodInfo = typeof(string).GetMethod("Contains", [typeof(string)]);
+        MethodInfo? objectToStringMethodInfo = typeof(object).GetMethod("ToString");
 
         var parameter = Expression.Parameter(typeof(T), "obj");
         var property = Expression.PropertyOrField(parameter, FilterOn);
+        var stringConversion = Expression.Call(Expression.Convert(property, typeof(object)), objectToStringMethodInfo);
         var value = Expression.Constant(Value, typeof(string));
-        var contains = Expression.Call(property, methodInfo, value);
+        var contains = Expression.Call(stringConversion, stringContainsMethodInfo, value);
 
         return Expression.Lambda<Func<T, bool>>(contains, parameter);
     }

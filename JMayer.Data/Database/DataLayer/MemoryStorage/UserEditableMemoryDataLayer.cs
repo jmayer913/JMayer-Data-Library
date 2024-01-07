@@ -45,11 +45,7 @@ public class UserEditableMemoryDataLayer<T> : MemoryDataLayer<T>, IUserEditableD
         });
     }
 
-    /// <summary>
-    /// The method returns all the data objects for the table or collection as a list view.
-    /// </summary>
-    /// <param name="cancellationToken">A token used for task cancellations.</param>
-    /// <returns>A list of DataObjects.</returns>
+    /// <inheritdoc/>
     public async virtual Task<List<ListView>> GetAllListViewAsync(CancellationToken cancellationToken = default)
     {
         List<T> dataObjects = QueryData();
@@ -57,13 +53,7 @@ public class UserEditableMemoryDataLayer<T> : MemoryDataLayer<T>, IUserEditableD
         return await Task.FromResult(dataObjectListViews);
     }
 
-    /// <summary>
-    /// The method returns all the data objects for the collection/table as a list view based on a where predicate.
-    /// </summary>
-    /// <param name="wherePredicate">The where predicate to use against the collection/table.</param>
-    /// <param name="cancellationToken">A token used for task cancellations.</param>
-    /// <exception cref="ArgumentNullException">Thrown if the wherePredicate parameter is null.</exception>
-    /// <returns>A list of DataObjects.</returns>
+    /// <inheritdoc/>
     public async virtual Task<List<ListView>> GetAllListViewAsync(Expression<Func<T, bool>> wherePredicate, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(wherePredicate);
@@ -72,14 +62,7 @@ public class UserEditableMemoryDataLayer<T> : MemoryDataLayer<T>, IUserEditableD
         return await Task.FromResult(dataObjectListViews);
     }
 
-    /// <summary>
-    /// The method returns all the data objects for the collection/table as a list view with an order.
-    /// </summary>
-    /// <param name="orderByPredicate">The order predicate to use against the collection/table.</param>
-    /// <param name="descending">False means the data is ordered ascending; true means the data is ordered descending.</param>
-    /// <param name="cancellationToken">A token used for task cancellations.</param>
-    /// <exception cref="ArgumentNullException">Thrown if the orderByPredicate parameter is null.</exception>
-    /// <returns>A list of DataObjects.</returns>
+    /// <inheritdoc/>
     public async Task<List<ListView>> GetAllListViewAsync(Expression<Func<T, object>> orderByPredicate, bool descending = false, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(orderByPredicate);
@@ -88,15 +71,7 @@ public class UserEditableMemoryDataLayer<T> : MemoryDataLayer<T>, IUserEditableD
         return await Task.FromResult(dataObjectListViews);
     }
 
-    /// <summary>
-    /// The method returns all the data objects for the collection/table as a list view based on a where predicate with an order.
-    /// </summary>
-    /// <param name="wherePredicate">The where predicate to use against the collection/table.</param>
-    /// <param name="orderByPredicate">The order predicate to use against the collection/table.</param>
-    /// <param name="descending">False means the data is ordered ascending; true means the data is ordered descending.</param>
-    /// <param name="cancellationToken">A token used for task cancellations.</param>
-    /// <exception cref="ArgumentNullException">Thrown if the wherePredicate or orderByPredicate parameter is null.</exception>
-    /// <returns>A list of DataObjects.</returns>
+    /// <inheritdoc/>
     public async virtual Task<List<ListView>> GetAllListViewAsync(Expression<Func<T, bool>> wherePredicate, Expression<Func<T, object>> orderByPredicate, bool descending = false, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(wherePredicate);
@@ -106,36 +81,21 @@ public class UserEditableMemoryDataLayer<T> : MemoryDataLayer<T>, IUserEditableD
         return await Task.FromResult(dataObjectListViews);
     }
 
-    /// <summary>
-    /// The method preps the data object for creation.
-    /// </summary>
-    /// <param name="dataObject">The data object that needs to be preped.</param>
+    /// <inheritdoc/>
     protected override void PrepForCreate(T dataObject)
     {
         base.PrepForCreate(dataObject);
         dataObject.CreatedOn = DateTime.Now;
     }
 
-    /// <summary>
-    /// The method preps the data object for an update.
-    /// </summary>
-    /// <param name="dataObject">The data object that needs to be preped.</param>
+    /// <inheritdoc/>
     protected override void PrepForUpdate(T dataObject)
     {
         base.PrepForUpdate(dataObject);
         dataObject.LastEditedOn = DateTime.Now;
     }
 
-    /// <summary>
-    /// The method updates a data object in the table or collection.
-    /// </summary>
-    /// <param name="dataObject">The data object to update.</param>
-    /// <param name="cancellationToken">A token used for task cancellations.</param>
-    /// <exception cref="ArgumentNullException">Thrown if the dataObject parameter is null.</exception>
-    /// <exception cref="DataObjectUpdateConflictException">Thrown if the data object is older than the record in the collection/table.</exception>
-    /// <exception cref="DataObjectValidationException">Thrown if the data object fails validation.</exception>
-    /// <exception cref="IDNotFoundException">Thrown if the data object's ID is not found in the collection/table.</exception>
-    /// <returns>The latest data object.</returns>
+    /// <inheritdoc/>
     public async override Task<T> UpdateAsync(T dataObject, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(dataObject);
@@ -173,15 +133,7 @@ public class UserEditableMemoryDataLayer<T> : MemoryDataLayer<T>, IUserEditableD
         return await Task.FromResult(dataObject);
     }
 
-    /// <summary>
-    /// The method updates multiple data objects in the collection/table.
-    /// </summary>
-    /// <param name="dataObjects">The data objects to update.</param>
-    /// <param name="cancellationToken">A token used for task cancellations.</param>
-    /// <exception cref="ArgumentNullException">Thrown if the dataObjects parameter is null.</exception>
-    /// <exception cref="DataObjectValidationException">Thrown if any data object fails validation.</exception>
-    /// <exception cref="IDNotFoundException">Thrown if any data objects' ID is not found in the collection/table.</exception>
-    /// <returns>The latest data object.</returns>
+    /// <inheritdoc/>
     public async override Task<List<T>> UpdateAsync(List<T> dataObjects, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(dataObjects);
@@ -236,13 +188,7 @@ public class UserEditableMemoryDataLayer<T> : MemoryDataLayer<T>, IUserEditableD
         return await Task.FromResult(returnDataObjects);
     }
 
-    /// <summary>
-    /// The method validates a data object.
-    /// </summary>
-    /// <param name="dataObject">The data object to validate.</param>
-    /// <param name="cancellationToken">A token used for task cancellations.</param>
-    /// <exception cref="ArgumentNullException">Thrown if the dataObject parameter is null.</exception>
-    /// <returns>The validation result.</returns>
+    /// <inheritdoc/>
     public async override Task<List<ValidationResult>> ValidateAsync(T dataObject, CancellationToken cancellationToken = default)
     {
         List<ValidationResult> validationResults = await base.ValidateAsync(dataObject, cancellationToken);

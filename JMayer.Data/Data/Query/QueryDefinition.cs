@@ -8,7 +8,7 @@ public class QueryDefinition
     /// <summary>
     /// The property gets/sets the filter definitions for the query.
     /// </summary>
-    public List<FilterDefinition> Filters { get; set; } = [];
+    public List<FilterDefinition> FilterDefinitions { get; set; } = [];
 
     /// <summary>
     /// The property gets/sets how many sets of records should be skipped.

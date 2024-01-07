@@ -1,4 +1,5 @@
-﻿using JMayer.Data.Database.DataLayer;
+﻿using JMayer.Data.Data.Query;
+using JMayer.Data.Database.DataLayer;
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using TestProject.Data;
@@ -410,6 +411,65 @@ public class MemoryDataLayerUnitTest
         List<SimpleDataObject> whereDescOrderByDataObjects = await dataLayer.GetAllAsync(obj => obj.Value < 60, obj => obj.Value, true);
 
         Assert.True(whereAscOrderByDataObjects.First().Value == 40 && whereDescOrderByDataObjects.First().Value == 50);
+    }
+
+    /// <summary>
+    /// The method confirms if a null data object is passed to the MemoryDataLayer.GetPageAsync(), an exception is thrown.
+    /// </summary>
+    [Fact]
+    public async Task GetPageAsyncThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleMemoryDataLayer().GetPageAsync(null));
+
+    /// <summary>
+    /// The method confirms MemoryDataLayer.GetPageAsync() works as intended.
+    /// </summary>
+    /// <returns>A Task object for the async.</returns>
+    [Fact]
+    public async Task GetPageAsyncWorks()
+    {
+        SimpleMemoryDataLayer dataLayer = new();
+        List<SimpleDataObject> dataObjects = [];
+
+        for (int index = 1; index <= 100; index++)
+        {
+            dataObjects.Add(new SimpleDataObject()
+            {
+                Value = index,
+            });
+        }
+
+        await dataLayer.CreateAsync(dataObjects);
+
+        QueryDefinition skipAndTakeQueryDefinition = new()
+        {
+            Skip = 1,
+            Take = 20,
+        };
+        List<SimpleDataObject> skipAndTakeDataObjects = await dataLayer.GetPageAsync(skipAndTakeQueryDefinition);
+
+
+        QueryDefinition filterQueryDefinition = new();
+        filterQueryDefinition.FilterDefinitions.Add(new FilterDefinition()
+        {
+            FilterOn = nameof(SimpleDataObject.Value),
+            Operator = FilterDefinition.ContainsOperator,
+            Value = "50",
+        });
+        List<SimpleDataObject> filterDataObjects = await dataLayer.GetPageAsync(filterQueryDefinition);
+
+        QueryDefinition sortQueryDefinition = new();
+        sortQueryDefinition.SortDefinitions.Add(new SortDefinition()
+        {
+            Descending = true,
+            SortOn = nameof(SimpleDataObject.Value),
+        });
+        List<SimpleDataObject> sortDataObjects = await dataLayer.GetPageAsync(sortQueryDefinition);
+
+        Assert.True
+        (
+            skipAndTakeDataObjects.Count == 20 && skipAndTakeDataObjects.First().Value == 21
+            && filterDataObjects.Count == 1 && filterDataObjects.First().Value == 50
+            && sortDataObjects.Count == 100 && sortDataObjects.First().Value == 100
+        );
     }
 
     /// <summary>
