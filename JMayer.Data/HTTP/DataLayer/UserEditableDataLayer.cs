@@ -1,4 +1,5 @@
 ﻿using JMayer.Data.Data;
+using JMayer.Data.Data.Query;
 using System.Net;
 using System.Net.Http.Json;
 
@@ -13,17 +14,16 @@ namespace JMayer.Data.HTTP.DataLayer;
 public class UserEditableDataLayer<T> : StandardCRUDDataLayer<T>, IUserEditableDataLayer<T> where T : UserEditableDataObject
 {
     /// <inheritdoc/>
+    public UserEditableDataLayer() : base() { }
+
+    /// <inheritdoc/>
     public UserEditableDataLayer(HttpClient httpClient) : base(httpClient) { }
 
-    /// <summary>
-    /// The method returns all the remote data objects as a list view.
-    /// </summary>
-    /// <param name="cancellationToken">A token used for task cancellations.</param>
-    /// <returns>A list of DataObjects.</returns>
+    /// <inheritdoc/>
     public async Task<List<ListView>?> GetAllListViewAsync(CancellationToken cancellationToken = default)
     {
         List<ListView>? listView = [];
-        HttpResponseMessage httpResponseMessage = await _httpClient.GetAsync($"{_typeName}/All/ListView", cancellationToken);
+        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"/api/{TypeName}/All/ListView", cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
         {
@@ -31,5 +31,21 @@ public class UserEditableDataLayer<T> : StandardCRUDDataLayer<T>, IUserEditableD
         }
 
         return listView;
+    }
+
+    /// <inheritdoc/>
+    public async Task<List<ListView>?> GetPageListViewAsync(QueryDefinition queryDefinition, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(queryDefinition);
+
+        List<ListView>? dataObjects = [];
+        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"/api/{TypeName}/Page/ListView?{queryDefinition.ToQueryString()}", cancellationToken);
+
+        if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
+        {
+            dataObjects = await httpResponseMessage.Content.ReadFromJsonAsync<List<ListView>?>(cancellationToken);
+        }
+
+        return dataObjects;
     }
 }

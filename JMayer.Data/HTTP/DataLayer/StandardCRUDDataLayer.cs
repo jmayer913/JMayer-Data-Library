@@ -1,4 +1,5 @@
 ﻿using JMayer.Data.Data;
+using JMayer.Data.Data.Query;
 using System.Net;
 using System.Net.Http.Json;
 
@@ -13,7 +14,7 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
     /// <summary>
     /// The HTTP client used to interact with the remote server.
     /// </summary>
-    protected readonly HttpClient _httpClient = new();
+    protected readonly HttpClient HttpClient = new();
 
     /// <summary>
     /// The name of the type associated with the data layer.
@@ -22,7 +23,7 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
     /// The type name is used in the route for the API. It uses 
     /// the standard format, api/typeName/action.
     /// </remarks>
-    protected readonly string _typeName = typeof(T).Name;
+    protected readonly string TypeName = typeof(T).Name;
 
     /// <summary>
     /// The default constructor.
@@ -33,18 +34,13 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
     /// The constructor which takes the HTTP client.
     /// </summary>
     /// <param name="httpClient">The HTTP client used to interact with the remote server.</param>
-    public StandardCRUDDataLayer(HttpClient httpClient) => _httpClient = httpClient;
+    public StandardCRUDDataLayer(HttpClient httpClient) => HttpClient = httpClient;
 
-    /// <summary>
-    /// The method creates a remote data object.
-    /// </summary>
-    /// <param name="dataObject">The data object to create.</param>
-    /// <param name="cancellationToken">A token used for task cancellations.</param>
-    /// <returns>The created data object.</returns>
+    /// <inheritdoc/>
     public async Task<int> CountAsync(CancellationToken cancellationToken = default)
     {
         int count = 0;
-        HttpResponseMessage httpResponseMessage = await _httpClient.GetAsync($"/api/{_typeName}/Count", cancellationToken);
+        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"/api/{TypeName}/Count", cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
         {
@@ -55,20 +51,14 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
         return count;
     }
 
-    /// <summary>
-    /// The method creates a remote data object.
-    /// </summary>
-    /// <param name="dataObject">The data object to create.</param>
-    /// <param name="cancellationToken">A token used for task cancellations.</param>
-    /// <exception cref="ArgumentNullException">Thrown if the dataObject parameter is null.</exception>
-    /// <returns>The results of the create operation.</returns>
+    /// <inheritdoc/>
     public async Task<OperationResult> CreateAsync(T dataObject, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(dataObject);
 
         T? latestDataObject = null;
         ServerSideValidationResult? validationResult = null;
-        HttpResponseMessage httpResponseMessage = await _httpClient.PostAsJsonAsync($"/api/{_typeName}", dataObject, cancellationToken);
+        HttpResponseMessage httpResponseMessage = await HttpClient.PostAsJsonAsync($"/api/{TypeName}", dataObject, cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
         {
@@ -82,29 +72,19 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
         return new OperationResult(latestDataObject, validationResult, httpResponseMessage.StatusCode);
     }
 
-    /// <summary>
-    /// The method deletes a remote data object.
-    /// </summary>
-    /// <param name="dataObject">The data object to delete.</param>
-    /// <param name="cancellationToken">A token used for task cancellations.</param>
-    /// <exception cref="ArgumentNullException">Thrown if the dataObject parameter is null.</exception>
-    /// <returns>The results of the delete operation.</returns>
+    /// <inheritdoc/>
     public async Task<OperationResult> DeleteAsync(T dataObject, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(dataObject);
-        HttpResponseMessage httpResponseMessage = await _httpClient.DeleteAsync($"/api/{_typeName}/{(!string.IsNullOrWhiteSpace(dataObject.StringID) ? dataObject.StringID : dataObject.Integer64ID)}", cancellationToken);
+        HttpResponseMessage httpResponseMessage = await HttpClient.DeleteAsync($"/api/{TypeName}/{(!string.IsNullOrWhiteSpace(dataObject.StringID) ? dataObject.StringID : dataObject.Integer64ID)}", cancellationToken);
         return new OperationResult(null, null, httpResponseMessage.StatusCode);
     }
 
-    /// <summary>
-    /// The method returns all the remote data objects.
-    /// </summary>
-    /// <param name="cancellationToken">A token used for task cancellations.</param>
-    /// <returns>A list of DataObjects.</returns>
+    /// <inheritdoc/>
     public async Task<List<T>?> GetAllAsync(CancellationToken cancellationToken = default)
     {
         List<T>? dataObjects = [];
-        HttpResponseMessage httpResponseMessage = await _httpClient.GetAsync($"/api/{_typeName}/All", cancellationToken);
+        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"/api/{TypeName}/All", cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
         {
@@ -114,15 +94,27 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
         return dataObjects;
     }
 
-    /// <summary>
-    /// The method returns the first remote data object.
-    /// </summary>
-    /// <param name="cancellationToken">A token used for task cancellations.</param>
-    /// <returns>A DataObject.</returns>
+    /// <inheritdoc/>
+    public async Task<List<T>?> GetPageAsync(QueryDefinition queryDefinition, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(queryDefinition);
+
+        List<T>? dataObjects = [];
+        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"/api/{TypeName}/Page?{queryDefinition.ToQueryString()}", cancellationToken);
+
+        if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
+        {
+            dataObjects = await httpResponseMessage.Content.ReadFromJsonAsync<List<T>?>(cancellationToken);
+        }
+
+        return dataObjects;
+    }
+
+    /// <inheritdoc/>
     public async Task<T?> GetSingleAsync(CancellationToken cancellationToken = default)
     {
         T? dataObject = null;
-        HttpResponseMessage httpResponseMessage = await _httpClient.GetAsync($"/api/{_typeName}/Single", cancellationToken);
+        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"/api/{TypeName}/Single", cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
         {
@@ -132,19 +124,13 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
         return dataObject;
     }
 
-    /// <summary>
-    /// The method returns the remote data object based on an ID.
-    /// </summary>
-    /// <param name="id">The ID to filter for.</param>
-    /// <param name="cancellationToken">A token used for task cancellations.</param>
-    /// <exception cref="ArgumentException">Thrown if the ID parameter is null or whitespace.</exception>
-    /// <returns>A DataObject.</returns>
+    /// <inheritdoc/>
     public async Task<T?> GetSingleAsync(string id, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
 
         T? dataObject = null;
-        HttpResponseMessage httpResponseMessage = await _httpClient.GetAsync($"/api/{_typeName}/Single/{id}", cancellationToken);
+        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"/api/{TypeName}/Single/{id}", cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
         {
@@ -154,20 +140,14 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
         return dataObject;
     }
 
-    /// <summary>
-    /// The method updates a remote data object.
-    /// </summary>
-    /// <param name="dataObject">The data object to update.</param>
-    /// <param name="cancellationToken">A token used for task cancellations.</param>
-    /// <exception cref="ArgumentNullException">Thrown if the dataObject parameter is null.</exception>
-    /// <returns>The results of the update operation.</returns>
+    /// <inheritdoc/>
     public async Task<OperationResult> UpdateAsync(T dataObject, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(dataObject);
 
         T? latestDataObject = null;
         ServerSideValidationResult? validationResult = null;
-        HttpResponseMessage httpResponseMessage = await _httpClient.PutAsJsonAsync($"/api/{_typeName}", dataObject, cancellationToken);
+        HttpResponseMessage httpResponseMessage = await HttpClient.PutAsJsonAsync($"/api/{TypeName}", dataObject, cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
         {
@@ -181,19 +161,13 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
         return new OperationResult(latestDataObject, validationResult, httpResponseMessage.StatusCode);
     }
 
-    /// <summary>
-    /// The method validates the data object on the remote server.
-    /// </summary>
-    /// <param name="dataObject">The data object to validate.</param>
-    /// <param name="cancellationToken">A token used for task cancellations.</param>
-    /// <exception cref="ArgumentNullException">Thrown if the dataObject parameter is null.</exception>
-    /// <returns>The results of the validation.</returns>
+    /// <inheritdoc/>
     public async Task<ServerSideValidationResult?> ValidationAsync(T dataObject, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(dataObject);
 
         ServerSideValidationResult? validationResult = null;
-        HttpResponseMessage httpResponseMessage = await _httpClient.PostAsJsonAsync($"/api/{_typeName}/Validate", dataObject, cancellationToken);
+        HttpResponseMessage httpResponseMessage = await HttpClient.PostAsJsonAsync($"/api/{TypeName}/Validate", dataObject, cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
         {

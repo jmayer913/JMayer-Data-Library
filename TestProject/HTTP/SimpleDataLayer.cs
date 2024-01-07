@@ -8,14 +8,9 @@ namespace TestProject.HTTP;
 /// </summary>
 internal class SimpleDataLayer : StandardCRUDDataLayer<SimpleDataObject>
 {
-    /// <summary>
-    /// The default constructor.
-    /// </summary>
+    /// <inheritdoc/>
     public SimpleDataLayer() : base() { }
 
-    /// <summary>
-    /// The constructor which takes the HTTP client.
-    /// </summary>
-    /// <param name="httpClient">The HTTP client used to interact with the remote server.</param>
+    /// <inheritdoc/>
     public SimpleDataLayer(HttpClient httpClient) : base(httpClient) { }
 }

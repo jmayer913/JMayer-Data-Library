@@ -1,4 +1,5 @@
-﻿using JMayer.Data.HTTP.DataLayer;
+﻿using JMayer.Data.Data.Query;
+using JMayer.Data.HTTP.DataLayer;
 using JMayer.Data.HTTP.Handler;
 using System.Net;
 using System.Text.Json;
@@ -8,7 +9,7 @@ using TestProject.HTTP;
 namespace TestProject.Test.HTTP;
 
 /// <summary>
-/// The class manages tests for the HTTP DataLayer object.
+/// The class manages tests for the HTTP Standard CRUD DataLayer object.
 /// </summary>
 /// <remarks>
 /// The tests are against a SimpleDataLayer object which inherits from the StandardCRUDDataLayer and
@@ -251,6 +252,103 @@ public class StandardCRUDDataLayerUnitTest
                 && returnedDataObjects.Count == respondingDataObjects.Count //Must have parsed the json correctly.
                 && returnedDataObjects[0].Integer64ID == respondingDataObjects[0].Integer64ID && returnedDataObjects[0].Value == respondingDataObjects[0].Value //Must have parsed the json correctly.
                 && returnedDataObjects[1].Integer64ID == respondingDataObjects[1].Integer64ID && returnedDataObjects[1].Value == respondingDataObjects[1].Value //Must have parsed the json correctly.
+            );
+        }
+        //With negative, confirm no json data objects were returned.
+        else
+        {
+            Assert.True(returnedDataObjects != null && returnedDataObjects.Count == 0);
+        }
+    }
+
+    /// <summary>
+    /// The method confirms if a null data object is passed to the StandardCRUDDataLayer.GetPageAsync(), an exception is thrown.
+    /// </summary>
+    /// <returns>A Task object for the async.</returns>
+    [Fact]
+    public async Task GetPageAsyncThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleDataLayer().GetPageAsync(null));
+
+    /// <summary>
+    /// The method confirms the StandardCRUDDataLayer.GetPageAsync() works as intended.
+    /// </summary>
+    /// <returns>A Task object for the async.</returns>
+    [Theory]
+    [InlineData(HttpStatusCode.OK)]
+    [InlineData(HttpStatusCode.NoContent)]
+    [InlineData(HttpStatusCode.Unauthorized)]
+    public async Task GetPageAsyncWorks(HttpStatusCode httpStatusCode)
+    {
+        QueryDefinition queryDefinition = new()
+        {
+            FilterDefinitions =
+            [
+                new FilterDefinition() 
+                { 
+                    FilterOn = nameof(SimpleDataObject.Value),
+                    Operator = FilterDefinition.ContainsOperator,
+                    Value = "1",
+                }
+            ],
+            Skip = 1,
+            SortDefinitions = 
+            [
+                new SortDefinition()
+                {
+                    Descending = false,
+                    SortOn = nameof(SimpleDataObject.Value),
+                }
+            ],
+            Take = 20,
+        };
+
+        List<SimpleDataObject> respondingDataObjects =
+        [
+            new SimpleDataObject()
+            {
+                Integer64ID = 1,
+                Value = 1,
+            },
+            new SimpleDataObject()
+            {
+                Integer64ID = 10,
+                Value = 10,
+            },
+            new SimpleDataObject()
+            {
+                Integer64ID = 100,
+                Value = 100,
+            },
+        ];
+
+        Dictionary<string, string> queryString = [];
+        queryString.Add(nameof(queryDefinition.Skip), queryDefinition.Skip.ToString());
+        queryString.Add(nameof(queryDefinition.Take), queryDefinition.Take.ToString());
+        queryString.Add($"{nameof(queryDefinition.FilterDefinitions)}[0].{nameof(FilterDefinition.FilterOn)}", queryDefinition.FilterDefinitions[0].FilterOn);
+        queryString.Add($"{nameof(queryDefinition.FilterDefinitions)}[0].{nameof(FilterDefinition.Operator)}", queryDefinition.FilterDefinitions[0].Operator);
+        queryString.Add($"{nameof(queryDefinition.FilterDefinitions)}[0].{nameof(FilterDefinition.Value)}", queryDefinition.FilterDefinitions[0].Value);
+        queryString.Add($"{nameof(queryDefinition.SortDefinitions)}[0].{nameof(SortDefinition.Descending)}", queryDefinition.SortDefinitions[0].Descending.ToString());
+        queryString.Add($"{nameof(queryDefinition.SortDefinitions)}[0].{nameof(SortDefinition.SortOn)}", queryDefinition.SortDefinitions[0].SortOn);
+
+        HttpClient httpClient = new MockHttpMessageHandler()
+            .WithRoute($"api/{nameof(SimpleDataObject)}/Page")
+            .WithQueryString(queryString)
+            .RespondingHttpStatusCode(httpStatusCode)
+            .RespondingJsonContent(respondingDataObjects)
+            .Build();
+
+        SimpleDataLayer dataLayer = new(httpClient);
+        List<SimpleDataObject>? returnedDataObjects = await dataLayer.GetPageAsync(queryDefinition);
+
+        //With positive, confirm json data objects were returned.
+        if (httpStatusCode == HttpStatusCode.OK)
+        {
+            Assert.True
+            (
+                returnedDataObjects != null //Must have responded with json.
+                && returnedDataObjects.Count == respondingDataObjects.Count //Must have parsed the json correctly.
+                && returnedDataObjects[0].Integer64ID == respondingDataObjects[0].Integer64ID && returnedDataObjects[0].Value == respondingDataObjects[0].Value //Must have parsed the json correctly.
+                && returnedDataObjects[1].Integer64ID == respondingDataObjects[1].Integer64ID && returnedDataObjects[1].Value == respondingDataObjects[1].Value //Must have parsed the json correctly.
+                && returnedDataObjects[2].Integer64ID == respondingDataObjects[2].Integer64ID && returnedDataObjects[2].Value == respondingDataObjects[2].Value //Must have parsed the json correctly.
             );
         }
         //With negative, confirm no json data objects were returned.

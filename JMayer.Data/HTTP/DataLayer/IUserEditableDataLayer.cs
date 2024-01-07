@@ -1,4 +1,5 @@
 ﻿using JMayer.Data.Data;
+using JMayer.Data.Data.Query;
 
 #warning I feel like there should be more to this. Maybe user editable can do export/import?
 
@@ -16,4 +17,12 @@ public interface IUserEditableDataLayer<T> : IStandardCRUDDataLayer<T> where T :
     /// <param name="cancellationToken">A token used for task cancellations.</param>
     /// <returns>A list of DataObjects.</returns>
     Task<List<ListView>?> GetAllListViewAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// The method returns a page of remote data objects as a list view.
+    /// </summary>
+    /// <param name="queryDefinition">Defines how the data should be queried; includes filtering, paging and sorting.</param>
+    /// <param name="cancellationToken">A token used for task cancellations.</param>
+    /// <returns>A list of DataObjects.</returns>
+    Task<List<ListView>?> GetPageListViewAsync(QueryDefinition queryDefinition, CancellationToken cancellationToken = default);
 }

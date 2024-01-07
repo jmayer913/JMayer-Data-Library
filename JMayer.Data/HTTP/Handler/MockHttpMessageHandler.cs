@@ -177,9 +177,11 @@ public class MockHttpMessageHandler : HttpMessageHandler
         ArgumentNullException.ThrowIfNull(value);
         string? stringContent = Convert.ToString(value);
 
-#warning If the type converts to null, should an exception be thrown instead of a silent fail?
-
-        if (stringContent != null)
+        if (stringContent == null)
+        {
+            throw new Exception("Failed to convert the value to a string.");
+        }
+        else
         {
             _responseStringContent = new StringContent(stringContent);
         }

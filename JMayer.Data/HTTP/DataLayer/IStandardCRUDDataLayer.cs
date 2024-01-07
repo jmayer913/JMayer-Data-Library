@@ -1,4 +1,5 @@
 ﻿using JMayer.Data.Data;
+using JMayer.Data.Data.Query;
 
 namespace JMayer.Data.HTTP.DataLayer;
 
@@ -37,6 +38,14 @@ public interface IStandardCRUDDataLayer<T> where T : DataObject
     /// <param name="cancellationToken">A token used for task cancellations.</param>
     /// <returns>A list of DataObjects.</returns>
     Task<List<T>?> GetAllAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// The method returns a page of remote data objects.
+    /// </summary>
+    /// <param name="queryDefinition">Defines how the data should be queried; includes filtering, paging and sorting.</param>
+    /// <param name="cancellationToken">A token used for task cancellations.</param>
+    /// <returns>A list of DataObjects.</returns>
+    Task<List<T>?> GetPageAsync(QueryDefinition queryDefinition, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// The method returns the first remote data object.
