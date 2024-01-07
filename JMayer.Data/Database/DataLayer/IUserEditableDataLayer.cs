@@ -1,4 +1,5 @@
 ﻿using JMayer.Data.Data;
+using JMayer.Data.Data.Query;
 using System.Linq.Expressions;
 
 namespace JMayer.Data.Database.DataLayer;
@@ -42,4 +43,13 @@ public interface IUserEditableDataLayer<T> : IStandardCRUDDataLayer<T> where T :
     /// <param name="cancellationToken">A token used for task cancellations.</param>
     /// <returns>A list of DataObjects.</returns>
     Task<List<ListView>> GetAllListViewAsync(Expression<Func<T, bool>> wherePredicate, Expression<Func<T, object>> orderByPredicate, bool descending = false, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// The method returns a page of data objects for the collection/table as a list view.
+    /// </summary>
+    /// <param name="queryDefinition">Defines how the data should be queried; includes filtering, paging and sorting.</param>
+    /// <param name="cancellationToken">A token used for task cancellations.</param>
+    /// <exception cref="ArgumentNullException">Thrown if the queryDefinition parameter is null.</exception>
+    /// <returns>A list of DataObjects.</returns>
+    Task<List<ListView>> GetPageListViewAsync(QueryDefinition queryDefinition, CancellationToken cancellationToken = default);
 }

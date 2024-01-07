@@ -1,4 +1,5 @@
 ﻿using JMayer.Data.Data;
+using JMayer.Data.Data.Query;
 using JMayer.Data.Database.DataLayer;
 using System.ComponentModel.DataAnnotations;
 using TestProject.Data;
@@ -159,6 +160,66 @@ public class UserEditableMemoryDataLayerUnitTest
         List<ListView> whereDescOrderByDataObjects = await dataLayer.GetAllListViewAsync(obj => obj.Value < 60, obj => obj.Value, true);
 
         Assert.True(whereAscOrderByDataObjects.First().Name == "40" && whereDescOrderByDataObjects.First().Name == "50");
+    }
+
+    /// <summary>
+    /// The method confirms if a null data object is passed to the UserEditableMemoryDataLayer.GetPageListViewAsync(), an exception is thrown.
+    /// </summary>
+    [Fact]
+    public async Task GetPageAsyncThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleUserEditableMemoryDataLayer().GetPageAsync(null));
+
+    /// <summary>
+    /// The method confirms UserEditableMemoryDataLayer.GetPageListViewAsync() works as intended.
+    /// </summary>
+    /// <returns>A Task object for the async.</returns>
+    [Fact]
+    public async Task GetPageListViewAsyncWorks()
+    {
+        SimpleUserEditableMemoryDataLayer dataLayer = new();
+        List<SimpleUserEditableDataObject> dataObjects = [];
+
+        for (int index = 1; index <= 100; index++)
+        {
+            dataObjects.Add(new SimpleUserEditableDataObject()
+            {
+                Name = index.ToString(),
+                Value = index,
+            });
+        }
+
+        await dataLayer.CreateAsync(dataObjects);
+
+        QueryDefinition skipAndTakeQueryDefinition = new()
+        {
+            Skip = 1,
+            Take = 20,
+        };
+        List<ListView> skipAndTakeDataObjects = await dataLayer.GetPageListViewAsync(skipAndTakeQueryDefinition);
+
+
+        QueryDefinition filterQueryDefinition = new();
+        filterQueryDefinition.FilterDefinitions.Add(new FilterDefinition()
+        {
+            FilterOn = nameof(SimpleUserEditableDataObject.Value),
+            Operator = FilterDefinition.ContainsOperator,
+            Value = "50",
+        });
+        List<ListView> filterDataObjects = await dataLayer.GetPageListViewAsync(filterQueryDefinition);
+
+        QueryDefinition sortQueryDefinition = new();
+        sortQueryDefinition.SortDefinitions.Add(new SortDefinition()
+        {
+            Descending = true,
+            SortOn = nameof(SimpleUserEditableDataObject.Value),
+        });
+        List<ListView> sortDataObjects = await dataLayer.GetPageListViewAsync(sortQueryDefinition);
+
+        Assert.True
+        (
+            skipAndTakeDataObjects.Count == 20 && skipAndTakeDataObjects.First().Name == "21"
+            && filterDataObjects.Count == 1 && filterDataObjects.First().Name == "50"
+            && sortDataObjects.Count == 100 && sortDataObjects.First().Name == "100"
+        );
     }
 
     /// <summary>

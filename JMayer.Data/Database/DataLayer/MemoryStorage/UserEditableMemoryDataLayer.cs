@@ -1,4 +1,5 @@
 ﻿using JMayer.Data.Data;
+using JMayer.Data.Data.Query;
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 
@@ -77,6 +78,15 @@ public class UserEditableMemoryDataLayer<T> : MemoryDataLayer<T>, IUserEditableD
         ArgumentNullException.ThrowIfNull(wherePredicate);
         ArgumentNullException.ThrowIfNull(orderByPredicate);
         List<T> dataObjects = QueryData(wherePredicate, orderByPredicate, descending);
+        List<ListView> dataObjectListViews = ConvertToListView(dataObjects);
+        return await Task.FromResult(dataObjectListViews);
+    }
+
+    /// <inheritdoc/>
+    public async Task<List<ListView>> GetPageListViewAsync(QueryDefinition queryDefinition, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(queryDefinition);
+        List<T> dataObjects = QueryData(queryDefinition);
         List<ListView> dataObjectListViews = ConvertToListView(dataObjects);
         return await Task.FromResult(dataObjectListViews);
     }
