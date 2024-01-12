@@ -106,44 +106,6 @@ public class UserEditableMemoryDataLayer<T> : MemoryDataLayer<T>, IUserEditableD
     }
 
     /// <inheritdoc/>
-    public async override Task<T> UpdateAsync(T dataObject, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(dataObject);
-
-        List<ValidationResult> validationResults = await ValidateAsync(dataObject, cancellationToken);
-
-        if (validationResults.Count > 0)
-        {
-            throw new DataObjectValidationException(dataObject, validationResults);
-        }
-
-        lock (DataStorageLock)
-        {
-            T? databaseDataObject = DataStorage.FirstOrDefault(obj => obj.Integer64ID == dataObject.Integer64ID);
-
-            if (databaseDataObject == null)
-            {
-                throw new IDNotFoundException(dataObject.Integer64ID.ToString());
-            }
-
-            if (!AllowToUpdate(databaseDataObject, dataObject))
-            {
-                throw new DataObjectUpdateConflictException($"Failed to update because the data object was updated by {databaseDataObject.LastEditedBy ?? databaseDataObject.LastEditedByID ?? string.Empty} on {databaseDataObject.LastEditedOn}.");
-            }
-            else
-            {
-                PrepForUpdate(dataObject);
-                databaseDataObject.MapProperties(dataObject);
-                dataObject = CreateCopy(databaseDataObject);
-            }
-        }
-
-        OnUpdated(new UpdatedEventArgs([dataObject]));
-
-        return await Task.FromResult(dataObject);
-    }
-
-    /// <inheritdoc/>
     public async override Task<List<T>> UpdateAsync(List<T> dataObjects, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(dataObjects);

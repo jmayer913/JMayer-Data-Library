@@ -89,25 +89,7 @@ public class MemoryDataLayer<T> : IStandardCRUDDataLayer<T> where T : DataObject
     public async virtual Task<T> CreateAsync(T dataObject, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(dataObject);
-
-        List<ValidationResult> validationResults = await ValidateAsync(dataObject, cancellationToken);
-
-        if (validationResults.Count > 0)
-        {
-            throw new DataObjectValidationException(dataObject, validationResults);
-        }
-
-        lock (DataStorageLock)
-        {
-            PrepForCreate(dataObject);
-            DataStorage.Add(dataObject);
-            IncrementIdentity();
-            dataObject = CreateCopy(dataObject); //Create a copy so its independent of the data storage.
-        }
-
-        OnCreated(new CreatedEventArgs([dataObject]));
-
-        return await Task.FromResult(dataObject);
+        return (await CreateAsync([dataObject], cancellationToken)).First();
     }
 
     /// <inheritdoc/>
@@ -186,7 +168,7 @@ public class MemoryDataLayer<T> : IStandardCRUDDataLayer<T> where T : DataObject
     {
         ArgumentNullException.ThrowIfNull(dataObjects);
 
-        List<long> ids = dataObjects.Select(obj => obj.Integer64ID ?? 0).ToList();
+        List<long> ids = dataObjects.Select(obj => obj.Integer64ID).ToList();
         List<T> databaseDataObjects = await GetAllAsync(obj => ids.Any(id => id == obj.Integer64ID), cancellationToken);
 
         lock (DataStorageLock)
@@ -203,7 +185,7 @@ public class MemoryDataLayer<T> : IStandardCRUDDataLayer<T> where T : DataObject
         ArgumentNullException.ThrowIfNull(wherePredicate);
 
         List<T> dataObjects = await GetAllAsync(wherePredicate, cancellationToken);
-        List<long> ids = dataObjects.Select(obj => obj.Integer64ID ?? 0).ToList();
+        List<long> ids = dataObjects.Select(obj => obj.Integer64ID).ToList();
 
         lock (DataStorageLock)
         {
@@ -403,31 +385,7 @@ public class MemoryDataLayer<T> : IStandardCRUDDataLayer<T> where T : DataObject
     public async virtual Task<T> UpdateAsync(T dataObject, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(dataObject);
-
-        List<ValidationResult> validationResults = await ValidateAsync(dataObject, cancellationToken);
-
-        if (validationResults.Count > 0)
-        {
-            throw new DataObjectValidationException(dataObject, validationResults);
-        }
-
-        lock (DataStorageLock)
-        {
-            T? databaseDataObject = DataStorage.FirstOrDefault(obj => obj.Integer64ID == dataObject.Integer64ID);
-
-            if (databaseDataObject == null)
-            {
-                throw new IDNotFoundException(dataObject.Integer64ID.ToString());
-            }
-
-            PrepForUpdate(dataObject);
-            databaseDataObject.MapProperties(dataObject);
-            dataObject = CreateCopy(databaseDataObject);
-        }
-
-        OnUpdated(new UpdatedEventArgs([dataObject]));
-
-        return await Task.FromResult(dataObject);
+        return (await UpdateAsync([dataObject], cancellationToken)).First();
     }
 
     /// <inheritdoc/>

@@ -2,8 +2,6 @@
 
 namespace JMayer.Data.HTTP.DataLayer;
 
-#warning I don't know if HTTP json deserialization works with an init property or not. TO DO: Test when implementing the stack.
-
 /// <summary>
 /// The class represents the result of server side validation.
 /// </summary>
@@ -12,7 +10,7 @@ public sealed class ServerSideValidationResult
     /// <summary>
     /// The property gets the errors in the result.
     /// </summary>
-    public List<ServerSideValidationError> Errors { get; set; } = [];
+    public List<ServerSideValidationError> Errors { get; init; } = [];
 
     /// <summary>
     /// The property gets if no errors was produced by the validation.

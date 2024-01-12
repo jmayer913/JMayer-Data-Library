@@ -25,21 +25,21 @@ public class DataObject
     /// <remarks>
     /// This wraps around the Integer64ID property.
     /// </remarks>
-    public int? Integer32ID
+    public int Integer32ID
     {
-        get => (int?)Integer64ID;
+        get => (int)Integer64ID;
         set => Integer64ID = value;
     }
 
     /// <summary>
     /// The property gets/sets the ID for the data object as an 64-bit integer.
     /// </summary>
-    public virtual long? Integer64ID { get; set; }
+    public virtual long Integer64ID { get; set; }
 
     /// <summary>
     /// The property gets/sets the ID for the data object as a string.
     /// </summary>
-    public virtual string? StringID { get; set; }
+    public virtual string StringID { get; set; } = string.Empty;
 
     /// <summary>
     /// The default constructor.

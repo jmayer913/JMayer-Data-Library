@@ -3,8 +3,6 @@ using JMayer.Data.Data.Query;
 using System.Net;
 using System.Net.Http.Json;
 
-#warning I feel like there should be more to this. Maybe user editable can do export/import?
-
 namespace JMayer.Data.HTTP.DataLayer;
 
 /// <summary>

@@ -1,8 +1,6 @@
 ﻿using JMayer.Data.Data;
 using JMayer.Data.Data.Query;
 
-#warning I feel like there should be more to this. Maybe user editable can do export/import?
-
 namespace JMayer.Data.HTTP.DataLayer;
 
 /// <summary>

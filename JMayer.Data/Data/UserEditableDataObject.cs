@@ -36,7 +36,7 @@ public class UserEditableDataObject : DataObject
     /// The property gets/sets the name of the user editable data.
     /// </summary>
     [Required]
-    public string? Name { get; set; }
+    public string Name { get; set; } = string.Empty;
 
     /// <summary>
     /// The default constructor.
