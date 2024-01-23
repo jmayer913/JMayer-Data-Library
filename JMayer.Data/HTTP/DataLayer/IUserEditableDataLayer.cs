@@ -22,5 +22,5 @@ public interface IUserEditableDataLayer<T> : IStandardCRUDDataLayer<T> where T :
     /// <param name="queryDefinition">Defines how the data should be queried; includes filtering, paging and sorting.</param>
     /// <param name="cancellationToken">A token used for task cancellations.</param>
     /// <returns>A list of DataObjects.</returns>
-    Task<List<ListView>?> GetPageListViewAsync(QueryDefinition queryDefinition, CancellationToken cancellationToken = default);
+    Task<PagedList<ListView>?> GetPageListViewAsync(QueryDefinition queryDefinition, CancellationToken cancellationToken = default);
 }

@@ -14,7 +14,7 @@ public interface IUserEditableDataLayer<T> : IStandardCRUDDataLayer<T> where T :
     /// The method returns all the data objects for the table or collection as a list view.
     /// </summary>
     /// <param name="cancellationToken">A token used for task cancellations.</param>
-    /// <returns>A list of DataObjects.</returns>
+    /// <returns>A list of ListView objects.</returns>
     Task<List<ListView>> GetAllListViewAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -22,7 +22,7 @@ public interface IUserEditableDataLayer<T> : IStandardCRUDDataLayer<T> where T :
     /// </summary>
     /// <param name="wherePredicate">The where predicate to use against the collection/table.</param>
     /// <param name="cancellationToken">A token used for task cancellations.</param>
-    /// <returns>A list of DataObjects.</returns>
+    /// <returns>A list of ListView objects.</returns>
     Task<List<ListView>> GetAllListViewAsync(Expression<Func<T, bool>> wherePredicate, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -31,7 +31,7 @@ public interface IUserEditableDataLayer<T> : IStandardCRUDDataLayer<T> where T :
     /// <param name="orderByPredicate">The order predicate to use against the collection/table.</param>
     /// <param name="descending">False means the data is ordered ascending; true means the data is ordered descending.</param>
     /// <param name="cancellationToken">A token used for task cancellations.</param>
-    /// <returns>A list of DataObjects.</returns>
+    /// <returns>A list of ListView objects.</returns>
     Task<List<ListView>> GetAllListViewAsync(Expression<Func<T, object>> orderByPredicate, bool descending = false, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -41,7 +41,7 @@ public interface IUserEditableDataLayer<T> : IStandardCRUDDataLayer<T> where T :
     /// <param name="orderByPredicate">The order predicate to use against the collection/table.</param>
     /// <param name="descending">False means the data is ordered ascending; true means the data is ordered descending.</param>
     /// <param name="cancellationToken">A token used for task cancellations.</param>
-    /// <returns>A list of DataObjects.</returns>
+    /// <returns>A list of ListView objects.</returns>
     Task<List<ListView>> GetAllListViewAsync(Expression<Func<T, bool>> wherePredicate, Expression<Func<T, object>> orderByPredicate, bool descending = false, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -50,6 +50,6 @@ public interface IUserEditableDataLayer<T> : IStandardCRUDDataLayer<T> where T :
     /// <param name="queryDefinition">Defines how the data should be queried; includes filtering, paging and sorting.</param>
     /// <param name="cancellationToken">A token used for task cancellations.</param>
     /// <exception cref="ArgumentNullException">Thrown if the queryDefinition parameter is null.</exception>
-    /// <returns>A list of DataObjects.</returns>
-    Task<List<ListView>> GetPageListViewAsync(QueryDefinition queryDefinition, CancellationToken cancellationToken = default);
+    /// <returns>A list of ListView objects.</returns>
+    Task<PagedList<ListView>> GetPageListViewAsync(QueryDefinition queryDefinition, CancellationToken cancellationToken = default);
 }

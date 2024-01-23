@@ -1,4 +1,5 @@
-﻿using JMayer.Data.Data.Query;
+﻿using JMayer.Data.Data;
+using JMayer.Data.Data.Query;
 using JMayer.Data.Database.DataLayer;
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
@@ -444,7 +445,7 @@ public class MemoryDataLayerUnitTest
             Skip = 1,
             Take = 20,
         };
-        List<SimpleDataObject> skipAndTakeDataObjects = await dataLayer.GetPageAsync(skipAndTakeQueryDefinition);
+        PagedList<SimpleDataObject> skipAndTakePage = await dataLayer.GetPageAsync(skipAndTakeQueryDefinition);
 
 
         QueryDefinition filterQueryDefinition = new();
@@ -454,7 +455,7 @@ public class MemoryDataLayerUnitTest
             Operator = FilterDefinition.ContainsOperator,
             Value = "50",
         });
-        List<SimpleDataObject> filterDataObjects = await dataLayer.GetPageAsync(filterQueryDefinition);
+        PagedList<SimpleDataObject> filterPage = await dataLayer.GetPageAsync(filterQueryDefinition);
 
         QueryDefinition sortQueryDefinition = new();
         sortQueryDefinition.SortDefinitions.Add(new SortDefinition()
@@ -462,13 +463,13 @@ public class MemoryDataLayerUnitTest
             Descending = true,
             SortOn = nameof(SimpleDataObject.Value),
         });
-        List<SimpleDataObject> sortDataObjects = await dataLayer.GetPageAsync(sortQueryDefinition);
+        PagedList<SimpleDataObject> sortPage = await dataLayer.GetPageAsync(sortQueryDefinition);
 
         Assert.True
         (
-            skipAndTakeDataObjects.Count == 20 && skipAndTakeDataObjects.First().Value == 21
-            && filterDataObjects.Count == 1 && filterDataObjects.First().Value == 50
-            && sortDataObjects.Count == 100 && sortDataObjects.First().Value == 100
+            skipAndTakePage.TotalRecords == 100 && skipAndTakePage.DataObjects.Count == 20 && skipAndTakePage.DataObjects.First().Value == 21
+            && filterPage.TotalRecords == 1 && filterPage.DataObjects.Count == 1 && filterPage.DataObjects.First().Value == 50
+            && sortPage.TotalRecords == 100 && sortPage.DataObjects.Count == 100 && sortPage.DataObjects.First().Value == 100
         );
     }
 

@@ -95,19 +95,19 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
     }
 
     /// <inheritdoc/>
-    public async Task<List<T>?> GetPageAsync(QueryDefinition queryDefinition, CancellationToken cancellationToken = default)
+    public async Task<PagedList<T>?> GetPageAsync(QueryDefinition queryDefinition, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(queryDefinition);
 
-        List<T>? dataObjects = [];
+        PagedList<T>? pagedDataObjects = new();
         HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"/api/{TypeName}/Page?{queryDefinition.ToQueryString()}", cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
         {
-            dataObjects = await httpResponseMessage.Content.ReadFromJsonAsync<List<T>?>(cancellationToken);
+            pagedDataObjects = await httpResponseMessage.Content.ReadFromJsonAsync<PagedList<T>?>(cancellationToken);
         }
 
-        return dataObjects;
+        return pagedDataObjects;
     }
 
     /// <inheritdoc/>

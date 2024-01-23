@@ -45,7 +45,7 @@ public interface IStandardCRUDDataLayer<T> where T : DataObject
     /// <param name="queryDefinition">Defines how the data should be queried; includes filtering, paging and sorting.</param>
     /// <param name="cancellationToken">A token used for task cancellations.</param>
     /// <returns>A list of DataObjects.</returns>
-    Task<List<T>?> GetPageAsync(QueryDefinition queryDefinition, CancellationToken cancellationToken = default);
+    Task<PagedList<T>?> GetPageAsync(QueryDefinition queryDefinition, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// The method returns the first remote data object.

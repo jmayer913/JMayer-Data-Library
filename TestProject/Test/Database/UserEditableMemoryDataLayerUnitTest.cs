@@ -194,7 +194,7 @@ public class UserEditableMemoryDataLayerUnitTest
             Skip = 1,
             Take = 20,
         };
-        List<ListView> skipAndTakeDataObjects = await dataLayer.GetPageListViewAsync(skipAndTakeQueryDefinition);
+        PagedList<ListView> skipAndTakePage = await dataLayer.GetPageListViewAsync(skipAndTakeQueryDefinition);
 
 
         QueryDefinition filterQueryDefinition = new();
@@ -204,7 +204,7 @@ public class UserEditableMemoryDataLayerUnitTest
             Operator = FilterDefinition.ContainsOperator,
             Value = "50",
         });
-        List<ListView> filterDataObjects = await dataLayer.GetPageListViewAsync(filterQueryDefinition);
+        PagedList<ListView> filterPage = await dataLayer.GetPageListViewAsync(filterQueryDefinition);
 
         QueryDefinition sortQueryDefinition = new();
         sortQueryDefinition.SortDefinitions.Add(new SortDefinition()
@@ -212,13 +212,13 @@ public class UserEditableMemoryDataLayerUnitTest
             Descending = true,
             SortOn = nameof(SimpleUserEditableDataObject.Value),
         });
-        List<ListView> sortDataObjects = await dataLayer.GetPageListViewAsync(sortQueryDefinition);
+        PagedList<ListView> sortPage = await dataLayer.GetPageListViewAsync(sortQueryDefinition);
 
         Assert.True
         (
-            skipAndTakeDataObjects.Count == 20 && skipAndTakeDataObjects.First().Name == "21"
-            && filterDataObjects.Count == 1 && filterDataObjects.First().Name == "50"
-            && sortDataObjects.Count == 100 && sortDataObjects.First().Name == "100"
+            skipAndTakePage.TotalRecords == 100 && skipAndTakePage.DataObjects.Count == 20 && skipAndTakePage.DataObjects.First().Name == "21"
+            && filterPage.TotalRecords == 1 && filterPage.DataObjects.Count == 1 && filterPage.DataObjects.First().Name == "50"
+            && sortPage.TotalRecords == 100 && sortPage.DataObjects.Count == 100 && sortPage.DataObjects.First().Name == "100"
         );
     }
 

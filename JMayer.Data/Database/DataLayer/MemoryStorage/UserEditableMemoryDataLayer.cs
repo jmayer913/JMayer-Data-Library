@@ -83,12 +83,16 @@ public class UserEditableMemoryDataLayer<T> : MemoryDataLayer<T>, IUserEditableD
     }
 
     /// <inheritdoc/>
-    public async Task<List<ListView>> GetPageListViewAsync(QueryDefinition queryDefinition, CancellationToken cancellationToken = default)
+    public async Task<PagedList<ListView>> GetPageListViewAsync(QueryDefinition queryDefinition, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(queryDefinition);
-        List<T> dataObjects = QueryData(queryDefinition);
-        List<ListView> dataObjectListViews = ConvertToListView(dataObjects);
-        return await Task.FromResult(dataObjectListViews);
+        PagedList<T> pagedDataObjects = QueryData(queryDefinition);
+        PagedList<ListView> pagedListViews = new()
+        {
+            DataObjects = ConvertToListView(pagedDataObjects.DataObjects),
+            TotalRecords = pagedDataObjects.TotalRecords,
+        };
+        return await Task.FromResult(pagedListViews);
     }
 
     /// <inheritdoc/>

@@ -32,18 +32,18 @@ public class UserEditableDataLayer<T> : StandardCRUDDataLayer<T>, IUserEditableD
     }
 
     /// <inheritdoc/>
-    public async Task<List<ListView>?> GetPageListViewAsync(QueryDefinition queryDefinition, CancellationToken cancellationToken = default)
+    public async Task<PagedList<ListView>?> GetPageListViewAsync(QueryDefinition queryDefinition, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(queryDefinition);
 
-        List<ListView>? dataObjects = [];
+        PagedList<ListView>? pagedListView = new();
         HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"/api/{TypeName}/Page/ListView?{queryDefinition.ToQueryString()}", cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
         {
-            dataObjects = await httpResponseMessage.Content.ReadFromJsonAsync<List<ListView>?>(cancellationToken);
+            pagedListView = await httpResponseMessage.Content.ReadFromJsonAsync<PagedList<ListView>?>(cancellationToken);
         }
 
-        return dataObjects;
+        return pagedListView;
     }
 }

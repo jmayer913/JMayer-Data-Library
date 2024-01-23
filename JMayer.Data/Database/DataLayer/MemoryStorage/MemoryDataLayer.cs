@@ -236,11 +236,11 @@ public class MemoryDataLayer<T> : IStandardCRUDDataLayer<T> where T : DataObject
     }
 
     /// <inheritdoc/>
-    public async Task<List<T>> GetPageAsync(QueryDefinition queryDefinition, CancellationToken cancellationToken = default)
+    public async Task<PagedList<T>> GetPageAsync(QueryDefinition queryDefinition, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(queryDefinition);
-        List<T> dataObjects = QueryData(queryDefinition);
-        return await Task.FromResult(dataObjects);
+        PagedList<T> pagedDataObjects = QueryData(queryDefinition);
+        return await Task.FromResult(pagedDataObjects);
     }
 
     /// <inheritdoc/>
@@ -305,10 +305,10 @@ public class MemoryDataLayer<T> : IStandardCRUDDataLayer<T> where T : DataObject
     /// </summary>
     /// <param name="queryDefinition">Defines how the data should be queried; includes filtering, paging and sorting.</param>
     /// <returns>A list of DataObjects.</returns>
-    protected List<T> QueryData(QueryDefinition queryDefinition)
+    protected PagedList<T> QueryData(QueryDefinition queryDefinition)
     {
 #warning Explore combining the two QueryData() methods so there isn't two methods that are similar but slightly different.
-        List<T> dataObjects;
+        PagedList<T> pagedDataObjects = new();
 
         lock (DataStorageLock)
         {
@@ -331,16 +331,18 @@ public class MemoryDataLayer<T> : IStandardCRUDDataLayer<T> where T : DataObject
                 }
             }
 
+            pagedDataObjects.TotalRecords = dataObjectEnumerable.Count();
+
             if (queryDefinition.Take > 0)
             {
                 dataObjectEnumerable = dataObjectEnumerable.Skip(queryDefinition.Skip * queryDefinition.Take);
                 dataObjectEnumerable = dataObjectEnumerable.Take(queryDefinition.Take);
             }
 
-            dataObjects = new(dataObjectEnumerable.Select(CreateCopy));
+            pagedDataObjects.DataObjects = dataObjectEnumerable.Select(CreateCopy).ToList();
         }
 
-        return dataObjects;
+        return pagedDataObjects;
     }
 
     /// <summary>

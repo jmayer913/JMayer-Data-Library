@@ -1,4 +1,5 @@
-﻿using JMayer.Data.Data.Query;
+﻿using JMayer.Data.Data;
+using JMayer.Data.Data.Query;
 using JMayer.Data.HTTP.DataLayer;
 using JMayer.Data.HTTP.Handler;
 using System.Net;
@@ -301,24 +302,28 @@ public class StandardCRUDDataLayerUnitTest
             Take = 20,
         };
 
-        List<SimpleDataObject> respondingDataObjects =
-        [
-            new SimpleDataObject()
-            {
-                Integer64ID = 1,
-                Value = 1,
-            },
-            new SimpleDataObject()
-            {
-                Integer64ID = 10,
-                Value = 10,
-            },
-            new SimpleDataObject()
-            {
-                Integer64ID = 100,
-                Value = 100,
-            },
-        ];
+        PagedList<SimpleDataObject> respondingPage = new()
+        {
+            DataObjects =
+            [
+                new SimpleDataObject()
+                {
+                    Integer64ID = 1,
+                    Value = 1,
+                },
+                new SimpleDataObject()
+                {
+                    Integer64ID = 10,
+                    Value = 10,
+                },
+                new SimpleDataObject()
+                {
+                    Integer64ID = 100,
+                    Value = 100,
+                },
+            ],
+            TotalRecords = 3,
+        };
 
         Dictionary<string, string> queryString = [];
         queryString.Add(nameof(queryDefinition.Skip), queryDefinition.Skip.ToString());
@@ -333,28 +338,29 @@ public class StandardCRUDDataLayerUnitTest
             .WithRoute($"api/{nameof(SimpleDataObject)}/Page")
             .WithQueryString(queryString)
             .RespondingHttpStatusCode(httpStatusCode)
-            .RespondingJsonContent(respondingDataObjects)
+            .RespondingJsonContent(respondingPage)
             .Build();
 
         SimpleDataLayer dataLayer = new(httpClient);
-        List<SimpleDataObject>? returnedDataObjects = await dataLayer.GetPageAsync(queryDefinition);
+        PagedList<SimpleDataObject>? returnedPage = await dataLayer.GetPageAsync(queryDefinition);
 
         //With positive, confirm json data objects were returned.
         if (httpStatusCode == HttpStatusCode.OK)
         {
             Assert.True
             (
-                returnedDataObjects != null //Must have responded with json.
-                && returnedDataObjects.Count == respondingDataObjects.Count //Must have parsed the json correctly.
-                && returnedDataObjects[0].Integer64ID == respondingDataObjects[0].Integer64ID && returnedDataObjects[0].Value == respondingDataObjects[0].Value //Must have parsed the json correctly.
-                && returnedDataObjects[1].Integer64ID == respondingDataObjects[1].Integer64ID && returnedDataObjects[1].Value == respondingDataObjects[1].Value //Must have parsed the json correctly.
-                && returnedDataObjects[2].Integer64ID == respondingDataObjects[2].Integer64ID && returnedDataObjects[2].Value == respondingDataObjects[2].Value //Must have parsed the json correctly.
+                returnedPage != null //Must have responded with json.
+                && returnedPage.DataObjects.Count == respondingPage.DataObjects.Count //Must have parsed the json correctly.
+                && returnedPage.TotalRecords == respondingPage.TotalRecords //Must have parsed the json correctly.
+                && returnedPage.DataObjects[0].Integer64ID == respondingPage.DataObjects[0].Integer64ID && returnedPage.DataObjects[0].Value == respondingPage.DataObjects[0].Value //Must have parsed the json correctly.
+                && returnedPage.DataObjects[1].Integer64ID == respondingPage.DataObjects[1].Integer64ID && returnedPage.DataObjects[1].Value == respondingPage.DataObjects[1].Value //Must have parsed the json correctly.
+                && returnedPage.DataObjects[2].Integer64ID == respondingPage.DataObjects[2].Integer64ID && returnedPage.DataObjects[2].Value == respondingPage.DataObjects[2].Value //Must have parsed the json correctly.
             );
         }
         //With negative, confirm no json data objects were returned.
         else
         {
-            Assert.True(returnedDataObjects != null && returnedDataObjects.Count == 0);
+            Assert.True(returnedPage != null && returnedPage.DataObjects.Count == 0 && returnedPage.TotalRecords == 0);
         }
     }
 

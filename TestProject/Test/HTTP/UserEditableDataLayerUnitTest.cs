@@ -112,24 +112,28 @@ public class UserEditableDataLayerUnitTest
             Take = 20,
         };
 
-        List<ListView> respondingDataObjects =
-        [
-            new ListView()
-            {
-                Integer64ID = 1,
-                Name = "1",
-            },
-            new ListView()
-            {
-                Integer64ID = 10,
-                Name = "10",
-            },
-            new ListView()
-            {
-                Integer64ID = 100,
-                Name = "100",
-            },
-        ];
+        PagedList<ListView> respondingPage = new()
+        {
+            DataObjects = 
+            [
+                new ListView()
+                {
+                    Integer64ID = 1,
+                    Name = "1",
+                },
+                new ListView()
+                {
+                    Integer64ID = 10,
+                    Name = "10",
+                },
+                new ListView()
+                {
+                    Integer64ID = 100,
+                    Name = "100",
+                },
+            ],
+            TotalRecords = 3,
+        };
 
         Dictionary<string, string> queryString = [];
         queryString.Add(nameof(queryDefinition.Skip), queryDefinition.Skip.ToString());
@@ -144,28 +148,28 @@ public class UserEditableDataLayerUnitTest
             .WithRoute($"api/{nameof(SimpleUserEditableDataObject)}/Page/ListView")
             .WithQueryString(queryString)
             .RespondingHttpStatusCode(httpStatusCode)
-            .RespondingJsonContent(respondingDataObjects)
+            .RespondingJsonContent(respondingPage)
             .Build();
 
         SimpleUserEditableDataLayer dataLayer = new(httpClient);
-        List<ListView>? returnedDataObjects = await dataLayer.GetPageListViewAsync(queryDefinition);
+        PagedList<ListView>? returnedPage = await dataLayer.GetPageListViewAsync(queryDefinition);
 
         //With positive, confirm json data objects were returned.
         if (httpStatusCode == HttpStatusCode.OK)
         {
             Assert.True
             (
-                returnedDataObjects != null //Must have responded with json.
-                && returnedDataObjects.Count == respondingDataObjects.Count //Must have parsed the json correctly.
-                && returnedDataObjects[0].Integer64ID == respondingDataObjects[0].Integer64ID && returnedDataObjects[0].Name == respondingDataObjects[0].Name //Must have parsed the json correctly.
-                && returnedDataObjects[1].Integer64ID == respondingDataObjects[1].Integer64ID && returnedDataObjects[1].Name == respondingDataObjects[1].Name //Must have parsed the json correctly.
-                && returnedDataObjects[2].Integer64ID == respondingDataObjects[2].Integer64ID && returnedDataObjects[2].Name == respondingDataObjects[2].Name //Must have parsed the json correctly.
+                returnedPage != null //Must have responded with json.
+                && returnedPage.DataObjects.Count == respondingPage.DataObjects.Count //Must have parsed the json correctly.
+                && returnedPage.DataObjects[0].Integer64ID == respondingPage.DataObjects[0].Integer64ID && returnedPage.DataObjects[0].Name == respondingPage.DataObjects[0].Name //Must have parsed the json correctly.
+                && returnedPage.DataObjects[1].Integer64ID == respondingPage.DataObjects[1].Integer64ID && returnedPage.DataObjects[1].Name == respondingPage.DataObjects[1].Name //Must have parsed the json correctly.
+                && returnedPage.DataObjects[2].Integer64ID == respondingPage.DataObjects[2].Integer64ID && returnedPage.DataObjects[2].Name == respondingPage.DataObjects[2].Name //Must have parsed the json correctly.
             );
         }
         //With negative, confirm no json data objects were returned.
         else
         {
-            Assert.True(returnedDataObjects != null && returnedDataObjects.Count == 0);
+            Assert.True(returnedPage != null && returnedPage.DataObjects.Count == 0 && returnedPage.TotalRecords == 0);
         }
     }
 }
