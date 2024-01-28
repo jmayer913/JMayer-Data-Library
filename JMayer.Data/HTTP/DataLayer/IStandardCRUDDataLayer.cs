@@ -60,6 +60,14 @@ public interface IStandardCRUDDataLayer<T> where T : DataObject
     /// <param name="id">The ID to filter for.</param>
     /// <param name="cancellationToken">A token used for task cancellations.</param>
     /// <returns>A DataObject.</returns>
+    Task<T?> GetSingleAsync(long id, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// The method returns the remote data object based on an ID.
+    /// </summary>
+    /// <param name="id">The ID to filter for.</param>
+    /// <param name="cancellationToken">A token used for task cancellations.</param>
+    /// <returns>A DataObject.</returns>
     Task<T?> GetSingleAsync(string id, CancellationToken cancellationToken = default);
 
     /// <summary>

@@ -125,6 +125,12 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
     }
 
     /// <inheritdoc/>
+    public async Task<T?> GetSingleAsync(long id, CancellationToken cancellationToken = default)
+    {
+        return await GetSingleAsync(id.ToString(), cancellationToken);
+    }
+
+    /// <inheritdoc/>
     public async Task<T?> GetSingleAsync(string id, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
