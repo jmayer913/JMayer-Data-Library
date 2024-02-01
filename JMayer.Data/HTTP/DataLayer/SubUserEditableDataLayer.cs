@@ -19,6 +19,12 @@ public class SubUserEditableDataLayer<T> : UserEditableDataLayer<T>, ISubUserEdi
     public SubUserEditableDataLayer(HttpClient httpClient) : base(httpClient) { }
 
     /// <inheritdoc/>
+    public async Task<List<T>?> GetAllAsync(long ownerID, CancellationToken cancellationToken = default)
+    {
+        return await GetAllAsync(ownerID.ToString(), cancellationToken);
+    }
+
+    /// <inheritdoc/>
     public async Task<List<T>?> GetAllAsync(string ownerID, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(ownerID);
@@ -31,6 +37,12 @@ public class SubUserEditableDataLayer<T> : UserEditableDataLayer<T>, ISubUserEdi
         }
         
         return dataObjects;
+    }
+
+    /// <inheritdoc/>
+    public async Task<List<ListView>?> GetAllListViewAsync(long ownerID, CancellationToken cancellationToken = default)
+    {
+        return await GetAllListViewAsync(ownerID.ToString(), cancellationToken);
     }
 
     /// <inheritdoc/>
@@ -49,9 +61,17 @@ public class SubUserEditableDataLayer<T> : UserEditableDataLayer<T>, ISubUserEdi
     }
 
     /// <inheritdoc/>
+    public async Task<PagedList<T>?> GetPageAsync(long ownerID, QueryDefinition queryDefinition, CancellationToken cancellationToken = default)
+    {
+        return await GetPageAsync(ownerID.ToString(), queryDefinition, cancellationToken);
+    }
+
+    /// <inheritdoc/>
     public async Task<PagedList<T>?> GetPageAsync(string ownerID, QueryDefinition queryDefinition, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(ownerID);
+        ArgumentNullException.ThrowIfNull(queryDefinition);
+
         PagedList<T>? dataObjects = new();
         HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"/api/{TypeName}/Page/{ownerID}?{queryDefinition.ToQueryString()}", cancellationToken);
 
@@ -64,11 +84,19 @@ public class SubUserEditableDataLayer<T> : UserEditableDataLayer<T>, ISubUserEdi
     }
 
     /// <inheritdoc/>
+    public async Task<PagedList<ListView>?> GetPageListViewAsync(long ownerID, QueryDefinition queryDefinition, CancellationToken cancellationToken = default)
+    {
+        return await GetPageListViewAsync(ownerID.ToString(), queryDefinition, cancellationToken);
+    }
+
+    /// <inheritdoc/>
     public async Task<PagedList<ListView>?> GetPageListViewAsync(string ownerID, QueryDefinition queryDefinition, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(ownerID);
+        ArgumentNullException.ThrowIfNull(queryDefinition);
+
         PagedList<ListView>? dataObjects = new();
-        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"/api/{TypeName}/Page/ListView/{ownerID}{queryDefinition.ToQueryString()}", cancellationToken);
+        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"/api/{TypeName}/Page/ListView/{ownerID}?{queryDefinition.ToQueryString()}", cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
         {

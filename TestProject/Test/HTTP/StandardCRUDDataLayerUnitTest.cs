@@ -263,7 +263,7 @@ public class StandardCRUDDataLayerUnitTest
     }
 
     /// <summary>
-    /// The method confirms if a null data object is passed to the StandardCRUDDataLayer.GetPageAsync(), an exception is thrown.
+    /// The method confirms if a null query definition is passed to the StandardCRUDDataLayer.GetPageAsync(), an exception is thrown.
     /// </summary>
     /// <returns>A Task object for the async.</returns>
     [Fact]
