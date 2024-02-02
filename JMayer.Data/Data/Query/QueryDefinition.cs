@@ -43,7 +43,7 @@ public class QueryDefinition
         for (int index = 0; index < FilterDefinitions.Count; index++)
         {
             FilterDefinition filterDefinition = FilterDefinitions[index];
-            filterDefinitionQueryString += $"&{nameof(FilterDefinitions)}[{index}].{nameof(FilterDefinition.FilterOn)}={HttpUtility.UrlEncode(filterDefinition.FilterOn)}&{nameof(FilterDefinitions)}[{index}].{nameof(FilterDefinition.Operator)}={HttpUtility.UrlEncode(filterDefinition.Operator)}&{nameof(FilterDefinitions)}[{index}].{nameof(FilterDefinition.Value)}={HttpUtility.UrlEncode(filterDefinition.Value)}";
+            filterDefinitionQueryString += $"&{nameof(FilterDefinitions)}[{index}].{nameof(FilterDefinition.FilterOn)}={HttpUtility.UrlEncode(filterDefinition.FilterOn)}&{nameof(FilterDefinitions)}[{index}].{nameof(FilterDefinition.Operator)}={HttpUtility.UrlEncode(filterDefinition.Operator)}{(!string.IsNullOrWhiteSpace(filterDefinition.Value) ? $"&{nameof(FilterDefinitions)}[{index}].{nameof(FilterDefinition.Value)}={HttpUtility.UrlEncode(filterDefinition.Value)}" : string.Empty)}";
         }
 
         string sortDefinitionQueryString = string.Empty;
