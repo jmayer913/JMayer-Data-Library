@@ -286,7 +286,7 @@ public class StandardCRUDDataLayerUnitTest
                 new FilterDefinition() 
                 { 
                     FilterOn = nameof(SimpleDataObject.Value),
-                    Operator = FilterDefinition.ContainsOperator,
+                    Operator = FilterDefinition.StringContainsOperator,
                     Value = "1",
                 }
             ],

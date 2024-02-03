@@ -60,17 +60,6 @@ public class UserEditableMemoryDataLayerUnitTest
     }
 
     /// <summary>
-    /// The method confirms if a null data object is passed to the UserEditableMemoryDataLayer.GetAllListViewAsync(), an exception is thrown.
-    /// </summary>
-    [Fact]
-    public async Task GetAllListViewAsyncThrowsArgumentNullException()
-    {
-        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleUserEditableMemoryDataLayer().GetAllListViewAsync(null));
-        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleUserEditableMemoryDataLayer().GetAllListViewAsync(null, false));
-        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleUserEditableMemoryDataLayer().GetAllListViewAsync(obj => obj.Value == 0, null));
-    }
-
-    /// <summary>
     /// The method confirms UserEditableMemoryDataLayer.GetAllListViewAsync() works as intended.
     /// </summary>
     /// <returns>A Task object for the async.</returns>
@@ -130,8 +119,8 @@ public class UserEditableMemoryDataLayerUnitTest
         _ = await dataLayer.CreateAsync(new SimpleUserEditableDataObject() { Name = "90", Value = 90 });
         _ = await dataLayer.CreateAsync(new SimpleUserEditableDataObject() { Name = "100", Value = 100 });
 
-        List<ListView> ascOrderByDataObjects = await dataLayer.GetAllListViewAsync(obj => obj.Value);
-        List<ListView> descOrderByDataObjects = await dataLayer.GetAllListViewAsync(obj => obj.Value, true);
+        List<ListView> ascOrderByDataObjects = await dataLayer.GetAllListViewAsync(orderByPredicate: obj => obj.Value);
+        List<ListView> descOrderByDataObjects = await dataLayer.GetAllListViewAsync(orderByPredicate: obj => obj.Value, descending: true);
 
         Assert.True(ascOrderByDataObjects.First().Name == "10" && descOrderByDataObjects.First().Name == "100");
     }
@@ -201,7 +190,7 @@ public class UserEditableMemoryDataLayerUnitTest
         filterQueryDefinition.FilterDefinitions.Add(new FilterDefinition()
         {
             FilterOn = nameof(SimpleUserEditableDataObject.Value),
-            Operator = FilterDefinition.ContainsOperator,
+            Operator = FilterDefinition.NumericEqualsOperator,
             Value = "50",
         });
         PagedList<ListView> filterPage = await dataLayer.GetPageListViewAsync(filterQueryDefinition);

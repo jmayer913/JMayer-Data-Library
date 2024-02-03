@@ -96,7 +96,7 @@ public class UserEditableDataLayerUnitTest
                 new FilterDefinition()
                 {
                     FilterOn = nameof(SimpleUserEditableDataObject.Value),
-                    Operator = FilterDefinition.ContainsOperator,
+                    Operator = FilterDefinition.StringContainsOperator,
                     Value = "1",
                 }
             ],

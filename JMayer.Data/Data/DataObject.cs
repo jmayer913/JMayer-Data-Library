@@ -56,6 +56,7 @@ public class DataObject
     /// The method maps a DataObject to this object.
     /// </summary>
     /// <param name="dataObject">The data object.</param>
+    /// <exception cref="ArgumentNullException">Thrown if the dataObject parameter is null.</exception>
     public virtual void MapProperties(DataObject dataObject)
     {
         ArgumentNullException.ThrowIfNull(dataObject);

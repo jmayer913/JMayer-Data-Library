@@ -26,7 +26,7 @@ public class SortDefinition
     {
         var parameter = Expression.Parameter(typeof(T), "obj");
         var property = Expression.PropertyOrField(parameter, SortOn);
-        var box = Expression.Convert(property, typeof(object));
-        return Expression.Lambda<Func<T, object>>(box, parameter);
+        var convertOperation = Expression.Convert(property, typeof(object));
+        return Expression.Lambda<Func<T, object>>(convertOperation, parameter);
     }
 }

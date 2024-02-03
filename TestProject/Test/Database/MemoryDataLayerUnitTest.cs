@@ -312,17 +312,6 @@ public class MemoryDataLayerUnitTest
     }
 
     /// <summary>
-    /// The method confirms if a null data object is passed to the MemoryDataLayer.GetAllAsync(), an exception is thrown.
-    /// </summary>
-    [Fact]
-    public async Task GetAllAsyncThrowsArgumentNullException()
-    {
-        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleMemoryDataLayer().GetAllAsync(null));
-        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleMemoryDataLayer().GetAllAsync(null, false));
-        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleMemoryDataLayer().GetAllAsync(obj => obj.Value == 0, null));
-    }
-
-    /// <summary>
     /// The method confirms MemoryDataLayer.GetAllAsync() works as intended.
     /// </summary>
     /// <returns>A Task object for the async.</returns>
@@ -382,8 +371,8 @@ public class MemoryDataLayerUnitTest
         _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 90 });
         _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 100 });
 
-        List<SimpleDataObject> ascOrderByDataObjects = await dataLayer.GetAllAsync(obj => obj.Value);
-        List<SimpleDataObject> descOrderByDataObjects = await dataLayer.GetAllAsync(obj => obj.Value, true);
+        List<SimpleDataObject> ascOrderByDataObjects = await dataLayer.GetAllAsync(orderByPredicate: obj => obj.Value);
+        List<SimpleDataObject> descOrderByDataObjects = await dataLayer.GetAllAsync(orderByPredicate: obj => obj.Value, descending: true);
 
         Assert.True(ascOrderByDataObjects.First().Value == 10 && descOrderByDataObjects.First().Value == 100);
     }
@@ -452,7 +441,7 @@ public class MemoryDataLayerUnitTest
         filterQueryDefinition.FilterDefinitions.Add(new FilterDefinition()
         {
             FilterOn = nameof(SimpleDataObject.Value),
-            Operator = FilterDefinition.ContainsOperator,
+            Operator = FilterDefinition.NumericEqualsOperator,
             Value = "50",
         });
         PagedList<SimpleDataObject> filterPage = await dataLayer.GetPageAsync(filterQueryDefinition);

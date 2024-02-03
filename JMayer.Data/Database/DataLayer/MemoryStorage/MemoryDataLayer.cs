@@ -78,6 +78,7 @@ public class MemoryDataLayer<T> : IStandardCRUDDataLayer<T> where T : DataObject
     }
 
     /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException">Thrown if the wherePredicate parameter is null.</exception>
     public async virtual Task<int> CountAsync(Expression<Func<T, bool>> wherePredicate, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(wherePredicate);
@@ -86,6 +87,8 @@ public class MemoryDataLayer<T> : IStandardCRUDDataLayer<T> where T : DataObject
     }
 
     /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException">Thrown if the dataObject parameter is null.</exception>
+    /// <exception cref="DataObjectValidationException">Thrown if the data object fails validation.</exception>
     public async virtual Task<T> CreateAsync(T dataObject, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(dataObject);
@@ -93,6 +96,8 @@ public class MemoryDataLayer<T> : IStandardCRUDDataLayer<T> where T : DataObject
     }
 
     /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException">Thrown if the dataObjects parameter is null.</exception>
+    /// <exception cref="DataObjectValidationException">Thrown if the data object fails validation.</exception>
     public async virtual Task<List<T>> CreateAsync(List<T> dataObjects, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(dataObjects);
@@ -147,6 +152,7 @@ public class MemoryDataLayer<T> : IStandardCRUDDataLayer<T> where T : DataObject
     }
 
     /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException">Thrown if the dataObject parameter is null.</exception>
     public async virtual Task DeleteAsync(T dataObject, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(dataObject);
@@ -164,12 +170,13 @@ public class MemoryDataLayer<T> : IStandardCRUDDataLayer<T> where T : DataObject
     }
 
     /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException">Thrown if the dataObjects parameter is null.</exception>
     public async virtual Task DeleteAsync(List<T> dataObjects, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(dataObjects);
 
         List<long> ids = dataObjects.Select(obj => obj.Integer64ID).ToList();
-        List<T> databaseDataObjects = await GetAllAsync(obj => ids.Any(id => id == obj.Integer64ID), cancellationToken);
+        List<T> databaseDataObjects = await GetAllAsync(obj => ids.Any(id => id == obj.Integer64ID), cancellationToken: cancellationToken);
 
         lock (DataStorageLock)
         {
@@ -180,11 +187,12 @@ public class MemoryDataLayer<T> : IStandardCRUDDataLayer<T> where T : DataObject
     }
 
     /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException">Thrown if the wherePredicate parameter is null.</exception>
     public async virtual Task DeleteAsync(Expression<Func<T, bool>> wherePredicate, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(wherePredicate);
 
-        List<T> dataObjects = await GetAllAsync(wherePredicate, cancellationToken);
+        List<T> dataObjects = await GetAllAsync(wherePredicate, cancellationToken: cancellationToken);
         List<long> ids = dataObjects.Select(obj => obj.Integer64ID).ToList();
 
         lock (DataStorageLock)
@@ -196,6 +204,7 @@ public class MemoryDataLayer<T> : IStandardCRUDDataLayer<T> where T : DataObject
     }
 
     /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException">Thrown if the wherePredicate parameter is null.</exception>
     public async virtual Task<bool> ExistAsync(Expression<Func<T, bool>> wherePredicate, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(wherePredicate);
@@ -204,38 +213,14 @@ public class MemoryDataLayer<T> : IStandardCRUDDataLayer<T> where T : DataObject
     }
 
     /// <inheritdoc/>
-    public async virtual Task<List<T>> GetAllAsync(CancellationToken cancellationToken = default)
+    public async virtual Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? wherePredicate = default, Expression<Func<T, object>>? orderByPredicate = default, bool descending = default, CancellationToken cancellationToken = default)
     {
-        List<T> dataObjects = QueryData();
-        return await Task.FromResult(dataObjects);
-    }
-
-    /// <inheritdoc/>
-    public async virtual Task<List<T>> GetAllAsync(Expression<Func<T, bool>> wherePredicate, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(wherePredicate);
-        List<T> dataObjects = QueryData(wherePredicate);
-        return await Task.FromResult(dataObjects);
-    }
-
-    /// <inheritdoc/>
-    public async Task<List<T>> GetAllAsync(Expression<Func<T, object>> orderByPredicate, bool descending = false, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(orderByPredicate);
-        List<T> dataObjects = QueryData(null, orderByPredicate, descending);
-        return await Task.FromResult(dataObjects);
-    }
-
-    /// <inheritdoc/>
-    public async virtual Task<List<T>> GetAllAsync(Expression<Func<T, bool>> wherePredicate, Expression<Func<T, object>> orderByPredicate, bool descending = false, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(wherePredicate);
-        ArgumentNullException.ThrowIfNull(orderByPredicate);
         List<T> dataObjects = QueryData(wherePredicate, orderByPredicate, descending);
         return await Task.FromResult(dataObjects);
     }
 
     /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException">Thrown if the queryDefinition parameter is null.</exception>
     public async Task<PagedList<T>> GetPageAsync(QueryDefinition queryDefinition, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(queryDefinition);
@@ -244,16 +229,8 @@ public class MemoryDataLayer<T> : IStandardCRUDDataLayer<T> where T : DataObject
     }
 
     /// <inheritdoc/>
-    public async virtual Task<T?> GetSingleAsync(CancellationToken cancellationToken = default)
+    public async virtual Task<T?> GetSingleAsync(Expression<Func<T, bool>>? wherePredicate = default, CancellationToken cancellationToken = default)
     {
-        T? dataObject = QueryData().FirstOrDefault();
-        return await Task.FromResult(dataObject);
-    }
-
-    /// <inheritdoc/>
-    public async virtual Task<T?> GetSingleAsync(Expression<Func<T, bool>> wherePredicate, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(wherePredicate);
         T? dataObject = QueryData(wherePredicate).FirstOrDefault();
         return await Task.FromResult(dataObject);
     }
@@ -352,7 +329,7 @@ public class MemoryDataLayer<T> : IStandardCRUDDataLayer<T> where T : DataObject
     /// <param name="orderByPredicate">The order predicate to use against the collection/table.</param>
     /// <param name="descending">False means the data is ordered ascending; true means the data is ordered descending.</param>
     /// <returns>A list of DataObjects.</returns>
-    protected List<T> QueryData(Expression<Func<T, bool>>? wherePredicate = null, Expression<Func<T, object>>? orderByPredicate = null, bool descending = false)
+    protected List<T> QueryData(Expression<Func<T, bool>>? wherePredicate = default, Expression<Func<T, object>>? orderByPredicate = default, bool descending = default)
     {
         List<T> dataObjects;
 
@@ -384,6 +361,9 @@ public class MemoryDataLayer<T> : IStandardCRUDDataLayer<T> where T : DataObject
     }
 
     /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException">Thrown if the dataObject parameter is null.</exception>
+    /// <exception cref="DataObjectValidationException">Thrown if the data object fails validation.</exception>
+    /// <exception cref="IDNotFoundException">Thrown if the data object's ID is not found in the collection/table.</exception>
     public async virtual Task<T> UpdateAsync(T dataObject, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(dataObject);
@@ -391,6 +371,9 @@ public class MemoryDataLayer<T> : IStandardCRUDDataLayer<T> where T : DataObject
     }
 
     /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException">Thrown if the dataObjects parameter is null.</exception>
+    /// <exception cref="DataObjectValidationException">Thrown if any data object fails validation.</exception>
+    /// <exception cref="IDNotFoundException">Thrown if any data objects' ID is not found in the collection/table.</exception>
     public async virtual Task<List<T>> UpdateAsync(List<T> dataObjects, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(dataObjects);
@@ -440,6 +423,7 @@ public class MemoryDataLayer<T> : IStandardCRUDDataLayer<T> where T : DataObject
     }
 
     /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException">Thrown if the dataObject parameter is null.</exception>
     public async virtual Task<List<ValidationResult>> ValidateAsync(T dataObject, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(dataObject);

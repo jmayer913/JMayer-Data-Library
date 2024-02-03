@@ -47,42 +47,15 @@ public class UserEditableMemoryDataLayer<T> : MemoryDataLayer<T>, IUserEditableD
     }
 
     /// <inheritdoc/>
-    public async virtual Task<List<ListView>> GetAllListViewAsync(CancellationToken cancellationToken = default)
+    public async virtual Task<List<ListView>> GetAllListViewAsync(Expression<Func<T, bool>>? wherePredicate = default, Expression<Func<T, object>>? orderByPredicate = default, bool descending = default, CancellationToken cancellationToken = default)
     {
-        List<T> dataObjects = QueryData();
-        List<ListView> dataObjectListViews = ConvertToListView(dataObjects);
-        return await Task.FromResult(dataObjectListViews);
-    }
-
-    /// <inheritdoc/>
-    public async virtual Task<List<ListView>> GetAllListViewAsync(Expression<Func<T, bool>> wherePredicate, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(wherePredicate);
-        List<T> dataObjects = QueryData(wherePredicate);
-        List<ListView> dataObjectListViews = ConvertToListView(dataObjects);
-        return await Task.FromResult(dataObjectListViews);
-    }
-
-    /// <inheritdoc/>
-    public async Task<List<ListView>> GetAllListViewAsync(Expression<Func<T, object>> orderByPredicate, bool descending = false, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(orderByPredicate);
-        List<T> dataObjects = QueryData(null, orderByPredicate, descending);
-        List<ListView> dataObjectListViews = ConvertToListView(dataObjects);
-        return await Task.FromResult(dataObjectListViews);
-    }
-
-    /// <inheritdoc/>
-    public async virtual Task<List<ListView>> GetAllListViewAsync(Expression<Func<T, bool>> wherePredicate, Expression<Func<T, object>> orderByPredicate, bool descending = false, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(wherePredicate);
-        ArgumentNullException.ThrowIfNull(orderByPredicate);
         List<T> dataObjects = QueryData(wherePredicate, orderByPredicate, descending);
         List<ListView> dataObjectListViews = ConvertToListView(dataObjects);
         return await Task.FromResult(dataObjectListViews);
     }
 
     /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException">Thrown if the queryDefinition parameter is null.</exception>
     public async Task<PagedList<ListView>> GetPageListViewAsync(QueryDefinition queryDefinition, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(queryDefinition);
@@ -110,6 +83,7 @@ public class UserEditableMemoryDataLayer<T> : MemoryDataLayer<T>, IUserEditableD
     }
 
     /// <inheritdoc/>
+    /// <exception cref="DataObjectUpdateConflictException">Thrown if any updating data object is considered old.</exception>
     public async override Task<List<T>> UpdateAsync(List<T> dataObjects, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(dataObjects);

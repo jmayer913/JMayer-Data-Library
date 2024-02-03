@@ -172,7 +172,7 @@ public class SubUserEditableDataLayerUnitTest
                 new FilterDefinition()
                 {
                     FilterOn = nameof(SimpleDataObject.Value),
-                    Operator = FilterDefinition.ContainsOperator,
+                    Operator = FilterDefinition.StringContainsOperator,
                     Value = "1",
                 }
             ],
@@ -285,7 +285,7 @@ public class SubUserEditableDataLayerUnitTest
                 new FilterDefinition()
                 {
                     FilterOn = nameof(SimpleUserEditableDataObject.Value),
-                    Operator = FilterDefinition.ContainsOperator,
+                    Operator = FilterDefinition.StringContainsOperator,
                     Value = "1",
                 }
             ],

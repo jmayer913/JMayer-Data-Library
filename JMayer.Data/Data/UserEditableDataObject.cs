@@ -38,16 +38,11 @@ public class UserEditableDataObject : DataObject
     [Required]
     public string Name { get; set; } = string.Empty;
 
-    /// <summary>
-    /// The default constructor.
-    /// </summary>
-    public UserEditableDataObject() { }
+    /// <inheritdoc/>
+    public UserEditableDataObject() : base() { }
 
-    /// <summary>
-    /// The copy constructor.
-    /// </summary>
-    /// <param name="copy">The copy.</param>
-    public UserEditableDataObject(UserEditableDataObject copy) => MapProperties(copy);
+    /// <inheritdoc/>
+    public UserEditableDataObject(UserEditableDataObject copy) : base(copy) { }
 
     /// <inheritdoc/>
     public override void MapProperties(DataObject dataObject)
