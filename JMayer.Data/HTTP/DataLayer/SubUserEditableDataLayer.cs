@@ -25,6 +25,7 @@ public class SubUserEditableDataLayer<T> : UserEditableDataLayer<T>, ISubUserEdi
     }
 
     /// <inheritdoc/>
+    /// <exception cref="ArgumentException">Thrown if the ownerID parameter is null or empty.</exception>
     public async Task<List<T>?> GetAllAsync(string ownerID, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(ownerID);
@@ -33,7 +34,7 @@ public class SubUserEditableDataLayer<T> : UserEditableDataLayer<T>, ISubUserEdi
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
         {
-            dataObjects = await httpResponseMessage.Content.ReadFromJsonAsync<List<T>>(cancellationToken: cancellationToken);
+            dataObjects = await httpResponseMessage.Content.ReadFromJsonAsync<List<T>>(cancellationToken);
         }
         
         return dataObjects;
@@ -46,6 +47,7 @@ public class SubUserEditableDataLayer<T> : UserEditableDataLayer<T>, ISubUserEdi
     }
 
     /// <inheritdoc/>
+    /// <exception cref="ArgumentException">Thrown if the ownerID parameter is null or empty.</exception>
     public async Task<List<ListView>?> GetAllListViewAsync(string ownerID, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(ownerID);
@@ -54,7 +56,7 @@ public class SubUserEditableDataLayer<T> : UserEditableDataLayer<T>, ISubUserEdi
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
         {
-            dataObjects = await httpResponseMessage.Content.ReadFromJsonAsync<List<ListView>>(cancellationToken: cancellationToken);
+            dataObjects = await httpResponseMessage.Content.ReadFromJsonAsync<List<ListView>>(cancellationToken);
         }
         
         return dataObjects;
@@ -67,6 +69,8 @@ public class SubUserEditableDataLayer<T> : UserEditableDataLayer<T>, ISubUserEdi
     }
 
     /// <inheritdoc/>
+    /// <exception cref="ArgumentException">Thrown if the ownerID parameter is null or empty.</exception>
+    /// <exception cref="ArgumentNullException">Thrown if the queryDefinition parameter is null.</exception>
     public async Task<PagedList<T>?> GetPageAsync(string ownerID, QueryDefinition queryDefinition, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(ownerID);
@@ -77,7 +81,7 @@ public class SubUserEditableDataLayer<T> : UserEditableDataLayer<T>, ISubUserEdi
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
         {
-            dataObjects = await httpResponseMessage.Content.ReadFromJsonAsync<PagedList<T>>(cancellationToken: cancellationToken);
+            dataObjects = await httpResponseMessage.Content.ReadFromJsonAsync<PagedList<T>>(cancellationToken);
         }
 
         return dataObjects;
@@ -90,6 +94,8 @@ public class SubUserEditableDataLayer<T> : UserEditableDataLayer<T>, ISubUserEdi
     }
 
     /// <inheritdoc/>
+    /// <exception cref="ArgumentException">Thrown if the ownerID parameter is null or empty.</exception>
+    /// <exception cref="ArgumentNullException">Thrown if the queryDefinition parameter is null.</exception>
     public async Task<PagedList<ListView>?> GetPageListViewAsync(string ownerID, QueryDefinition queryDefinition, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(ownerID);
@@ -100,7 +106,7 @@ public class SubUserEditableDataLayer<T> : UserEditableDataLayer<T>, ISubUserEdi
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
         {
-            dataObjects = await httpResponseMessage.Content.ReadFromJsonAsync<PagedList<ListView>>(cancellationToken: cancellationToken);
+            dataObjects = await httpResponseMessage.Content.ReadFromJsonAsync<PagedList<ListView>>(cancellationToken);
         }
 
         return dataObjects;

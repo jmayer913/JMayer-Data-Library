@@ -33,6 +33,7 @@ public class UserEditableDataLayer<T> : StandardCRUDDataLayer<T>, IUserEditableD
     }
 
     /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException">Thrown if the queryDefinition parameter is null.</exception>
     public async Task<PagedList<ListView>?> GetPageListViewAsync(QueryDefinition queryDefinition, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(queryDefinition);

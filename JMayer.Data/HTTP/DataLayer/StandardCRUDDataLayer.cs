@@ -52,6 +52,7 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
     }
 
     /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException">Thrown if the dataObject parameter is null.</exception>
     public async Task<OperationResult> CreateAsync(T dataObject, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(dataObject);
@@ -73,6 +74,7 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
     }
 
     /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException">Thrown if the dataObject parameter is null.</exception>
     public async Task<OperationResult> DeleteAsync(T dataObject, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(dataObject);
@@ -95,6 +97,7 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
     }
 
     /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException">Thrown if the queryDefinition parameter is null.</exception>
     public async Task<PagedList<T>?> GetPageAsync(QueryDefinition queryDefinition, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(queryDefinition);
@@ -147,6 +150,7 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
     }
 
     /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException">Thrown if the queryDefinition parameter is null.</exception>
     public async Task<OperationResult> UpdateAsync(T dataObject, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(dataObject);
@@ -168,6 +172,7 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
     }
 
     /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException">Thrown if the queryDefinition parameter is null.</exception>
     public async Task<ServerSideValidationResult?> ValidationAsync(T dataObject, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(dataObject);

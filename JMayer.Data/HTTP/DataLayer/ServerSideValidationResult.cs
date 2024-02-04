@@ -29,6 +29,7 @@ public sealed class ServerSideValidationResult
     /// The conversion constructor.
     /// </summary>
     /// <param name="validationResults">The data annotation results to convert into this object.</param>
+    /// <exception cref="ArgumentNullException">Thrown if the validationResults parameter is null.</exception>
     public ServerSideValidationResult(List<ValidationResult> validationResults)
     {
         ArgumentNullException.ThrowIfNull(validationResults);
