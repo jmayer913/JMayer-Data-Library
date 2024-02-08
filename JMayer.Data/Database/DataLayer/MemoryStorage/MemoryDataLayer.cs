@@ -284,7 +284,6 @@ public class MemoryDataLayer<T> : IStandardCRUDDataLayer<T> where T : DataObject
     /// <returns>A list of DataObjects.</returns>
     protected PagedList<T> QueryData(QueryDefinition queryDefinition)
     {
-#warning Explore combining the two QueryData() methods so there isn't two methods that are similar but slightly different.
         PagedList<T> pagedDataObjects = new();
 
         lock (DataStorageLock)
