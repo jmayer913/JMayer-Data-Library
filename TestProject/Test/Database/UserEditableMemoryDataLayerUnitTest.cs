@@ -190,7 +190,7 @@ public class UserEditableMemoryDataLayerUnitTest
         filterQueryDefinition.FilterDefinitions.Add(new FilterDefinition()
         {
             FilterOn = nameof(SimpleUserEditableDataObject.Value),
-            Operator = FilterDefinition.NumericEqualsOperator,
+            Operator = FilterDefinition.EqualsOperator,
             Value = "50",
         });
         PagedList<ListView> filterPage = await dataLayer.GetPageListViewAsync(filterQueryDefinition);

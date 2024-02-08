@@ -441,7 +441,7 @@ public class MemoryDataLayerUnitTest
         filterQueryDefinition.FilterDefinitions.Add(new FilterDefinition()
         {
             FilterOn = nameof(SimpleDataObject.Value),
-            Operator = FilterDefinition.NumericEqualsOperator,
+            Operator = FilterDefinition.EqualsOperator,
             Value = "50",
         });
         PagedList<SimpleDataObject> filterPage = await dataLayer.GetPageAsync(filterQueryDefinition);
