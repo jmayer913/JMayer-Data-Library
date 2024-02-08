@@ -1,8 +1,6 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
 
-#warning Missing IsEmpty and IsNotEmpty for date time and numeric types.
-
 namespace JMayer.Data.Data.Query;
 
 /// <summary>
@@ -121,6 +119,31 @@ public class FilterDefinition
     public string Value { get; set; } = string.Empty;
 
     /// <summary>
+    /// The method returns a default value for a type.
+    /// </summary>
+    /// <param name="propertyOrFieldType">The type for the property or field.</param>
+    /// <returns>The value as a string.</returns>
+    private static string GetDefaultValue(Type propertyOrFieldType)
+    {
+        if (propertyOrFieldType == typeof(bool))
+        {
+            return false.ToString();
+        }
+        else if (propertyOrFieldType == typeof(DateTime))
+        {
+            return DateTime.MinValue.ToString();
+        }
+        else if (propertyOrFieldType == typeof(TimeSpan))
+        {
+            return TimeSpan.MinValue.ToString();
+        }
+        else
+        {
+            return 0.ToString();
+        }
+    }
+
+    /// <summary>
     /// The method returns the type for the property or field.
     /// </summary>
     /// <typeparam name="T">Can be any object.</typeparam>
@@ -195,6 +218,8 @@ public class FilterDefinition
                 EqualsOperator => ToEqualsExpression<T>(propertyOrFieldType),
                 GreaterThanOperator => ToGreaterThanExpression<T>(propertyOrFieldType),
                 GreaterThanOrEqualsOperator => ToGreaterThanOrEqualsExpression<T>(propertyOrFieldType),
+                IsEmptyOperator => ToIsEmptyExpression<T>(propertyOrFieldType),
+                IsNotEmptyOperator => ToIsNotEmptyExpression<T>(propertyOrFieldType),
                 LessThanOperator => ToLessThanExpression<T>(propertyOrFieldType),
                 LessThanOrEqualsOperator => ToLessThanOrEqualsExpression<T>(propertyOrFieldType),
                 NotEqualsOperator => ToNotEqualsExpression<T>(propertyOrFieldType),
@@ -233,6 +258,76 @@ public class FilterDefinition
         var greaterThanOrEqualsOperator = Expression.GreaterThanOrEqual(property, value);
 
         return Expression.Lambda<Func<T, bool>>(greaterThanOrEqualsOperator, parameter);
+    }
+
+    /// <summary>
+    /// The method returns an is emtpy expression to be used for filtering.
+    /// </summary>
+    /// <typeparam name="T">Can be any object.</typeparam>
+    /// <param name="propertyOrFieldType">The type for the property or field; needed to convert the string value.</param>
+    /// <returns>An is empty expression to be used for filtering.</returns>
+    private Expression<Func<T, bool>> ToIsEmptyExpression<T>(Type propertyOrFieldType)
+    {
+        //Use null as empty if the type is nullable.
+        if (Nullable.GetUnderlyingType(propertyOrFieldType) != null)
+        {
+            var parameter = Expression.Parameter(typeof(T), "obj");
+            var property = Expression.PropertyOrField(parameter, FilterOn);
+            var value = Expression.Constant(null, typeof(object));
+            var equalOperator = Expression.Equal(property, value);
+
+            return Expression.Lambda<Func<T, bool>>(equalOperator, parameter);
+        }
+        else
+        {
+            //For non-nullable types, use a default value to represent emtpy.
+            if (!string.IsNullOrEmpty(Value))
+            {
+                Value = GetDefaultValue(propertyOrFieldType);
+            }
+
+            var parameter = Expression.Parameter(typeof(T), "obj");
+            var property = Expression.PropertyOrField(parameter, FilterOn);
+            var value = Expression.Constant(Convert.ChangeType(Value, propertyOrFieldType), propertyOrFieldType);
+            var equalOperator = Expression.Equal(property, value);
+
+            return Expression.Lambda<Func<T, bool>>(equalOperator, parameter);
+        }
+    }
+
+    /// <summary>
+    /// The method returns an is not emtpy expression to be used for filtering.
+    /// </summary>
+    /// <typeparam name="T">Can be any object.</typeparam>
+    /// <param name="propertyOrFieldType">The type for the property or field; needed to convert the string value.</param>
+    /// <returns>An is not empty expression to be used for filtering.</returns>
+    private Expression<Func<T, bool>> ToIsNotEmptyExpression<T>(Type propertyOrFieldType)
+    {
+        //Use null as empty if the type is nullable.
+        if (Nullable.GetUnderlyingType(propertyOrFieldType) != null)
+        {
+            var parameter = Expression.Parameter(typeof(T), "obj");
+            var property = Expression.PropertyOrField(parameter, FilterOn);
+            var value = Expression.Constant(null, typeof(object));
+            var notEqualOperator = Expression.NotEqual(property, value);
+
+            return Expression.Lambda<Func<T, bool>>(notEqualOperator, parameter);
+        }
+        else
+        {
+            //For non-nullable types, use a default value to represent emtpy.
+            if (!string.IsNullOrEmpty(Value))
+            {
+                Value = GetDefaultValue(propertyOrFieldType);
+            }
+
+            var parameter = Expression.Parameter(typeof(T), "obj");
+            var property = Expression.PropertyOrField(parameter, FilterOn);
+            var value = Expression.Constant(Convert.ChangeType(Value, propertyOrFieldType), propertyOrFieldType);
+            var notEqualOperator = Expression.NotEqual(property, value);
+
+            return Expression.Lambda<Func<T, bool>>(notEqualOperator, parameter);
+        }
     }
 
     /// <summary>
