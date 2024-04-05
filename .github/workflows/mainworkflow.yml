@@ -27,7 +27,3 @@ jobs:
       run: dotnet build --configuration Release --no-restore
     - name: Test
       run: dotnet test --no-build --verbosity normal
-    - name: Package
-      run: dotnet pack --configuration Release
-    - name: Publish
-      run: dotnet nuget push "**/*.nupkg" --source "github"
