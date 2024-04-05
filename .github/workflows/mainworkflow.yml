@@ -30,4 +30,4 @@ jobs:
     - name: Package
       run: dotnet pack --configuration Release
     - name: Publish
-      run: dotnet nuget push "bin/Release/JMayer.Data.1.0.0.nupkg" --source "github"
+      run: dotnet nuget push "**/*.nupkg" --api-key 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 --source "github"
