@@ -16,7 +16,7 @@ jobs:
 
     steps:
     - name: Add GitHub Nuget Source
-      run: dotnet nuget add source --username USERNAME --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/JMayer-Data-Library/index.json"
+      run: dotnet nuget add source --username jmayer913 --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/jmayer913/index.json"
       continue-on-error: true
     - name: Checkout
       uses: actions/checkout@v4
