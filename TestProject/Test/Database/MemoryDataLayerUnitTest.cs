@@ -22,7 +22,7 @@ public class MemoryDataLayerUnitTest
     /// The method confirms if a null data object is passed to the MemoryDataLayer.CountAsync(), an exception is thrown.
     /// </summary>
     [Fact]
-    public async Task CountAsyncThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleMemoryDataLayer().CountAsync(null));
+    public async Task CountAsyncThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().CountAsync(null));
 
     /// <summary>
     /// The method confirms the MemoryDataLayer.CountAsync() works as intended.
@@ -31,7 +31,7 @@ public class MemoryDataLayerUnitTest
     [Fact]
     public async Task CountAsyncWorks()
     {
-        SimpleMemoryDataLayer dataLayer = new();
+        SimpleStandardDataLayer dataLayer = new();
 
         _ = await dataLayer.CreateAsync(new SimpleDataObject());
         int count = await dataLayer.CountAsync();
@@ -46,7 +46,7 @@ public class MemoryDataLayerUnitTest
     [Fact]
     public async Task CountAsyncWherePredicateWorks()
     {
-        SimpleMemoryDataLayer dataLayer = new();
+        SimpleStandardDataLayer dataLayer = new();
 
         _ = await dataLayer.CreateAsync(new SimpleDataObject());
         _ = await dataLayer.CreateAsync(new SimpleDataObject());
@@ -74,7 +74,7 @@ public class MemoryDataLayerUnitTest
     [Fact]
     public async Task CreateAsyncDataObjectWorks()
     {
-        SimpleMemoryDataLayer dataLayer = new();
+        SimpleStandardDataLayer dataLayer = new();
 
         SimpleDataObject originalDataObject = new();
         SimpleDataObject firstReturnedCopiedDataObject = await dataLayer.CreateAsync(originalDataObject);
@@ -97,7 +97,7 @@ public class MemoryDataLayerUnitTest
     [Fact]
     public async Task CreateAsyncFiresCreatedEvent()
     {
-        SimpleMemoryDataLayer dataLayer = new();
+        SimpleStandardDataLayer dataLayer = new();
         await Assert.RaisesAsync<CreatedEventArgs>
         (
             handler => dataLayer.Created += handler,
@@ -127,7 +127,7 @@ public class MemoryDataLayerUnitTest
     [Fact]
     public async Task CreateAsyncListWorks()
     {
-        SimpleMemoryDataLayer dataLayer = new();
+        SimpleStandardDataLayer dataLayer = new();
 
         SimpleDataObject firstOriginalDataObject = new();
         SimpleDataObject secondOriginalDataObject = new();
@@ -150,8 +150,8 @@ public class MemoryDataLayerUnitTest
     [Fact]
     public async Task CreateAsyncThrowsArgumentNullException()
     {
-        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleMemoryDataLayer().CreateAsync((SimpleDataObject)null));
-        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleMemoryDataLayer().CreateAsync((List<SimpleDataObject>)null));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().CreateAsync((SimpleDataObject)null));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().CreateAsync((List<SimpleDataObject>)null));
     }
 
     /// <summary>
@@ -160,8 +160,8 @@ public class MemoryDataLayerUnitTest
     [Fact]
     public async Task CreateAsyncThrowsDataObjectValidationException()
     {
-        await Assert.ThrowsAsync<DataObjectValidationException>(() => new SimpleMemoryDataLayer().CreateAsync(new SimpleDataObject() { Value = 9999 }));
-        await Assert.ThrowsAsync<DataObjectValidationException>(() => new SimpleMemoryDataLayer().CreateAsync([new SimpleDataObject() { Value = 1 }, new SimpleDataObject() { Value = 9999 }]));
+        await Assert.ThrowsAsync<DataObjectValidationException>(() => new SimpleStandardDataLayer().CreateAsync(new SimpleDataObject() { Value = 9999 }));
+        await Assert.ThrowsAsync<DataObjectValidationException>(() => new SimpleStandardDataLayer().CreateAsync([new SimpleDataObject() { Value = 1 }, new SimpleDataObject() { Value = 9999 }]));
     }
 
     /// <summary>
@@ -177,7 +177,7 @@ public class MemoryDataLayerUnitTest
     [Fact]
     public async Task DeleteAsyncDataObjectWorks()
     {
-        SimpleMemoryDataLayer dataLayer = new();
+        SimpleStandardDataLayer dataLayer = new();
 
         SimpleDataObject dataObject = await dataLayer.CreateAsync(new SimpleDataObject());
         await dataLayer.DeleteAsync(dataObject);
@@ -192,7 +192,7 @@ public class MemoryDataLayerUnitTest
     [Fact]
     public async Task DeleteAsyncFiresDeletedEvent()
     {
-        SimpleMemoryDataLayer dataLayer = new();
+        SimpleStandardDataLayer dataLayer = new();
         await Assert.RaisesAsync<DeletedEventArgs>
         (
             handler => dataLayer.Deleted += handler,
@@ -238,7 +238,7 @@ public class MemoryDataLayerUnitTest
     [Fact]
     public async Task DeleteAsyncListWorks()
     {
-        SimpleMemoryDataLayer dataLayer = new();
+        SimpleStandardDataLayer dataLayer = new();
         List<SimpleDataObject> dataObjects = [];
 
         dataObjects.Add(await dataLayer.CreateAsync(new SimpleDataObject()));
@@ -258,9 +258,9 @@ public class MemoryDataLayerUnitTest
     [Fact]
     public async Task DeleteAsyncThrowsArgumentNullException()
     {
-        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleMemoryDataLayer().DeleteAsync((SimpleDataObject)null));
-        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleMemoryDataLayer().DeleteAsync((List<SimpleDataObject>)null));
-        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleMemoryDataLayer().DeleteAsync((Expression<Func<SimpleDataObject, bool>>)null));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().DeleteAsync((SimpleDataObject)null));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().DeleteAsync((List<SimpleDataObject>)null));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().DeleteAsync((Expression<Func<SimpleDataObject, bool>>)null));
     }
 
     /// <summary>
@@ -276,7 +276,7 @@ public class MemoryDataLayerUnitTest
     [Fact]
     public async Task DeleteAsyncWherePredicateWorks()
     {
-        SimpleMemoryDataLayer dataLayer = new();
+        SimpleStandardDataLayer dataLayer = new();
 
         _ = await dataLayer.CreateAsync(new SimpleDataObject());
         _ = await dataLayer.CreateAsync(new SimpleDataObject());
@@ -293,7 +293,7 @@ public class MemoryDataLayerUnitTest
     /// The method confirms if a null data object is passed to the MemoryDataLayer.ExistAsync(), an exception is thrown.
     /// </summary>
     [Fact]
-    public async Task ExistAsyncThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleMemoryDataLayer().ExistAsync(null));
+    public async Task ExistAsyncThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().ExistAsync(null));
 
     /// <summary>
     /// The method confirms MemoryDataLayer.ExistAsync() works as intended for the where predicate.
@@ -302,7 +302,7 @@ public class MemoryDataLayerUnitTest
     [Fact]
     public async Task ExistAsyncWherePredicateWorks()
     {
-        SimpleMemoryDataLayer dataLayer = new();
+        SimpleStandardDataLayer dataLayer = new();
         _ = await dataLayer.CreateAsync(new SimpleDataObject());
 
         bool found = await dataLayer.ExistAsync(obj => obj.Integer64ID == 1);
@@ -318,7 +318,7 @@ public class MemoryDataLayerUnitTest
     [Fact]
     public async Task GetAllAsyncWorks()
     {
-        SimpleMemoryDataLayer dataLayer = new();
+        SimpleStandardDataLayer dataLayer = new();
         _ = await dataLayer.CreateAsync(new SimpleDataObject());
         List<SimpleDataObject> dataObjects = await dataLayer.GetAllAsync();
         Assert.True(dataObjects.Count == 1);
@@ -331,7 +331,7 @@ public class MemoryDataLayerUnitTest
     [Fact]
     public async Task GetAllAsyncWherePredicateWorks()
     {
-        SimpleMemoryDataLayer dataLayer = new();
+        SimpleStandardDataLayer dataLayer = new();
 
         _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 10 });
         _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 20 });
@@ -358,7 +358,7 @@ public class MemoryDataLayerUnitTest
     [Fact]
     public async Task GetAllAsyncOrderPredicateWorks()
     {
-        SimpleMemoryDataLayer dataLayer = new();
+        SimpleStandardDataLayer dataLayer = new();
 
         _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 10 });
         _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 20 });
@@ -384,7 +384,7 @@ public class MemoryDataLayerUnitTest
     [Fact]
     public async Task GetAllAsyncWherePredicateOrderPredicateWorks()
     {
-        SimpleMemoryDataLayer dataLayer = new();
+        SimpleStandardDataLayer dataLayer = new();
 
         _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 10 });
         _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 20 });
@@ -407,7 +407,7 @@ public class MemoryDataLayerUnitTest
     /// The method confirms if a null data object is passed to the MemoryDataLayer.GetPageAsync(), an exception is thrown.
     /// </summary>
     [Fact]
-    public async Task GetPageAsyncThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleMemoryDataLayer().GetPageAsync(null));
+    public async Task GetPageAsyncThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().GetPageAsync(null));
 
     /// <summary>
     /// The method confirms MemoryDataLayer.GetPageAsync() works as intended.
@@ -416,7 +416,7 @@ public class MemoryDataLayerUnitTest
     [Fact]
     public async Task GetPageAsyncWorks()
     {
-        SimpleMemoryDataLayer dataLayer = new();
+        SimpleStandardDataLayer dataLayer = new();
         List<SimpleDataObject> dataObjects = [];
 
         for (int index = 1; index <= 100; index++)
@@ -469,7 +469,7 @@ public class MemoryDataLayerUnitTest
     [Fact]
     public async Task GetSingleAsyncWorks()
     {
-        SimpleMemoryDataLayer dataLayer = new();
+        SimpleStandardDataLayer dataLayer = new();
 
         bool notFound = await dataLayer.GetSingleAsync() == null;
         _ = await dataLayer.CreateAsync(new SimpleDataObject());
@@ -485,7 +485,7 @@ public class MemoryDataLayerUnitTest
     [Fact]
     public async Task GetSingleAsyncWherePredicateWorks()
     {
-        SimpleMemoryDataLayer dataLayer = new();
+        SimpleStandardDataLayer dataLayer = new();
 
         _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 10 });
         _ = await dataLayer.CreateAsync(new SimpleDataObject() { Value = 20 });
@@ -519,7 +519,7 @@ public class MemoryDataLayerUnitTest
     [Fact]
     public async Task UpdateAsyncDataObjectWorks()
     {
-        SimpleMemoryDataLayer dataLayer = new();
+        SimpleStandardDataLayer dataLayer = new();
         SimpleDataObject originalDataObject = await dataLayer.CreateAsync(new SimpleDataObject());
 
         originalDataObject.Value = 10;
@@ -540,7 +540,7 @@ public class MemoryDataLayerUnitTest
     [Fact]
     public async Task UpdateAsyncFiresUpdatedEvent()
     {
-        SimpleMemoryDataLayer dataLayer = new();
+        SimpleStandardDataLayer dataLayer = new();
         await Assert.RaisesAsync<UpdatedEventArgs>
         (
             handler => dataLayer.Updated += handler,
@@ -583,7 +583,7 @@ public class MemoryDataLayerUnitTest
     [Fact]
     public async Task UpdateAsyncListWorks()
     {
-        SimpleMemoryDataLayer dataLayer = new();
+        SimpleStandardDataLayer dataLayer = new();
         List<SimpleDataObject> originalDataObjects = await dataLayer.CreateAsync([new SimpleDataObject(), new SimpleDataObject()]);
 
         originalDataObjects[0].Value = 10;
@@ -606,8 +606,8 @@ public class MemoryDataLayerUnitTest
     [Fact]
     public async Task UpdateAsyncThrowsArgumentNullException()
     {
-        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleMemoryDataLayer().UpdateAsync((SimpleDataObject)null));
-        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleMemoryDataLayer().UpdateAsync((List<SimpleDataObject>)null));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().UpdateAsync((SimpleDataObject)null));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().UpdateAsync((List<SimpleDataObject>)null));
     }
 
     /// <summary>
@@ -618,7 +618,7 @@ public class MemoryDataLayerUnitTest
     {
         await Assert.ThrowsAsync<DataObjectValidationException>(async Task () =>
         {
-            SimpleMemoryDataLayer dataLayer = new();
+            SimpleStandardDataLayer dataLayer = new();
             SimpleDataObject dataObject = await dataLayer.CreateAsync(new SimpleDataObject());
 
             dataObject.Value = 9999;
@@ -627,7 +627,7 @@ public class MemoryDataLayerUnitTest
         });
         await Assert.ThrowsAsync<DataObjectValidationException>(async Task () =>
         {
-            SimpleMemoryDataLayer dataLayer = new();
+            SimpleStandardDataLayer dataLayer = new();
             List<SimpleDataObject> dataObjects = await dataLayer.CreateAsync([new SimpleDataObject(), new SimpleDataObject()]);
 
             dataObjects[0].Value = 1;
@@ -643,15 +643,15 @@ public class MemoryDataLayerUnitTest
     [Fact]
     public async Task UpdateAsyncThrowsIDNotFoundException()
     {
-        await Assert.ThrowsAsync<IDNotFoundException>(() => new SimpleMemoryDataLayer().UpdateAsync(new SimpleDataObject() { Integer64ID = 99 }));
-        await Assert.ThrowsAsync<IDNotFoundException>(() => new SimpleMemoryDataLayer().UpdateAsync([new SimpleDataObject() { Integer64ID = 99 }]));
+        await Assert.ThrowsAsync<IDNotFoundException>(() => new SimpleStandardDataLayer().UpdateAsync(new SimpleDataObject() { Integer64ID = 99 }));
+        await Assert.ThrowsAsync<IDNotFoundException>(() => new SimpleStandardDataLayer().UpdateAsync([new SimpleDataObject() { Integer64ID = 99 }]));
     }
 
     /// <summary>
     /// The method confirms if a null data object is passed to the MemoryDataLayer.ValidateAsync(), an exception is thrown.
     /// </summary>
     [Fact]
-    public async Task ValidateAsyncThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleMemoryDataLayer().ValidateAsync(null));
+    public async Task ValidateAsyncThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().ValidateAsync(null));
 
     /// <summary>
     /// The method confirms MemoryDataLayer.ValidateAsync() works as intended.
@@ -666,7 +666,7 @@ public class MemoryDataLayerUnitTest
     [Fact]
     public async Task ValidateAsyncWorks()
     {
-        SimpleMemoryDataLayer dataLayer = new();
+        SimpleStandardDataLayer dataLayer = new();
         SimpleDataObject dataObject = await dataLayer.CreateAsync(new SimpleDataObject());
 
         dataObject.Value = 10;

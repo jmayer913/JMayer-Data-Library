@@ -42,7 +42,7 @@ public class UserEditableMemoryDataLayerUnitTest
     public async Task CreateAsyncWorks()
     {
         SimpleUserEditableDataObject originalDataObject = new() { Name = "A Name" };
-        SimpleUserEditableMemoryDataLayer dataLayer = new();
+        SimpleUserEditableDataLayer dataLayer = new();
 
         SimpleUserEditableDataObject firstReturnedCopiedDataObject = await dataLayer.CreateAsync(originalDataObject);
         SimpleUserEditableDataObject secondReturnedDataObject = await dataLayer.CreateAsync(originalDataObject);
@@ -66,7 +66,7 @@ public class UserEditableMemoryDataLayerUnitTest
     [Fact]
     public async Task GetAllListViewAsyncWorks()
     {
-        SimpleUserEditableMemoryDataLayer dataLayer = new();
+        SimpleUserEditableDataLayer dataLayer = new();
         _ = await dataLayer.CreateAsync(new SimpleUserEditableDataObject() { Name = "A Name" });
         List<ListView> listViews = await dataLayer.GetAllListViewAsync();
         Assert.True(listViews.Count == 1);
@@ -79,7 +79,7 @@ public class UserEditableMemoryDataLayerUnitTest
     [Fact]
     public async Task GetAllAsyncWherePredicateWorks()
     {
-        SimpleUserEditableMemoryDataLayer dataLayer = new();
+        SimpleUserEditableDataLayer dataLayer = new();
 
         _ = await dataLayer.CreateAsync(new SimpleUserEditableDataObject() { Name = "10", Value = 10 });
         _ = await dataLayer.CreateAsync(new SimpleUserEditableDataObject() { Name = "20", Value = 20 });
@@ -106,7 +106,7 @@ public class UserEditableMemoryDataLayerUnitTest
     [Fact]
     public async Task GetAllAsyncOrderPredicateWorks()
     {
-        SimpleUserEditableMemoryDataLayer dataLayer = new();
+        SimpleUserEditableDataLayer dataLayer = new();
 
         _ = await dataLayer.CreateAsync(new SimpleUserEditableDataObject() { Name = "10", Value = 10 });
         _ = await dataLayer.CreateAsync(new SimpleUserEditableDataObject() { Name = "20", Value = 20 });
@@ -132,7 +132,7 @@ public class UserEditableMemoryDataLayerUnitTest
     [Fact]
     public async Task GetAllAsyncWherePredicateOrderPredicateWorks()
     {
-        SimpleUserEditableMemoryDataLayer dataLayer = new();
+        SimpleUserEditableDataLayer dataLayer = new();
 
         _ = await dataLayer.CreateAsync(new SimpleUserEditableDataObject() { Name = "10", Value = 10 });
         _ = await dataLayer.CreateAsync(new SimpleUserEditableDataObject() { Name = "20", Value = 20 });
@@ -155,7 +155,7 @@ public class UserEditableMemoryDataLayerUnitTest
     /// The method confirms if a null data object is passed to the UserEditableMemoryDataLayer.GetPageListViewAsync(), an exception is thrown.
     /// </summary>
     [Fact]
-    public async Task GetPageAsyncThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleUserEditableMemoryDataLayer().GetPageAsync(null));
+    public async Task GetPageAsyncThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleUserEditableDataLayer().GetPageAsync(null));
 
     /// <summary>
     /// The method confirms UserEditableMemoryDataLayer.GetPageListViewAsync() works as intended.
@@ -164,7 +164,7 @@ public class UserEditableMemoryDataLayerUnitTest
     [Fact]
     public async Task GetPageListViewAsyncWorks()
     {
-        SimpleUserEditableMemoryDataLayer dataLayer = new();
+        SimpleUserEditableDataLayer dataLayer = new();
         List<SimpleUserEditableDataObject> dataObjects = [];
 
         for (int index = 1; index <= 100; index++)
@@ -227,7 +227,7 @@ public class UserEditableMemoryDataLayerUnitTest
     [Fact]
     public async Task UpdateAsyncDataObjectWorks()
     {
-        SimpleUserEditableMemoryDataLayer dataLayer = new();
+        SimpleUserEditableDataLayer dataLayer = new();
         SimpleUserEditableDataObject originalDataObject = await dataLayer.CreateAsync(new SimpleUserEditableDataObject() { Name = "A Name" });
 
         originalDataObject.Value = 10;
@@ -249,7 +249,7 @@ public class UserEditableMemoryDataLayerUnitTest
     [Fact]
     public async Task UpdateAsyncFiresUpdatedEvent()
     {
-        SimpleUserEditableMemoryDataLayer dataLayer = new();
+        SimpleUserEditableDataLayer dataLayer = new();
         await Assert.RaisesAsync<UpdatedEventArgs>
         (
             handler => dataLayer.Updated += handler,
@@ -293,7 +293,7 @@ public class UserEditableMemoryDataLayerUnitTest
     [Fact]
     public async Task UpdateAsyncListWorks()
     {
-        SimpleUserEditableMemoryDataLayer dataLayer = new();
+        SimpleUserEditableDataLayer dataLayer = new();
         List<SimpleUserEditableDataObject> originalDataObjects = await dataLayer.CreateAsync([new SimpleUserEditableDataObject() { Name = "A Name" }, new SimpleUserEditableDataObject() { Name = "Another Name" }]);
 
         originalDataObjects[0].Value = 10;
@@ -316,8 +316,8 @@ public class UserEditableMemoryDataLayerUnitTest
     [Fact]
     public async Task UpdateAsyncThrowsArgumentNullException()
     {
-        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleUserEditableMemoryDataLayer().UpdateAsync((SimpleUserEditableDataObject?)null));
-        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleUserEditableMemoryDataLayer().UpdateAsync((List<SimpleUserEditableDataObject>)null));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleUserEditableDataLayer().UpdateAsync((SimpleUserEditableDataObject?)null));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleUserEditableDataLayer().UpdateAsync((List<SimpleUserEditableDataObject>)null));
     }
 
     /// <summary>
@@ -328,7 +328,7 @@ public class UserEditableMemoryDataLayerUnitTest
     {
         await Assert.ThrowsAsync<DataObjectValidationException>(async Task () =>
         {
-            SimpleUserEditableMemoryDataLayer dataLayer = new();
+            SimpleUserEditableDataLayer dataLayer = new();
             SimpleUserEditableDataObject dataObject = await dataLayer.CreateAsync(new SimpleUserEditableDataObject() { Name = "A Name" });
 
             dataObject.Name = null;
@@ -336,7 +336,7 @@ public class UserEditableMemoryDataLayerUnitTest
         });
         await Assert.ThrowsAsync<DataObjectValidationException>(async Task () =>
         {
-            SimpleUserEditableMemoryDataLayer dataLayer = new();
+            SimpleUserEditableDataLayer dataLayer = new();
             List<SimpleUserEditableDataObject> dataObjects = await dataLayer.CreateAsync([new SimpleUserEditableDataObject() { Name = "A Name" }, new SimpleUserEditableDataObject() { Name = "Another Name" }]);
 
             dataObjects[0].Value = 1;
@@ -352,8 +352,8 @@ public class UserEditableMemoryDataLayerUnitTest
     [Fact]
     public async Task UpdateAsyncThrowsIDNotFoundException()
     {
-        await Assert.ThrowsAsync<IDNotFoundException>(() => new SimpleUserEditableMemoryDataLayer().UpdateAsync(new SimpleUserEditableDataObject() { Integer64ID = 99, Name = "A Name" }));
-        await Assert.ThrowsAsync<IDNotFoundException>(() => new SimpleUserEditableMemoryDataLayer().UpdateAsync([new SimpleUserEditableDataObject() { Integer64ID = 99, Name = "A Name" }, new SimpleUserEditableDataObject() { Integer64ID = 100, Name = "Another Name" }]));
+        await Assert.ThrowsAsync<IDNotFoundException>(() => new SimpleUserEditableDataLayer().UpdateAsync(new SimpleUserEditableDataObject() { Integer64ID = 99, Name = "A Name" }));
+        await Assert.ThrowsAsync<IDNotFoundException>(() => new SimpleUserEditableDataLayer().UpdateAsync([new SimpleUserEditableDataObject() { Integer64ID = 99, Name = "A Name" }, new SimpleUserEditableDataObject() { Integer64ID = 100, Name = "Another Name" }]));
     }
 
     /// <summary>
@@ -364,7 +364,7 @@ public class UserEditableMemoryDataLayerUnitTest
     {
         await Assert.ThrowsAsync<DataObjectUpdateConflictException>(async Task () =>
         {
-            SimpleUserEditableMemoryDataLayer dataLayer = new();
+            SimpleUserEditableDataLayer dataLayer = new();
             SimpleUserEditableDataObject originalDataObject = await dataLayer.CreateAsync(new SimpleUserEditableDataObject() { Name = "A Name" });
 
             _ = await dataLayer.UpdateAsync(new SimpleUserEditableDataObject(originalDataObject)
@@ -377,7 +377,7 @@ public class UserEditableMemoryDataLayerUnitTest
         });
         await Assert.ThrowsAsync<DataObjectUpdateConflictException>(async Task () =>
         {
-            SimpleUserEditableMemoryDataLayer dataLayer = new();
+            SimpleUserEditableDataLayer dataLayer = new();
             List<SimpleUserEditableDataObject> originalDataObjects = await dataLayer.CreateAsync([new SimpleUserEditableDataObject() { Name = "A Name" }, new SimpleUserEditableDataObject() { Name = "Another Name" }]);
 
             _ = await dataLayer.UpdateAsync([new SimpleUserEditableDataObject(originalDataObjects[0]) { Value = 10 }, new SimpleUserEditableDataObject(originalDataObjects[1]) { Value = 20 }]);
@@ -393,7 +393,7 @@ public class UserEditableMemoryDataLayerUnitTest
     /// The method confirms if a null data object is passed to the UserEditableMemoryDataLayer.ValidateAsync(), an exception is thrown.
     /// </summary>
     [Fact]
-    public async Task ValidateAsyncThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleUserEditableMemoryDataLayer().ValidateAsync(null));
+    public async Task ValidateAsyncThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleUserEditableDataLayer().ValidateAsync(null));
 
     /// <summary>
     /// The method confirms UserEditableMemoryDataLayer.ValidateAsync() works as intended.
@@ -409,7 +409,7 @@ public class UserEditableMemoryDataLayerUnitTest
     [Fact]
     public async Task ValidateAsyncWorks()
     {
-        SimpleUserEditableMemoryDataLayer dataLayer = new();
+        SimpleUserEditableDataLayer dataLayer = new();
         SimpleUserEditableDataObject dataObject = await dataLayer.CreateAsync(new SimpleUserEditableDataObject() { Name = "A Name" });
         _ = await dataLayer.CreateAsync(new SimpleUserEditableDataObject() { Name = "Another Name" });
 
