@@ -9,6 +9,7 @@
     <Company>jmayer913</Company>
     <PackageDescription>Package contains generic data access via HTTP or a Database.</PackageDescription>
     <RepositoryUrl>https://github.com/jmayer913/JMayer-Data-Library</RepositoryUrl>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
 
 </Project>
