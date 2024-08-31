@@ -14,7 +14,7 @@ public interface IStandardCRUDDataLayer<T> where T : DataObject
     /// </summary>
     /// <param name="cancellationToken">A token used for task cancellations.</param>
     /// <returns>A count.</returns>
-    Task<int> CountAsync(CancellationToken cancellationToken = default);
+    Task<long> CountAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// The method creates a remote data object.

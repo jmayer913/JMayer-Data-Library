@@ -31,7 +31,7 @@ public interface IStandardCRUDDataLayer<T> where T : DataObject
     /// </summary>
     /// <param name="cancellationToken">A token used for task cancellations.</param>
     /// <returns>A count.</returns>
-    Task<int> CountAsync(CancellationToken cancellationToken = default);
+    Task<long> CountAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// The method returns a count of data objects in a collection/table based on a where predicate.
@@ -39,7 +39,7 @@ public interface IStandardCRUDDataLayer<T> where T : DataObject
     /// <param name="wherePredicate">The where predicate to use against the collection/table.</param>
     /// <param name="cancellationToken">A token used for task cancellations.</param>
     /// <returns>A count.</returns>
-    Task<int> CountAsync(Expression<Func<T, bool>> wherePredicate, CancellationToken cancellationToken = default);
+    Task<long> CountAsync(Expression<Func<T, bool>> wherePredicate, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// The method creates a data object in the table or collection.

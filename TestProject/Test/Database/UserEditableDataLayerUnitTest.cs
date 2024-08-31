@@ -89,7 +89,7 @@ public class UserEditableDataLayerUnitTest
 
         SimpleUserEditableDataObject firstReturnedCopiedDataObject = await dataLayer.CreateAsync(originalDataObject);
         SimpleUserEditableDataObject secondReturnedDataObject = await dataLayer.CreateAsync(originalDataObject);
-        int count = await dataLayer.CountAsync();
+        long count = await dataLayer.CountAsync();
 
         //An object must have been returned.
         Assert.NotNull(firstReturnedCopiedDataObject);

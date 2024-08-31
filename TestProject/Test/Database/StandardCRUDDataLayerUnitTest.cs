@@ -66,7 +66,7 @@ public class StandardCRUDDataLayerUnitTest
         SimpleStandardDataLayer dataLayer = new();
 
         _ = await dataLayer.CreateAsync(new SimpleDataObject());
-        int count = await dataLayer.CountAsync();
+        long count = await dataLayer.CountAsync();
 
         Assert.Equal(1, count);
     }
@@ -91,8 +91,8 @@ public class StandardCRUDDataLayerUnitTest
         _ = await dataLayer.CreateAsync(new SimpleDataObject());
         _ = await dataLayer.CreateAsync(new SimpleDataObject());
 
-        int oneCount = await dataLayer.CountAsync(obj => obj.Integer64ID == DefaultId);
-        int zeroCount = await dataLayer.CountAsync(obj => obj.Integer64ID == NotFoundId);
+        long oneCount = await dataLayer.CountAsync(obj => obj.Integer64ID == DefaultId);
+        long zeroCount = await dataLayer.CountAsync(obj => obj.Integer64ID == NotFoundId);
 
         Assert.Equal(1, oneCount);
         Assert.Equal(0, zeroCount);
@@ -160,7 +160,7 @@ public class StandardCRUDDataLayerUnitTest
 
         //Create the data objects.
         List<SimpleDataObject> returnedDataObjects = await dataLayer.CreateAsync([firstOriginalDataObject, secondOriginalDataObject]);
-        int count = await dataLayer.CountAsync();
+        long count = await dataLayer.CountAsync();
 
         //Objects must have been returned and the amount added must be the same amount returned.
         Assert.NotNull(returnedDataObjects); 
@@ -203,7 +203,7 @@ public class StandardCRUDDataLayerUnitTest
         //Create the data objects.
         SimpleDataObject firstReturnedCopiedDataObject = await dataLayer.CreateAsync(originalDataObject);
         SimpleDataObject secondReturnedDataObject = await dataLayer.CreateAsync(originalDataObject);
-        int count = await dataLayer.CountAsync();
+        long count = await dataLayer.CountAsync();
 
         //An object must have been returned.
         Assert.NotNull(firstReturnedCopiedDataObject); 
@@ -297,7 +297,7 @@ public class StandardCRUDDataLayerUnitTest
         dataObjects.Add(await dataLayer.CreateAsync(new SimpleDataObject()));
 
         await dataLayer.DeleteAsync(dataObjects);
-        int count = await dataLayer.CountAsync();
+        long count = await dataLayer.CountAsync();
 
         Assert.Equal(0, count);
     }
@@ -319,7 +319,7 @@ public class StandardCRUDDataLayerUnitTest
 
         SimpleDataObject dataObject = await dataLayer.CreateAsync(new SimpleDataObject());
         await dataLayer.DeleteAsync(dataObject);
-        int count = await dataLayer.CountAsync();
+        long count = await dataLayer.CountAsync();
 
         Assert.Equal(0, count);
     }
@@ -345,7 +345,7 @@ public class StandardCRUDDataLayerUnitTest
         _ = await dataLayer.CreateAsync(new SimpleDataObject());
 
         await dataLayer.DeleteAsync(obj => obj.Integer64ID > 2);
-        int count = await dataLayer.CountAsync();
+        long count = await dataLayer.CountAsync();
 
         Assert.Equal(2, count);
     }

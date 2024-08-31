@@ -40,7 +40,7 @@ public class StandardCRUDDataLayerUnitTest
     [InlineData(HttpStatusCode.Unauthorized)]
     public async Task VerifyCount(HttpStatusCode httpStatusCode)
     {
-        int respondingCount = 10;
+        long respondingCount = 10;
 
         HttpClient httpClient = new MockHttpMessageHandler()
             .WithRoute($"api/{nameof(SimpleDataObject)}/Count")
@@ -49,7 +49,7 @@ public class StandardCRUDDataLayerUnitTest
             .Build();
 
         SimpleDataLayer dataLayer = new(httpClient);
-        int returnedCount = await dataLayer.CountAsync();
+        long returnedCount = await dataLayer.CountAsync();
 
         //With positive compared against the expected response.
         if (httpStatusCode == HttpStatusCode.OK)
