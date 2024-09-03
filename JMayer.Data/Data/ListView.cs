@@ -1,7 +1,7 @@
 ﻿namespace JMayer.Data.Data;
 
 /// <summary>
-/// The class represents a simple name & ID data to be listed in UI.
+/// The class represents a simple name and ID data to be listed in UI.
 /// </summary>
 /// <remarks>
 /// This contains an integer or string ID and each is stored

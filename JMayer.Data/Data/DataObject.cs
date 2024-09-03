@@ -6,16 +6,19 @@ namespace JMayer.Data.Data;
 /// The class represents a record in the database.
 /// </summary>
 /// <remarks>
+/// <para>
 /// Data objects will inherit from this class and the subclasses
 /// will further build out the data it represents. For example, an
 /// account data object will have properties related to the account.
-/// 
+/// </para>
+/// <para>
 /// This contains an integer or string ID and each is stored
 /// indepedently. Because of this, it must be known beforehand which
-/// will be used by the data object, data layer & UI. For example, mongodb
+/// will be used by the data object, data layer and UI. For example, mongodb
 /// generates a unique ID hash which can be mapped to a string property so
 /// the mongo data object, mongo data layer and UI need to use the StringID 
 /// property.
+/// </para>
 /// </remarks>
 public class DataObject
 {
@@ -67,7 +70,6 @@ public class DataObject
     /// <summary>
     /// The method validates the data annotations on the data object.
     /// </summary>
-    /// <param name="dataObject">The data object to validate.</param>
     /// <returns>The validation results.</returns>
     public List<ValidationResult> Validate()
     {

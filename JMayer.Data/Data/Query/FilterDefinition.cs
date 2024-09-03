@@ -147,7 +147,6 @@ public class FilterDefinition
     /// The method returns the type for the property or field.
     /// </summary>
     /// <typeparam name="T">Can be any object.</typeparam>
-    /// <param name="propertyOrFieldName">The name of the property or field to search for.</param>
     /// <returns>The Type object.</returns>
     /// <exception cref="MissingMemberException">Throw if the property or field is not found.</exception>
     private Type GetPropertyOrFieldType<T>()

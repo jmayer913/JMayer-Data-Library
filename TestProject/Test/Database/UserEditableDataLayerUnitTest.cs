@@ -401,8 +401,8 @@ public class UserEditableDataLayerUnitTest
         Assert.NotEqual(originalDataObjects[1], returnedCopiedDataObjects[1]);
 
         //LastEditedOn must have been set.
-        Assert.NotNull(returnedCopiedDataObjects[0].LastEditedOn); //LastEditedOn must have been set.
-        Assert.NotNull(returnedCopiedDataObjects[1].LastEditedOn); //LastEditedOn must have been set.
+        Assert.NotNull(returnedCopiedDataObjects[0].LastEditedOn);
+        Assert.NotNull(returnedCopiedDataObjects[1].LastEditedOn);
 
         //Confirm the data was updated.
         Assert.Equal(originalDataObjects[0].Value, confirmedDataObjects[0].Value);

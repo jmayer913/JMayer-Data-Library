@@ -5,6 +5,10 @@ namespace JMayer.Data.Data;
 /// <summary>
 /// The class represents user editable data in the database.
 /// </summary>
+/// <remarks>
+/// This should be inherited when the data object can be edited by a user
+/// and you need to keep track of when it was last edited and by who.
+/// </remarks>
 public class UserEditableDataObject : DataObject
 {
     /// <summary>

@@ -357,7 +357,7 @@ public class StandardCRUDDataLayerUnitTest
     public async Task VerifyExistThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().ExistAsync(null));
 
     /// <summary>
-    /// The method verifies StandardCRUDDataLayer.ExistAsync() works as intended for the where predicate.
+    /// The method verifies StandardCRUDDataLayer.ExistAsync() can determine if a data object exists or not.
     /// </summary>
     /// <returns>A Task object for the async.</returns>
     [Fact]
