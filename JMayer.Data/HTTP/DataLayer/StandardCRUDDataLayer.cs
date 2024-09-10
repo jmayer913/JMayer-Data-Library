@@ -37,15 +37,15 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
     public StandardCRUDDataLayer(HttpClient httpClient) => HttpClient = httpClient;
 
     /// <inheritdoc/>
-    public async Task<int> CountAsync(CancellationToken cancellationToken = default)
+    public async Task<long> CountAsync(CancellationToken cancellationToken = default)
     {
-        int count = 0;
+        long count = 0;
         HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"/api/{TypeName}/Count", cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
         {
             string content = await httpResponseMessage.Content.ReadAsStringAsync(cancellationToken);
-            _ = int.TryParse(content, out count);
+            _ = long.TryParse(content, out count);
         }
 
         return count;

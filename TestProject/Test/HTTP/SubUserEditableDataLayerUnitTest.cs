@@ -22,94 +22,110 @@ namespace TestProject.Test.HTTP;
 public class SubUserEditableDataLayerUnitTest
 {
     /// <summary>
-    /// The method confirms if a a null or empty ID is passed to the SubUserEditableDataLayer.GetAllAsync(), an exception is thrown.
+    /// The constant for the default owner id.
     /// </summary>
-    /// <returns>A Task object for the async.</returns>
-    [Fact]
-    public async Task GetAllAsyncThrowsArgumentException() => await Assert.ThrowsAsync<ArgumentException>(() => new SimpleSubUserEditableDataLayer().GetAllAsync(string.Empty));
+    private const long DefaultOwnerId = 1;
 
     /// <summary>
-    /// The method confirms the SubUserEditableDataLayer.GetAllAsync() works as intended.
+    /// The constant for the first record id.
     /// </summary>
+    private const long FirstRecordId = 1;
+
+    /// <summary>
+    /// The constant for the first record value.
+    /// </summary>
+    private const int FirstRecordValue = 10;
+
+    /// <summary>
+    /// The constant for the second record id.
+    /// </summary>
+    private const int SecondRecordId = 2;
+
+    /// <summary>
+    /// The constant for the second record value.
+    /// </summary>
+    private const int SecondRecordValue = 20;
+
+    /// <summary>
+    /// The method verifies the SubUserEditableDataLayer.GetAllAsync() request and response based on the status code.
+    /// </summary>
+    /// <param name="httpStatusCode">The HTTP status code to test against.</param>
     /// <returns>A Task object for the async.</returns>
     [Theory]
     [InlineData(HttpStatusCode.OK)]
     [InlineData(HttpStatusCode.NoContent)]
     [InlineData(HttpStatusCode.Unauthorized)]
-    public async Task GetAllAsyncWorks(HttpStatusCode httpStatusCode)
+    public async Task VerifyGetAll(HttpStatusCode httpStatusCode)
     {
         List<SimpleSubUserEditableDataObject> respondingDataObjects =
         [
             new SimpleSubUserEditableDataObject()
             {
-                Integer64ID = 1,
-                OwnerInteger64ID = 1,
-                Value = 10,
+                Integer64ID = FirstRecordId,
+                OwnerInteger64ID = DefaultOwnerId,
+                Value = FirstRecordValue,
             },
             new SimpleSubUserEditableDataObject()
             {
                 Integer64ID = 2,
-                OwnerInteger64ID = 1,
+                OwnerInteger64ID = DefaultOwnerId,
                 Value = 20,
             },
         ];
 
         HttpClient httpClient = new MockHttpMessageHandler()
             .WithRoute($"api/{nameof(SimpleSubUserEditableDataObject)}/All")
-            .WithRouteParameters(["1"])
+            .WithRouteParameters([DefaultOwnerId.ToString()])
             .RespondingHttpStatusCode(httpStatusCode)
             .RespondingJsonContent(respondingDataObjects)
             .Build();
 
         SimpleSubUserEditableDataLayer dataLayer = new(httpClient);
-        List<SimpleSubUserEditableDataObject>? returnedDataObjects = await dataLayer.GetAllAsync(1);
+        List<SimpleSubUserEditableDataObject>? returnedDataObjects = await dataLayer.GetAllAsync(DefaultOwnerId);
 
         //With positive, confirm json data objects were returned.
         if (httpStatusCode == HttpStatusCode.OK)
         {
-            Assert.True
-            (
-                returnedDataObjects != null //Must have responded with json.
-                && returnedDataObjects.Count == respondingDataObjects.Count //Must have parsed the json correctly.
-                && returnedDataObjects[0].Integer64ID == respondingDataObjects[0].Integer64ID && returnedDataObjects[0].OwnerInteger64ID == respondingDataObjects[0].OwnerInteger64ID && returnedDataObjects[0].Value == respondingDataObjects[0].Value //Must have parsed the json correctly.
-                && returnedDataObjects[1].Integer64ID == respondingDataObjects[1].Integer64ID && returnedDataObjects[1].OwnerInteger64ID == respondingDataObjects[1].OwnerInteger64ID && returnedDataObjects[1].Value == respondingDataObjects[1].Value //Must have parsed the json correctly.
-            );
+            Assert.NotNull(returnedDataObjects); //Must have responded with json.
+            Assert.Equal(respondingDataObjects.Count, returnedDataObjects.Count); //Must have parsed the json correctly.
+
+            for (int index = 0; index < returnedDataObjects.Count; index++)
+            {
+                Assert.Equal(respondingDataObjects[index].Integer64ID, returnedDataObjects[index].Integer64ID); //Must have parsed the json correctly.
+                Assert.Equal(respondingDataObjects[index].OwnerInteger64ID, returnedDataObjects[index].OwnerInteger64ID); //Must have parsed the json correctly.
+                Assert.Equal(respondingDataObjects[index].Value, returnedDataObjects[index].Value); //Must have parsed the json correctly.
+            }
         }
         //With negative, confirm no json data objects were returned.
         else
         {
-            Assert.True(returnedDataObjects != null && returnedDataObjects.Count == 0);
+            Assert.NotNull(returnedDataObjects);
+            Assert.Empty(returnedDataObjects);
         }
     }
 
     /// <summary>
-    /// The method confirms if a null or empty ID is passed to the SubUserEditableDataLayer.GetAllListViewAsync(), an exception is thrown.
+    /// The method verifies the SubUserEditableDataLayer.GetAllListViewAsync() request and response based on the status code.
     /// </summary>
-    /// <returns>A Task object for the async.</returns>
-    [Fact]
-    public async Task GetAllListViewAsyncThrowsArgumentException() => await Assert.ThrowsAsync<ArgumentException>(() => new SimpleSubUserEditableDataLayer().GetAllListViewAsync(string.Empty));
-
-    /// <summary>
-    /// The method confirms the SubUserEditableDataLayer.GetAllListViewAsync() works as intended.
-    /// </summary>
+    /// <param name="httpStatusCode">The HTTP status code to test against.</param>
     /// <returns>A Task object for the async.</returns>
     [Theory]
     [InlineData(HttpStatusCode.OK)]
     [InlineData(HttpStatusCode.NoContent)]
     [InlineData(HttpStatusCode.Unauthorized)]
-    public async Task GetAllListViewAsyncWorks(HttpStatusCode httpStatusCode)
+    public async Task VerifyGetAllListView(HttpStatusCode httpStatusCode)
     {
         List<ListView> respondingDataObjects =
         [
             new ListView()
             {
-                Integer64ID = 1,
-                Name = "10",
+                Integer64ID = FirstRecordId,
+                Name = FirstRecordValue.ToString(),
             },
             new ListView()
             {
-                Integer64ID = 2,
-                Name = "20",
+                Integer64ID = SecondRecordId,
+                Name = SecondRecordValue.ToString(),
             },
         ];
 
@@ -121,49 +137,52 @@ public class SubUserEditableDataLayerUnitTest
             .Build();
 
         SimpleSubUserEditableDataLayer dataLayer = new(httpClient);
-        List<ListView>? returnedDataObjects = await dataLayer.GetAllListViewAsync(1);
+        List<ListView>? returnedDataObjects = await dataLayer.GetAllListViewAsync(DefaultOwnerId);
 
         //With positive, confirm json data objects were returned.
         if (httpStatusCode == HttpStatusCode.OK)
         {
-            Assert.True
-            (
-                returnedDataObjects != null //Must have responded with json.
-                && returnedDataObjects.Count == respondingDataObjects.Count //Must have parsed the json correctly.
-                && returnedDataObjects[0].Integer64ID == respondingDataObjects[0].Integer64ID && returnedDataObjects[0].Name == respondingDataObjects[0].Name //Must have parsed the json correctly.
-                && returnedDataObjects[1].Integer64ID == respondingDataObjects[1].Integer64ID && returnedDataObjects[1].Name == respondingDataObjects[1].Name //Must have parsed the json correctly.
-            );
+            Assert.NotNull(returnedDataObjects); //Must have responded with json.
+            Assert.Equal(respondingDataObjects.Count, returnedDataObjects.Count); //Must have parsed the json correctly.
+
+            for (int index = 0; index < returnedDataObjects.Count; index++)
+            {
+                Assert.Equal(respondingDataObjects[index].Integer64ID, returnedDataObjects[index].Integer64ID); //Must have parsed the json correctly.
+                Assert.Equal(respondingDataObjects[index].Name, returnedDataObjects[index].Name); //Must have parsed the json correctly.
+            }
         }
         //With negative, confirm no json data objects were returned.
         else
         {
-            Assert.True(returnedDataObjects != null && returnedDataObjects.Count == 0);
+            Assert.NotNull(returnedDataObjects);
+            Assert.Empty(returnedDataObjects);
         }
     }
 
     /// <summary>
-    /// The method confirms if a null or empty ID is passed to the SubUserEditableDataLayer.GetPageAsync(), an exception is thrown.
+    /// The method verifies if a null or empty ID is passed to the SubUserEditableDataLayer.GetAllListViewAsync(), an exception is thrown.
     /// </summary>
     /// <returns>A Task object for the async.</returns>
     [Fact]
-    public async Task GetPageAsyncThrowsArgumentException() => await Assert.ThrowsAsync<ArgumentException>(() => new SimpleSubUserEditableDataLayer().GetPageAsync(string.Empty, null));
+    public async Task VerifyGetAllListViewThrowsArgumentException() => await Assert.ThrowsAsync<ArgumentException>(() => new SimpleSubUserEditableDataLayer().GetAllListViewAsync(string.Empty));
 
     /// <summary>
-    /// The method confirms if a null query definition is passed to the SubUserEditableDataLayer.GetPageAsync(), an exception is thrown.
+    /// The method verifies if a a null or empty ID is passed to the SubUserEditableDataLayer.GetAllAsync(), an exception is thrown.
     /// </summary>
     /// <returns>A Task object for the async.</returns>
     [Fact]
-    public async Task GetPageAsyncThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleSubUserEditableDataLayer().GetPageAsync(1, null));
+    public async Task VerifyGetAllThrowsArgumentException() => await Assert.ThrowsAsync<ArgumentException>(() => new SimpleSubUserEditableDataLayer().GetAllAsync(string.Empty));
 
     /// <summary>
-    /// The method confirms the SubUserEditableDataLayer.GetPageAsync() works as intended.
+    /// The method verifies the SubUserEditableDataLayer.GetPageAsync() request and response based on the status code.
     /// </summary>
+    /// <param name="httpStatusCode">The HTTP status code to test against.</param>
     /// <returns>A Task object for the async.</returns>
     [Theory]
     [InlineData(HttpStatusCode.OK)]
     [InlineData(HttpStatusCode.NoContent)]
     [InlineData(HttpStatusCode.Unauthorized)]
-    public async Task GetPageAsyncWorks(HttpStatusCode httpStatusCode)
+    public async Task VerifyGetPage(HttpStatusCode httpStatusCode)
     {
         QueryDefinition queryDefinition = new()
         {
@@ -195,19 +214,19 @@ public class SubUserEditableDataLayerUnitTest
                 new SimpleSubUserEditableDataObject()
                 {
                     Integer64ID = 1,
-                    OwnerInteger64ID = 1,
+                    OwnerInteger64ID = DefaultOwnerId,
                     Value = 1,
                 },
                 new SimpleSubUserEditableDataObject()
                 {
                     Integer64ID = 10,
-                    OwnerInteger64ID = 1,
+                    OwnerInteger64ID = DefaultOwnerId,
                     Value = 10,
                 },
                 new SimpleSubUserEditableDataObject()
                 {
                     Integer64ID = 100,
-                    OwnerInteger64ID = 1,
+                    OwnerInteger64ID = DefaultOwnerId,
                     Value = 100,
                 },
             ],
@@ -225,58 +244,62 @@ public class SubUserEditableDataLayerUnitTest
 
         HttpClient httpClient = new MockHttpMessageHandler()
             .WithRoute($"api/{nameof(SimpleSubUserEditableDataObject)}/Page")
-            .WithRouteParameters(["1"])
+            .WithRouteParameters([DefaultOwnerId.ToString()])
             .WithQueryString(queryString)
             .RespondingHttpStatusCode(httpStatusCode)
             .RespondingJsonContent(respondingPage)
             .Build();
 
         SimpleSubUserEditableDataLayer dataLayer = new(httpClient);
-        PagedList<SimpleSubUserEditableDataObject>? returnedPage = await dataLayer.GetPageAsync(1, queryDefinition);
+        PagedList<SimpleSubUserEditableDataObject>? returnedPage = await dataLayer.GetPageAsync(DefaultOwnerId, queryDefinition);
 
         //With positive, confirm json data objects were returned.
         if (httpStatusCode == HttpStatusCode.OK)
         {
-            Assert.True
-            (
-                returnedPage != null //Must have responded with json.
-                && returnedPage.DataObjects.Count == respondingPage.DataObjects.Count //Must have parsed the json correctly.
-                && returnedPage.TotalRecords == respondingPage.TotalRecords //Must have parsed the json correctly.
-                && returnedPage.DataObjects[0].Integer64ID == respondingPage.DataObjects[0].Integer64ID && returnedPage.DataObjects[0].OwnerInteger64ID == respondingPage.DataObjects[0].OwnerInteger64ID && returnedPage.DataObjects[0].Value == respondingPage.DataObjects[0].Value //Must have parsed the json correctly.
-                && returnedPage.DataObjects[1].Integer64ID == respondingPage.DataObjects[1].Integer64ID && returnedPage.DataObjects[1].OwnerInteger64ID == respondingPage.DataObjects[1].OwnerInteger64ID && returnedPage.DataObjects[1].Value == respondingPage.DataObjects[1].Value //Must have parsed the json correctly.
-                && returnedPage.DataObjects[2].Integer64ID == respondingPage.DataObjects[2].Integer64ID && returnedPage.DataObjects[2].OwnerInteger64ID == respondingPage.DataObjects[2].OwnerInteger64ID && returnedPage.DataObjects[2].Value == respondingPage.DataObjects[2].Value //Must have parsed the json correctly.
-            );
+            Assert.NotNull(returnedPage); //Must have responded with json.
+            Assert.Equal(respondingPage.DataObjects.Count, returnedPage.DataObjects.Count); //Must have parsed the json correctly.
+            Assert.Equal(respondingPage.TotalRecords, returnedPage.TotalRecords); //Must have parsed the json correctly.
+
+            for (int index = 0; index < returnedPage.DataObjects.Count; index++)
+            {
+                Assert.Equal(respondingPage.DataObjects[index].Integer64ID, returnedPage.DataObjects[index].Integer64ID); //Must have parsed the json correctly.
+                Assert.Equal(respondingPage.DataObjects[index].OwnerInteger64ID, returnedPage.DataObjects[index].OwnerInteger64ID); //Must have parsed the json correctly.
+                Assert.Equal(respondingPage.DataObjects[index].Value, returnedPage.DataObjects[index].Value); //Must have parsed the json correctly.
+            }
         }
         //With negative, confirm no json data objects were returned.
         else
         {
-            Assert.True(returnedPage != null && returnedPage.DataObjects.Count == 0 && returnedPage.TotalRecords == 0);
+            Assert.NotNull(returnedPage);
+            Assert.Empty(returnedPage.DataObjects);
+            Assert.Equal(0, returnedPage.TotalRecords);
         }
     }
 
     /// <summary>
-    /// The method confirms if a null or empty ID is passed to the SubUserEditableDataLayer.GetPageListViewAsync(), an exception is thrown.
+    /// The method verifies if a null or empty ID is passed to the SubUserEditableDataLayer.GetPageAsync(), an exception is thrown.
     /// </summary>
     /// <returns>A Task object for the async.</returns>
     [Fact]
-    public async Task GetPageListViewAsyncThrowsArgumentException() => await Assert.ThrowsAsync<ArgumentException>(() => new SimpleSubUserEditableDataLayer().GetPageListViewAsync(string.Empty, null));
+    public async Task VerifyGetPageThrowsArgumentException() => await Assert.ThrowsAsync<ArgumentException>(() => new SimpleSubUserEditableDataLayer().GetPageAsync(string.Empty, null));
 
     /// <summary>
-    /// The method confirms if a null query definition is passed to the SubUserEditableDataLayer.GetPageListViewAsync(), an exception is thrown.
+    /// The method verifies if a null query definition is passed to the SubUserEditableDataLayer.GetPageAsync(), an exception is thrown.
     /// </summary>
     /// <returns>A Task object for the async.</returns>
     [Fact]
-    public async Task GetPageListViewAsyncThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleSubUserEditableDataLayer().GetPageListViewAsync(1, null));
+    public async Task VerifyGetPageThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleSubUserEditableDataLayer().GetPageAsync(1, null));
 
     /// <summary>
-    /// The method confirms the SubUserEditableDataLayer.GetPageListViewAsync() works as intended.
+    /// The method verifies the SubUserEditableDataLayer.GetPageListViewAsync() request and response based on the status code.
     /// </summary>
+    /// <param name="httpStatusCode">The HTTP status code to test against.</param>
     /// <returns>A Task object for the async.</returns>
     [Theory]
     [InlineData(HttpStatusCode.OK)]
     [InlineData(HttpStatusCode.NoContent)]
     [InlineData(HttpStatusCode.Unauthorized)]
-    public async Task GetPageListViewAsyncWorks(HttpStatusCode httpStatusCode)
+    public async Task VerifyGetPageListView(HttpStatusCode httpStatusCode)
     {
         QueryDefinition queryDefinition = new()
         {
@@ -335,31 +358,48 @@ public class SubUserEditableDataLayerUnitTest
 
         HttpClient httpClient = new MockHttpMessageHandler()
             .WithRoute($"api/{nameof(SimpleSubUserEditableDataObject)}/Page/ListView")
-            .WithRouteParameters(["1"])
+            .WithRouteParameters([DefaultOwnerId.ToString()])
             .WithQueryString(queryString)
             .RespondingHttpStatusCode(httpStatusCode)
             .RespondingJsonContent(respondingPage)
             .Build();
 
         SimpleSubUserEditableDataLayer dataLayer = new(httpClient);
-        PagedList<ListView>? returnedPage = await dataLayer.GetPageListViewAsync(1, queryDefinition);
+        PagedList<ListView>? returnedPage = await dataLayer.GetPageListViewAsync(DefaultOwnerId, queryDefinition);
 
         //With positive, confirm json data objects were returned.
         if (httpStatusCode == HttpStatusCode.OK)
         {
-            Assert.True
-            (
-                returnedPage != null //Must have responded with json.
-                && returnedPage.DataObjects.Count == respondingPage.DataObjects.Count //Must have parsed the json correctly.
-                && returnedPage.DataObjects[0].Integer64ID == respondingPage.DataObjects[0].Integer64ID && returnedPage.DataObjects[0].Name == respondingPage.DataObjects[0].Name //Must have parsed the json correctly.
-                && returnedPage.DataObjects[1].Integer64ID == respondingPage.DataObjects[1].Integer64ID && returnedPage.DataObjects[1].Name == respondingPage.DataObjects[1].Name //Must have parsed the json correctly.
-                && returnedPage.DataObjects[2].Integer64ID == respondingPage.DataObjects[2].Integer64ID && returnedPage.DataObjects[2].Name == respondingPage.DataObjects[2].Name //Must have parsed the json correctly.
-            );
+            Assert.NotNull(returnedPage); //Must have parsed the json correctly.
+            Assert.Equal(respondingPage.DataObjects.Count, returnedPage.DataObjects.Count); //Must have parsed the json correctly.
+            Assert.Equal(respondingPage.TotalRecords, returnedPage.TotalRecords); //Must have parsed the json correctly.
+
+            for (int index = 0; index < returnedPage.DataObjects.Count; index++)
+            {
+                Assert.Equal(respondingPage.DataObjects[index].Integer64ID, returnedPage.DataObjects[index].Integer64ID); //Must have parsed the json correctly.
+                Assert.Equal(respondingPage.DataObjects[index].Name, returnedPage.DataObjects[index].Name); //Must have parsed the json correctly.
+            }
         }
         //With negative, confirm no json data objects were returned.
         else
         {
-            Assert.True(returnedPage != null && returnedPage.DataObjects.Count == 0 && returnedPage.TotalRecords == 0);
+            Assert.NotNull(returnedPage);
+            Assert.Empty(returnedPage.DataObjects);
+            Assert.Equal(0, returnedPage.TotalRecords);
         }
     }
+
+    /// <summary>
+    /// The method verifies if a null or empty ID is passed to the SubUserEditableDataLayer.GetPageListViewAsync(), an exception is thrown.
+    /// </summary>
+    /// <returns>A Task object for the async.</returns>
+    [Fact]
+    public async Task VerifyGetPageListViewThrowsArgumentException() => await Assert.ThrowsAsync<ArgumentException>(() => new SimpleSubUserEditableDataLayer().GetPageListViewAsync(string.Empty, null));
+
+    /// <summary>
+    /// The method verifies if a null query definition is passed to the SubUserEditableDataLayer.GetPageListViewAsync(), an exception is thrown.
+    /// </summary>
+    /// <returns>A Task object for the async.</returns>
+    [Fact]
+    public async Task VerifyGetPageListViewThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleSubUserEditableDataLayer().GetPageListViewAsync(1, null));
 }

@@ -4,16 +4,19 @@
 /// The class represents a user editable record in the database which another data object has ownership of.
 /// </summary>
 /// <remarks>
+/// <para>
 /// This should be inherited when the data object is owned by another type 
 /// of data object. For example, an account has transactions so transactions 
-/// would be owned or has a reference to the account.
-/// 
+/// would be owned by the account.
+/// </para>
+/// <para>
 /// This contains an integer or string owner ID and each is stored
 /// indepedently. Because of this, it must be known beforehand which
-/// will be used by the data object, data layer & UI. For example, mongodb
+/// will be used by the data object, data layer and UI. For example, mongodb
 /// generates a unique ID hash which can be mapped to a string property so
 /// the mongo data object, mongo data layer and UI need to use the StringID 
 /// property.
+/// </para>
 /// </remarks>
 public class SubUserEditableDataObject : UserEditableDataObject
 {

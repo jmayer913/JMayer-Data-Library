@@ -19,6 +19,7 @@ public class IDNotFoundException : Exception
     /// The property constructor.
     /// </summary>
     /// <param name="id">The ID associated with the missing record.</param>
+    /// <exception cref="ArgumentException">Thrown if the id parameter is null or empty.</exception>
     public IDNotFoundException(string id)
         : base($"The {id} ID was not found.") 
     { 
@@ -31,6 +32,7 @@ public class IDNotFoundException : Exception
     /// </summary>
     /// <param name="id">The ID associated with the missing record.</param>
     /// <param name="message">The message associated with the exception.</param>
+    /// <exception cref="ArgumentException">Thrown if the id parameter is null or empty.</exception>
     public IDNotFoundException(string id, string? message) 
         : base(message)
     {
@@ -44,6 +46,7 @@ public class IDNotFoundException : Exception
     /// <param name="id">The ID associated with the missing record.</param>
     /// <param name="message">The message associated with the exception.</param>
     /// <param name="innerException">The inner exception associated with this exception.</param>
+    /// <exception cref="ArgumentException">Thrown if the id parameter is null or empty.</exception>
     public IDNotFoundException(string id, string? message, Exception? innerException) 
         : base(message, innerException)
     {

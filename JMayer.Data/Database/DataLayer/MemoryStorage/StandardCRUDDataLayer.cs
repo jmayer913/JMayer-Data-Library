@@ -14,7 +14,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage;
 /// used by this and any outside interactions with the data layer must use DataObject.Integer64ID. 
 /// Also, the underlying data storage is a List so this shouldn't be used with very large datasets.
 /// </remarks>
-public class MemoryDataLayer<T> : IStandardCRUDDataLayer<T> where T : DataObject, new()
+public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : DataObject, new()
 {
     /// <summary>
     /// The memory data storage for this database.
@@ -65,9 +65,9 @@ public class MemoryDataLayer<T> : IStandardCRUDDataLayer<T> where T : DataObject
     public event EventHandler<UpdatedEventArgs>? Updated;
 
     /// <inheritdoc/>
-    public async virtual Task<int> CountAsync(CancellationToken cancellationToken = default)
+    public async virtual Task<long> CountAsync(CancellationToken cancellationToken = default)
     {
-        int count = 0;
+        long count = 0;
 
         lock (DataStorageLock)
         {
@@ -79,7 +79,7 @@ public class MemoryDataLayer<T> : IStandardCRUDDataLayer<T> where T : DataObject
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentNullException">Thrown if the wherePredicate parameter is null.</exception>
-    public async virtual Task<int> CountAsync(Expression<Func<T, bool>> wherePredicate, CancellationToken cancellationToken = default)
+    public async virtual Task<long> CountAsync(Expression<Func<T, bool>> wherePredicate, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(wherePredicate);
         List<T> dataObjects = QueryData(wherePredicate);

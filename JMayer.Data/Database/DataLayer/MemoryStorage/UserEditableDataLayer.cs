@@ -10,15 +10,19 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage;
 /// </summary>
 /// <typeparam name="T">A UserEditableDataObject which represents data in the collection/table.</typeparam>
 /// <remarks>
+/// <para>
 /// This uses an 64-integer identity (auto-increments) ID so the DataObject.Integer64ID will be
 /// used by this and any outside interactions with the data layer must use DataObject.Integer64ID. 
 /// Also, the underlying data storage is a List so this shouldn't be used with very large datasets.
-/// 
+/// </para>
+/// <para>
 /// UpdateAsync() has conflict detection. Because the UserEditableDataObject has a LastEditedOn property, 
 /// update can now determine if the data object passed in is older than the record in memory. When this occurs, 
-/// an exception is thrown with the idea the user will need to refresh the data to have the latest.
+/// an exception is thrown with the idea the user will need to refresh the data to have the latest and then
+/// try editing it again.
+/// </para>
 /// </remarks>
-public class UserEditableMemoryDataLayer<T> : MemoryDataLayer<T>, IUserEditableDataLayer<T> where T : UserEditableDataObject, new()
+public class UserEditableDataLayer<T> : StandardCRUDDataLayer<T>, IUserEditableDataLayer<T> where T : UserEditableDataObject, new()
 {
     /// <summary>
     /// The method returns if there's no update conflict.

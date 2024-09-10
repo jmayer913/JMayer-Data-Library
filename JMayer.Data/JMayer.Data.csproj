@@ -4,11 +4,12 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Version>1.0.0</Version>
+    <Version>1.1.0</Version>
     <Authors>jmayer913</Authors>
     <Company>jmayer913</Company>
     <PackageDescription>Package contains generic data access via HTTP or a Database.</PackageDescription>
     <RepositoryUrl>https://github.com/jmayer913/JMayer-Data-Library</RepositoryUrl>
+    <GenerateDocumentationFile>True</GenerateDocumentationFile>
   </PropertyGroup>
 
 </Project>

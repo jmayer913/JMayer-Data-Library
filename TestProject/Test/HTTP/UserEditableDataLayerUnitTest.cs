@@ -22,14 +22,14 @@ namespace TestProject.Test.HTTP;
 public class UserEditableDataLayerUnitTest
 {
     /// <summary>
-    /// The method confirms the UserEditableDataLayer.GetAllListViewAsync() works as intended.
+    /// The method confirms the UserEditableDataLayer.GetAllListViewAsync() request and response based on the status code.
     /// </summary>
     /// <returns>A Task object for the async.</returns>
     [Theory]
     [InlineData(HttpStatusCode.OK)]
     [InlineData(HttpStatusCode.NoContent)]
     [InlineData(HttpStatusCode.Unauthorized)]
-    public async Task GetAllListViewAsyncWorks(HttpStatusCode httpStatusCode)
+    public async Task VerifyGetAllListView(HttpStatusCode httpStatusCode)
     {
         List<ListView> respondingDataObjects =
         [
@@ -57,37 +57,32 @@ public class UserEditableDataLayerUnitTest
         //With positive, confirm json data objects were returned.
         if (httpStatusCode == HttpStatusCode.OK)
         {
-            Assert.True
-            (
-                returnedDataObjects != null //Must have responded with json.
-                && returnedDataObjects.Count == respondingDataObjects.Count //Must have parsed the json correctly.
-                && returnedDataObjects[0].Integer64ID == respondingDataObjects[0].Integer64ID && returnedDataObjects[0].Name == respondingDataObjects[0].Name //Must have parsed the json correctly.
-                && returnedDataObjects[1].Integer64ID == respondingDataObjects[1].Integer64ID && returnedDataObjects[1].Name == respondingDataObjects[1].Name //Must have parsed the json correctly.
-            );
+            Assert.NotNull(returnedDataObjects); //Must have responded with json.
+            Assert.Equal(respondingDataObjects.Count, returnedDataObjects.Count); //Must have parsed the json correctly.
+
+            for (int index = 0; index < returnedDataObjects.Count; index++)
+            {
+                Assert.Equal(respondingDataObjects[index].Integer64ID, returnedDataObjects[index].Integer64ID); //Must have parsed the json correctly.
+                Assert.Equal(respondingDataObjects[index].Name, returnedDataObjects[index].Name); //Must have parsed the json correctly.
+            }
         }
         //With negative, confirm no json data objects were returned.
         else
         {
-            Assert.True(returnedDataObjects != null && returnedDataObjects.Count == 0);
+            Assert.NotNull(returnedDataObjects);
+            Assert.Empty(returnedDataObjects);
         }
     }
 
     /// <summary>
-    /// The method confirms if a null query definition is passed to the UserEditableDataLayer.GetPageListViewAsync(), an exception is thrown.
-    /// </summary>
-    /// <returns>A Task object for the async.</returns>
-    [Fact]
-    public async Task GetPageListViewAsyncThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleUserEditableDataLayer().GetPageListViewAsync(null));
-
-    /// <summary>
-    /// The method confirms the UserEditableDataLayer.GetPageListViewAsync() works as intended.
+    /// The method confirms the UserEditableDataLayer.GetPageListViewAsync() request and response based on the status code.
     /// </summary>
     /// <returns>A Task object for the async.</returns>
     [Theory]
     [InlineData(HttpStatusCode.OK)]
     [InlineData(HttpStatusCode.NoContent)]
     [InlineData(HttpStatusCode.Unauthorized)]
-    public async Task GetPageListViewAsyncWorks(HttpStatusCode httpStatusCode)
+    public async Task VerifyGetPageListView(HttpStatusCode httpStatusCode)
     {
         QueryDefinition queryDefinition = new()
         {
@@ -114,7 +109,7 @@ public class UserEditableDataLayerUnitTest
 
         PagedList<ListView> respondingPage = new()
         {
-            DataObjects = 
+            DataObjects =
             [
                 new ListView()
                 {
@@ -157,19 +152,28 @@ public class UserEditableDataLayerUnitTest
         //With positive, confirm json data objects were returned.
         if (httpStatusCode == HttpStatusCode.OK)
         {
-            Assert.True
-            (
-                returnedPage != null //Must have responded with json.
-                && returnedPage.DataObjects.Count == respondingPage.DataObjects.Count //Must have parsed the json correctly.
-                && returnedPage.DataObjects[0].Integer64ID == respondingPage.DataObjects[0].Integer64ID && returnedPage.DataObjects[0].Name == respondingPage.DataObjects[0].Name //Must have parsed the json correctly.
-                && returnedPage.DataObjects[1].Integer64ID == respondingPage.DataObjects[1].Integer64ID && returnedPage.DataObjects[1].Name == respondingPage.DataObjects[1].Name //Must have parsed the json correctly.
-                && returnedPage.DataObjects[2].Integer64ID == respondingPage.DataObjects[2].Integer64ID && returnedPage.DataObjects[2].Name == respondingPage.DataObjects[2].Name //Must have parsed the json correctly.
-            );
+            Assert.NotNull(returnedPage); //Must have responded with json.
+            Assert.Equal(respondingPage.DataObjects.Count, returnedPage.DataObjects.Count); //Must have parsed the json correctly.
+
+            for (int index = 0; index < returnedPage.DataObjects.Count; index++)
+            {
+                Assert.Equal(respondingPage.DataObjects[index].Integer64ID, returnedPage.DataObjects[index].Integer64ID); //Must have parsed the json correctly.
+                Assert.Equal(respondingPage.DataObjects[index].Name, returnedPage.DataObjects[index].Name); //Must have parsed the json correctly.
+            }
         }
         //With negative, confirm no json data objects were returned.
         else
         {
-            Assert.True(returnedPage != null && returnedPage.DataObjects.Count == 0 && returnedPage.TotalRecords == 0);
+            Assert.NotNull(returnedPage);
+            Assert.Empty(returnedPage.DataObjects);
+            Assert.Equal(0, returnedPage.TotalRecords);
         }
     }
+
+    /// <summary>
+    /// The method confirms if a null query definition is passed to the UserEditableDataLayer.GetPageListViewAsync(), an exception is thrown.
+    /// </summary>
+    /// <returns>A Task object for the async.</returns>
+    [Fact]
+    public async Task VerifyGetPageListViewThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleUserEditableDataLayer().GetPageListViewAsync(null));
 }
