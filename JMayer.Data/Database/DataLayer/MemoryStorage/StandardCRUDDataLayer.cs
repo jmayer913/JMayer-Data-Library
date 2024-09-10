@@ -14,7 +14,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage;
 /// used by this and any outside interactions with the data layer must use DataObject.Integer64ID. 
 /// Also, the underlying data storage is a List so this shouldn't be used with very large datasets.
 /// </remarks>
-public class MemoryDataLayer<T> : IStandardCRUDDataLayer<T> where T : DataObject, new()
+public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : DataObject, new()
 {
     /// <summary>
     /// The memory data storage for this database.

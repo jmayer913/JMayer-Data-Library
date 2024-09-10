@@ -22,7 +22,7 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage;
 /// try editing it again.
 /// </para>
 /// </remarks>
-public class UserEditableMemoryDataLayer<T> : MemoryDataLayer<T>, IUserEditableDataLayer<T> where T : UserEditableDataObject, new()
+public class UserEditableDataLayer<T> : StandardCRUDDataLayer<T>, IUserEditableDataLayer<T> where T : UserEditableDataObject, new()
 {
     /// <summary>
     /// The method returns if there's no update conflict.
