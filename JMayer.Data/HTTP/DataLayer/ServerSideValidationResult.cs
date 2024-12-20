@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace JMayer.Data.HTTP.DataLayer;
 
@@ -41,6 +42,28 @@ public sealed class ServerSideValidationResult
                 ErrorMessage = validationResult.ErrorMessage ?? string.Empty,
                 PropertyName = validationResult.MemberNames.First(),
             });
+        }
+    }
+
+    /// <summary>
+    /// The conversion constructor.
+    /// </summary>
+    /// <param name="validationProblemDetails">The data annotation results from a HTTP response.</param>
+    /// <exception cref="ArgumentNullException">Thrown if the dataAnnotationValidation parameter is null.</exception>
+    internal ServerSideValidationResult(ValidationProblemDetails validationProblemDetails)
+    {
+        ArgumentNullException.ThrowIfNull(validationProblemDetails);
+
+        foreach (var error in validationProblemDetails.Errors)
+        {
+            foreach (var message in error.Value)
+            {
+                Errors.Add(new ServerSideValidationError()
+                {
+                    ErrorMessage = message,
+                    PropertyName = error.Key,
+                });
+            }
         }
     }
 }

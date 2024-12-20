@@ -1,7 +1,11 @@
 ﻿using JMayer.Data.Data;
 using JMayer.Data.Data.Query;
+using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
+using System.Threading;
 
 namespace JMayer.Data.HTTP.DataLayer;
 
@@ -11,6 +15,11 @@ namespace JMayer.Data.HTTP.DataLayer;
 /// <typeparam name="T">A DataObject which represents data on the remote server.</typeparam>
 public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : DataObject
 {
+    /// <summary>
+    /// The json serializer options for the bad request content.
+    /// </summary>
+    private JsonSerializerOptions _jsonSerializerOptions = new() { PropertyNameCaseInsensitive = true };
+
     /// <summary>
     /// The HTTP client used to interact with the remote server.
     /// </summary>
@@ -67,7 +76,9 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
         }
         else if (!httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode == HttpStatusCode.BadRequest)
         {
-            validationResult = await httpResponseMessage.Content.ReadFromJsonAsync<ServerSideValidationResult>(cancellationToken);
+            validationResult = await ProcessBadRequestContent(httpResponseMessage, cancellationToken);
+
+            //validationResult = await httpResponseMessage.Content.ReadFromJsonAsync<ServerSideValidationResult>(cancellationToken);
         }
 
         return new OperationResult(latestDataObject, validationResult, httpResponseMessage.StatusCode);
@@ -111,6 +122,41 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
         }
 
         return pagedDataObjects;
+    }
+
+    /// <summary>
+    /// The method processes the contents of a bad request.
+    /// </summary>
+    /// <param name="httpResponseMessage">The HTTP response.</param>
+    /// <param name="cancellationToken">A token used for task cancellations.</param>
+    /// <returns>A ServerSideValidationResult object.</returns>
+    /// <remarks>
+    /// When asp.net core serializes the json to an object for a controller, if the object has data annotations, asp.net core will
+    /// check the object against the data annotations on the object and if validation fails, asp.net core will return a bad request
+    /// with a ValidationProblemDetails object. This means the HTTP datalayer needs to handle two different objects.
+    /// </remarks>
+    private async Task<ServerSideValidationResult?> ProcessBadRequestContent(HttpResponseMessage httpResponseMessage, CancellationToken cancellationToken)
+    {
+        //I don't like I'm handling two different objects.
+
+        ServerSideValidationResult? result = null;
+        string content = await httpResponseMessage.Content.ReadAsStringAsync(cancellationToken);
+
+        if (content.Contains("isSuccess"))
+        {
+            result = JsonSerializer.Deserialize<ServerSideValidationResult>(content, _jsonSerializerOptions);
+        }
+        else if (content.Contains("type"))
+        {
+            ValidationProblemDetails? dataAnnotationValidation = JsonSerializer.Deserialize<ValidationProblemDetails>(content, _jsonSerializerOptions);
+
+            if (dataAnnotationValidation != null)
+            {
+                result = new(dataAnnotationValidation);    
+            }
+        }
+
+        return result;
     }
 
     /// <inheritdoc/>
@@ -165,7 +211,8 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
         }
         else if (!httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode == HttpStatusCode.BadRequest)
         {
-            validationResult = await httpResponseMessage.Content.ReadFromJsonAsync<ServerSideValidationResult>(cancellationToken);
+            validationResult = await ProcessBadRequestContent(httpResponseMessage, cancellationToken);
+            //validationResult = await httpResponseMessage.Content.ReadFromJsonAsync<ServerSideValidationResult>(cancellationToken);
         }
 
         return new OperationResult(latestDataObject, validationResult, httpResponseMessage.StatusCode);
@@ -183,6 +230,10 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
         {
             validationResult = await httpResponseMessage.Content.ReadFromJsonAsync<ServerSideValidationResult?>(cancellationToken);
+        }
+        else if (!httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode == HttpStatusCode.BadRequest)
+        {
+            validationResult = await ProcessBadRequestContent(httpResponseMessage, cancellationToken);
         }
 
         return validationResult;
