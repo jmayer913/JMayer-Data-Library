@@ -1,7 +1,9 @@
 ﻿using JMayer.Data.Data;
 using JMayer.Data.Data.Query;
+using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
 
 namespace JMayer.Data.HTTP.DataLayer;
 
@@ -11,6 +13,14 @@ namespace JMayer.Data.HTTP.DataLayer;
 /// <typeparam name="T">A DataObject which represents data on the remote server.</typeparam>
 public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : DataObject
 {
+    /// <summary>
+    /// The json serializer options for the bad request content.
+    /// </summary>
+    private readonly JsonSerializerOptions _jsonSerializerOptions = new() 
+    { 
+        PropertyNameCaseInsensitive = true 
+    };
+
     /// <summary>
     /// The HTTP client used to interact with the remote server.
     /// </summary>
@@ -67,7 +77,7 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
         }
         else if (!httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode == HttpStatusCode.BadRequest)
         {
-            validationResult = await httpResponseMessage.Content.ReadFromJsonAsync<ServerSideValidationResult>(cancellationToken);
+            validationResult = await DeserializedBadRequestContent(httpResponseMessage, cancellationToken);
         }
 
         return new OperationResult(latestDataObject, validationResult, httpResponseMessage.StatusCode);
@@ -80,6 +90,57 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
         ArgumentNullException.ThrowIfNull(dataObject);
         HttpResponseMessage httpResponseMessage = await HttpClient.DeleteAsync($"/api/{TypeName}/{(!string.IsNullOrWhiteSpace(dataObject.StringID) ? dataObject.StringID : dataObject.Integer64ID)}", cancellationToken);
         return new OperationResult(null, null, httpResponseMessage.StatusCode);
+    }
+
+    /// <summary>
+    /// The method deserializes the content of a bad request.
+    /// </summary>
+    /// <param name="httpResponseMessage">The HTTP response.</param>
+    /// <param name="cancellationToken">A token used for task cancellations.</param>
+    /// <returns>A ServerSideValidationResult object.</returns>
+    /// <remarks>
+    /// When a controller has the [ApiController] attribute, asp.net core will check the serialized [FromBody] object against the data
+    /// annotations on the object and if validation fails, asp.net core will return a bad request with a ValidationProblemDetails
+    /// object. Because asp.net core can return its own object, the HTTP datalyer needs to handle if a ServerSideValidationResult object 
+    /// or a ValidationProblemDetails object is returned in the response.
+    /// </remarks>
+    protected async Task<ServerSideValidationResult?> DeserializedBadRequestContent(HttpResponseMessage httpResponseMessage, CancellationToken cancellationToken)
+    {
+        Exception? originalException = null;
+        ServerSideValidationResult? result = null;
+        string content = await httpResponseMessage.Content.ReadAsStringAsync(cancellationToken);
+
+        try
+        {
+            result = JsonSerializer.Deserialize<ServerSideValidationResult>(content, _jsonSerializerOptions);
+        }
+        catch (Exception e)
+        { 
+            //Capture the original exception so it can be potentially be thrown later.
+            originalException = e;
+        }
+
+        if (result == null)
+        {
+            try
+            {
+                ValidationProblemDetails? dataAnnotationValidation = JsonSerializer.Deserialize<ValidationProblemDetails>(content, _jsonSerializerOptions);
+
+                if (dataAnnotationValidation != null)
+                {
+                    result = new(dataAnnotationValidation);
+                }
+            }
+            catch { }
+        }
+
+        //Throw the original exception if the content failed to parse into a ServerSideValidationResult object or a ValidationProblemDetails object.
+        if (result == null && originalException != null)
+        {
+            throw originalException;
+        }
+
+        return result;
     }
 
     /// <inheritdoc/>
@@ -165,7 +226,7 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
         }
         else if (!httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode == HttpStatusCode.BadRequest)
         {
-            validationResult = await httpResponseMessage.Content.ReadFromJsonAsync<ServerSideValidationResult>(cancellationToken);
+            validationResult = await DeserializedBadRequestContent(httpResponseMessage, cancellationToken);
         }
 
         return new OperationResult(latestDataObject, validationResult, httpResponseMessage.StatusCode);
@@ -183,6 +244,10 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
         {
             validationResult = await httpResponseMessage.Content.ReadFromJsonAsync<ServerSideValidationResult?>(cancellationToken);
+        }
+        else if (!httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode == HttpStatusCode.BadRequest)
+        {
+            validationResult = await DeserializedBadRequestContent(httpResponseMessage, cancellationToken);
         }
 
         return validationResult;

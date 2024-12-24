@@ -2,6 +2,7 @@
 using JMayer.Data.Data.Query;
 using JMayer.Data.HTTP.DataLayer;
 using JMayer.Data.HTTP.Handler;
+using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Text.Json;
 using TestProject.Data;
@@ -149,6 +150,50 @@ public class StandardCRUDDataLayerUnitTest
             Assert.Null(operationResult.DataObject); //Confirm a data object wasn't the response
             Assert.Null(operationResult.ServerSideValidationResult); //Confirm the server side validation result wan't the response.
         }
+    }
+
+    /// <summary>
+    /// The method verifies the StandardCRUDDataLayer.CreateAsync() request and response for a bad request which has a ValidationProblemDetails object in the response.
+    /// </summary>
+    /// <returns>A Task object for the async.</returns>
+    [Fact]
+    public async Task VerifyCreateBadRequestValidationProblemDetails()
+    {
+        //The data object sent by the request will have no ID but the data object returned in the response will.
+        SimpleDataObject requestDataObject = new()
+        {
+            Value = DefaultValue,
+        };
+        SimpleDataObject respondingDataObject = new(requestDataObject)
+        {
+            Integer64ID = DefaultId,
+        };
+        ValidationProblemDetails respondingValidationResult = new()
+        {
+            Errors =
+            {
+                { nameof(SimpleDataObject.Value), ["The Value is out of range."] }
+            }
+        };
+
+        HttpClient httpClient = new MockHttpMessageHandler()
+                .WithJsonContent(requestDataObject)
+                .WithMethod(HttpMethod.Post)
+                .WithRoute($"api/{nameof(SimpleDataObject)}")
+                .RespondingHttpStatusCode(HttpStatusCode.BadRequest)
+                .RespondingJsonContent(respondingValidationResult)
+                .Build();
+
+        SimpleDataLayer dataLayer = new(httpClient);
+        OperationResult operationResult = await dataLayer.CreateAsync(requestDataObject);
+
+        Assert.False(operationResult.IsSuccessStatusCode, "The IsSuccessStatusCode should have been false."); //Confirm the negative response.
+        Assert.Equal(HttpStatusCode.BadRequest, operationResult.StatusCode); //Confirm the negative response.
+        Assert.Null(operationResult.DataObject); //Confirm a data object wasn't the response
+        Assert.NotNull(operationResult.ServerSideValidationResult); //Confirm the validation result was the response and it wasn't successful.
+        Assert.False(operationResult.ServerSideValidationResult.IsSuccess, "The ServerSideValidationResult.IsSuccess should have been false."); //Confirm the validation result was the response and it wasn't successful.
+        Assert.Equal(respondingValidationResult.Errors[nameof(SimpleDataObject.Value)].FirstOrDefault(), operationResult.ServerSideValidationResult.Errors[0].ErrorMessage); //Confirm json serialization/deserialization worked.
+        Assert.Equal(respondingValidationResult.Errors.FirstOrDefault().Key, operationResult.ServerSideValidationResult.Errors[0].PropertyName); //Confirm json serialization/deserialization worked.
     }
 
     /// <summary>
@@ -550,6 +595,48 @@ public class StandardCRUDDataLayerUnitTest
             Assert.Null(operationResult.DataObject); //Confirm a data object wasn't the response
             Assert.Null(operationResult.ServerSideValidationResult); //Confirm the server side validation result wan't the response.
         }
+    }
+
+    /// <summary>
+    /// The method verifies the StandardCRUDDataLayer.UpdateAsync() request and response for a bad request which has a ValidationProblemDetails object in the response.
+    /// </summary>
+    /// <returns>A Task object for the async.</returns>
+    [Fact]
+    public async Task VerifyUpdateBadRequestValidationProblemDetails()
+    {
+        //Nothing changes between the request and responding data objects.
+        SimpleDataObject requestDataObject = new()
+        {
+            Integer64ID = DefaultId,
+            Value = DefaultValue,
+        };
+        SimpleDataObject respondingDataObject = new(requestDataObject);
+        ValidationProblemDetails respondingValidationResult = new()
+        {
+            Errors =
+            {
+                { nameof(SimpleDataObject.Value), ["The Value is out of range."] }
+            }
+        };
+
+        HttpClient httpClient = new MockHttpMessageHandler()
+                .WithJsonContent(requestDataObject)
+                .WithMethod(HttpMethod.Put)
+                .WithRoute($"api/{nameof(SimpleDataObject)}")
+                .RespondingHttpStatusCode(HttpStatusCode.BadRequest)
+                .RespondingJsonContent(respondingValidationResult)
+                .Build();
+
+        SimpleDataLayer dataLayer = new(httpClient);
+        OperationResult operationResult = await dataLayer.UpdateAsync(requestDataObject);
+
+        Assert.False(operationResult.IsSuccessStatusCode, "The IsSuccessStatusCode should have been false."); //Confirm the negative response.
+        Assert.Equal(HttpStatusCode.BadRequest, operationResult.StatusCode); //Confirm the negative response.
+        Assert.Null(operationResult.DataObject); //Confirm a data object wasn't the response
+        Assert.NotNull(operationResult.ServerSideValidationResult); //Confirm the validation result was the response and it wasn't successful.
+        Assert.False(operationResult.ServerSideValidationResult.IsSuccess, "The ServerSideValidationResult.IsSuccess should have been false."); //Confirm the validation result was the response and it wasn't successful.
+        Assert.Equal(respondingValidationResult.Errors[nameof(SimpleDataObject.Value)].FirstOrDefault(), operationResult.ServerSideValidationResult.Errors[0].ErrorMessage); //Confirm json serialization/deserialization worked.
+        Assert.Equal(respondingValidationResult.Errors.FirstOrDefault().Key, operationResult.ServerSideValidationResult.Errors[0].PropertyName); //Confirm json serialization/deserialization worked.
     }
 
     /// <summary>
