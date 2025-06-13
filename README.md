@@ -398,7 +398,7 @@ public class AccountDataLayer : StandardCRUDDataLayer<Account>, IAccountDataLaye
    public async Task<List<Account>> GetSavingAccountsAsync()
    {
       List<Account>? dataObjects = [];
-      HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"/api/{TypeName}/All/{AccountType.Savings}", cancellationToken);
+      HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/All/{AccountType.Savings}", cancellationToken);
       
       if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
       {
@@ -424,7 +424,7 @@ public class AccountDataLayer : StandardCRUDDataLayer<Account>, IAccountDataLaye
       ServerSideValidationResult? validationResult = null;
 
       //Post as xml.
-      HttpResponseMessage httpResponseMessage = await HttpClient.PostAsXmlAsync($"/api/{TypeName}", dataObject, cancellationToken);
+      HttpResponseMessage httpResponseMessage = await HttpClient.PostAsXmlAsync($"api/{TypeName}", dataObject, cancellationToken);
       
       if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
       {
