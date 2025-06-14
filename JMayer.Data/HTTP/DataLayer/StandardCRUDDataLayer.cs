@@ -1,6 +1,5 @@
 ﻿using JMayer.Data.Data;
 using JMayer.Data.Data.Query;
-using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;

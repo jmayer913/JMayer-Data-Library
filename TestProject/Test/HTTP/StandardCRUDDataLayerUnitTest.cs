@@ -2,7 +2,6 @@
 using JMayer.Data.Data.Query;
 using JMayer.Data.HTTP.DataLayer;
 using JMayer.Data.HTTP.Handler;
-using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Text.Json;
 using TestProject.Data;
