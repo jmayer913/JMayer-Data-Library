@@ -1,6 +1,5 @@
 ﻿using JMayer.Data.Data;
 using JMayer.Data.Data.Query;
-using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -50,7 +49,7 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
     public async Task<long> CountAsync(CancellationToken cancellationToken = default)
     {
         long count = 0;
-        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"/api/{TypeName}/Count", cancellationToken);
+        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/Count", cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
         {
@@ -69,7 +68,7 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
 
         T? latestDataObject = null;
         ServerSideValidationResult? validationResult = null;
-        HttpResponseMessage httpResponseMessage = await HttpClient.PostAsJsonAsync($"/api/{TypeName}", dataObject, cancellationToken);
+        HttpResponseMessage httpResponseMessage = await HttpClient.PostAsJsonAsync($"api/{TypeName}", dataObject, cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
         {
@@ -88,7 +87,7 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
     public async Task<OperationResult> DeleteAsync(T dataObject, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(dataObject);
-        HttpResponseMessage httpResponseMessage = await HttpClient.DeleteAsync($"/api/{TypeName}/{(!string.IsNullOrWhiteSpace(dataObject.StringID) ? dataObject.StringID : dataObject.Integer64ID)}", cancellationToken);
+        HttpResponseMessage httpResponseMessage = await HttpClient.DeleteAsync($"api/{TypeName}/{(!string.IsNullOrWhiteSpace(dataObject.StringID) ? dataObject.StringID : dataObject.Integer64ID)}", cancellationToken);
         return new OperationResult(null, null, httpResponseMessage.StatusCode);
     }
 
@@ -147,7 +146,7 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
     public async Task<List<T>?> GetAllAsync(CancellationToken cancellationToken = default)
     {
         List<T>? dataObjects = [];
-        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"/api/{TypeName}/All", cancellationToken);
+        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/All", cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
         {
@@ -164,7 +163,7 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
         ArgumentNullException.ThrowIfNull(queryDefinition);
 
         PagedList<T>? pagedDataObjects = new();
-        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"/api/{TypeName}/Page?{queryDefinition.ToQueryString()}", cancellationToken);
+        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/Page?{queryDefinition.ToQueryString()}", cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
         {
@@ -178,7 +177,7 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
     public async Task<T?> GetSingleAsync(CancellationToken cancellationToken = default)
     {
         T? dataObject = null;
-        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"/api/{TypeName}/Single", cancellationToken);
+        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/Single", cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
         {
@@ -200,7 +199,7 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
 
         T? dataObject = null;
-        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"/api/{TypeName}/Single/{id}", cancellationToken);
+        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/Single/{id}", cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
         {
@@ -218,7 +217,7 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
 
         T? latestDataObject = null;
         ServerSideValidationResult? validationResult = null;
-        HttpResponseMessage httpResponseMessage = await HttpClient.PutAsJsonAsync($"/api/{TypeName}", dataObject, cancellationToken);
+        HttpResponseMessage httpResponseMessage = await HttpClient.PutAsJsonAsync($"api/{TypeName}", dataObject, cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
         {
@@ -239,7 +238,7 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
         ArgumentNullException.ThrowIfNull(dataObject);
 
         ServerSideValidationResult? validationResult = null;
-        HttpResponseMessage httpResponseMessage = await HttpClient.PostAsJsonAsync($"/api/{TypeName}/Validate", dataObject, cancellationToken);
+        HttpResponseMessage httpResponseMessage = await HttpClient.PostAsJsonAsync($"api/{TypeName}/Validate", dataObject, cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
         {

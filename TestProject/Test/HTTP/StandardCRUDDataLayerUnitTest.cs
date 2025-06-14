@@ -2,7 +2,6 @@
 using JMayer.Data.Data.Query;
 using JMayer.Data.HTTP.DataLayer;
 using JMayer.Data.HTTP.Handler;
-using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Text.Json;
 using TestProject.Data;
@@ -29,6 +28,61 @@ public class StandardCRUDDataLayerUnitTest
     /// The constant for the default value.
     /// </summary>
     private const int DefaultValue = 10;
+
+    /// <summary>
+    /// The method verifies the StandardCRUDDataLayer.GetAllAsync() request and response based on the status code.
+    /// </summary>
+    /// <param name="httpStatusCode">The HTTP status code to test against.</param>
+    /// <returns>A Task object for the async.</returns>
+    [Theory]
+    [InlineData(HttpStatusCode.OK)]
+    [InlineData(HttpStatusCode.NoContent)]
+    [InlineData(HttpStatusCode.Unauthorized)]
+    public async Task VerifyBaseAddressWithPath(HttpStatusCode httpStatusCode)
+    {
+        List<SimpleDataObject> respondingDataObjects =
+        [
+            new SimpleDataObject()
+            {
+                Integer64ID = DefaultId,
+                Value = DefaultValue,
+            },
+            new SimpleDataObject()
+            {
+                Integer64ID = 2,
+                Value = 10,
+            },
+        ];
+
+        HttpClient httpClient = new MockHttpMessageHandler()
+            .WithBaseAddress(new Uri("http://localhost/Some/Extra/Path"))
+            .WithRoute($"api/{nameof(SimpleDataObject)}/All")
+            .RespondingHttpStatusCode(httpStatusCode)
+            .RespondingJsonContent(respondingDataObjects)
+            .Build();
+
+        SimpleDataLayer dataLayer = new(httpClient);
+        List<SimpleDataObject>? returnedDataObjects = await dataLayer.GetAllAsync();
+
+        //With positive, confirm json data objects were returned.
+        if (httpStatusCode == HttpStatusCode.OK)
+        {
+            Assert.NotNull(returnedDataObjects); //Must have responded with json.
+            Assert.Equal(respondingDataObjects.Count, returnedDataObjects.Count); //Must have parsed the json correctly.
+
+            for (int index = 0; index < returnedDataObjects.Count; index++)
+            {
+                Assert.Equal(respondingDataObjects[index].Integer64ID, returnedDataObjects[index].Integer64ID); //Must have parsed the json correctly.
+                Assert.Equal(respondingDataObjects[index].Value, returnedDataObjects[index].Value); //Must have parsed the json correctly.
+            }
+        }
+        //With negative, confirm no json data objects were returned.
+        else
+        {
+            Assert.NotNull(returnedDataObjects);
+            Assert.Empty(returnedDataObjects);
+        }
+    }
 
     /// <summary>
     /// The method verifies the DataLayer.CountAsync() request and response based on the status code.

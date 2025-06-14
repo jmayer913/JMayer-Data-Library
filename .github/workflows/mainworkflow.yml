@@ -6,8 +6,6 @@ name: MainWorkflow
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
 
 permissions:
   packages: write
@@ -35,7 +33,7 @@ jobs:
       run: dotnet test --verbosity normal
     - name: Package
       run: dotnet pack --configuration Release
-    - name: GitHub Publish
+    - name: Publish
       run: dotnet nuget push "**/*.nupkg" --api-key ${{ secrets.GITHUB_TOKEN }} --source "github"
     - name: NuGet Publish
       run: dotnet nuget push "**/*.nupkg" --api-key ${{ secrets.NUGET_TOKEN }} --source "https://api.nuget.org/v3/index.json"

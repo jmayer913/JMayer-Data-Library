@@ -22,7 +22,7 @@ public class UserEditableDataLayer<T> : StandardCRUDDataLayer<T>, IUserEditableD
     public async Task<List<ListView>?> GetAllListViewAsync(CancellationToken cancellationToken = default)
     {
         List<ListView>? listView = [];
-        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"/api/{TypeName}/All/ListView", cancellationToken);
+        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/All/ListView", cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
         {
@@ -39,7 +39,7 @@ public class UserEditableDataLayer<T> : StandardCRUDDataLayer<T>, IUserEditableD
         ArgumentNullException.ThrowIfNull(queryDefinition);
 
         PagedList<ListView>? pagedListView = new();
-        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"/api/{TypeName}/Page/ListView?{queryDefinition.ToQueryString()}", cancellationToken);
+        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/Page/ListView?{queryDefinition.ToQueryString()}", cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
         {

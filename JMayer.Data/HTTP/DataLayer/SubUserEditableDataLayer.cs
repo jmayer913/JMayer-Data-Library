@@ -30,7 +30,7 @@ public class SubUserEditableDataLayer<T> : UserEditableDataLayer<T>, ISubUserEdi
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(ownerID);
         List<T>? dataObjects = [];
-        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"/api/{TypeName}/All/{ownerID}", cancellationToken);
+        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/All/{ownerID}", cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
         {
@@ -52,7 +52,7 @@ public class SubUserEditableDataLayer<T> : UserEditableDataLayer<T>, ISubUserEdi
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(ownerID);
         List<ListView>? dataObjects = [];
-        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"/api/{TypeName}/All/ListView/{ownerID}", cancellationToken);
+        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/All/ListView/{ownerID}", cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
         {
@@ -77,7 +77,7 @@ public class SubUserEditableDataLayer<T> : UserEditableDataLayer<T>, ISubUserEdi
         ArgumentNullException.ThrowIfNull(queryDefinition);
 
         PagedList<T>? dataObjects = new();
-        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"/api/{TypeName}/Page/{ownerID}?{queryDefinition.ToQueryString()}", cancellationToken);
+        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/Page/{ownerID}?{queryDefinition.ToQueryString()}", cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
         {
@@ -102,7 +102,7 @@ public class SubUserEditableDataLayer<T> : UserEditableDataLayer<T>, ISubUserEdi
         ArgumentNullException.ThrowIfNull(queryDefinition);
 
         PagedList<ListView>? dataObjects = new();
-        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"/api/{TypeName}/Page/ListView/{ownerID}?{queryDefinition.ToQueryString()}", cancellationToken);
+        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/Page/ListView/{ownerID}?{queryDefinition.ToQueryString()}", cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
         {
