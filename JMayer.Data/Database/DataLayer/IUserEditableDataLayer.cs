@@ -11,15 +11,15 @@ namespace JMayer.Data.Database.DataLayer;
 public interface IUserEditableDataLayer<T> : IStandardCRUDDataLayer<T> where T : UserEditableDataObject
 {
     /// <summary>
-    /// The property gets/sets if milliseconds, microseconds and nanoseconds are ignored when comparing the LastEditedOn 
-    /// for old data object detection.
+    /// The property gets/sets if milliseconds, microseconds and nanoseconds are ignored when comparing the 
+    /// UserEditableDataObject.LastEditedOn property for old data object detection.
     /// </summary>
     /// <remarks>
     /// Syncfusion converts all DateTime properties in an object to UTC and the millseconds, microseconds and nanoseconds
     /// are stipped from the DateTime. Because of this, the data layer would always detect old data and throw a DataObjectUpdateConflictException 
     /// so this property was introduced when the comparison needs to be less precise.
     /// 
-    /// This property is ignored if the IsOldDataObjectDetectionEnabled set to false.
+    /// This property is ignored if the IsOldDataObjectDetectionEnabled property is set to false.
     /// </remarks>
     bool IsLessPreciseTimestampComparisonEnabled { get; set; }
 

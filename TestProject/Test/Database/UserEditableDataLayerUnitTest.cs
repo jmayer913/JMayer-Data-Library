@@ -255,6 +255,61 @@ public class UserEditableDataLayerUnitTest
     public async Task VerifyGetPageListViewThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleUserEditableDataLayer().GetPageListViewAsync(null));
 
     /// <summary>
+    /// The method verifies when IsOldDataObjectDetectionEnabled is false no exception is thrown.
+    /// </summary>
+    /// <returns>A Task for the async.</returns>
+    /// <remarks>
+    /// This is relying on when IsOldDataObjectDetectionEnabled is true and there's a conflict, an exception
+    /// is thrown. Xunit fails the test when an unhandle exception occurs so this passes when no exception is thrown.
+    /// </remarks>
+    [Fact]
+    public async Task VerifyUpdateDisableOldDataObjectDetectionThrowsNoException()
+    {
+        SimpleUserEditableDataLayer dataLayer = new()
+        {
+            IsOldDataObjectDetectionEnabled = false,
+        };
+        SimpleUserEditableDataObject originalDataObject = await dataLayer.CreateAsync(new SimpleUserEditableDataObject() { Name = DefaultName });
+
+        _ = await dataLayer.UpdateAsync(new SimpleUserEditableDataObject(originalDataObject)
+        {
+            Value = DefaultValue,
+        });
+
+        originalDataObject.Value = DefaultValue + 1;
+        _ = await dataLayer.UpdateAsync(originalDataObject);
+    }
+
+    /// <summary>
+    /// The method verifies when IsLessPreciseTimestampComparisonEnabled is true and LastEditedOn only has a time difference in the milliseconds or below no exception is thrown.
+    /// </summary>
+    /// <returns>A Task for the async.</returns>
+    /// <remarks>
+    /// This is relying on when a conflict is detected, an exception is thrown. Xunit fails the test 
+    /// when an unhandle exception occurs so this passes when no exception is thrown.
+    /// </remarks>
+    [Fact]
+    public async Task VerifyUpdateEnableLessPreciseTimestampComparisonThrowsNoException()
+    {
+#warning For the VerifyUpdateEnableLessPreciseTimestampComparisonThrowsNoException() test, I set LastEditedOn property to DateTime.Now without milliseconds. Create doesn't clear the LastEditedOn property but maybe it should because the object has just been added to the memory storage and the LastEditedOn property should be null.
+
+        SimpleUserEditableDataLayer dataLayer = new()
+        {
+            IsLessPreciseTimestampComparisonEnabled = true,
+        };
+        SimpleUserEditableDataObject originalDataObject = await dataLayer.CreateAsync(new SimpleUserEditableDataObject() { Name = DefaultName, LastEditedOn = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second) });
+
+        originalDataObject.Value = DefaultValue + 1;
+
+        if (originalDataObject.LastEditedOn is not null)
+        {
+            originalDataObject.LastEditedOn = originalDataObject.LastEditedOn.Value.AddMilliseconds(1);
+        }
+
+        _ = await dataLayer.UpdateAsync(originalDataObject);
+    }
+
+    /// <summary>
     /// The method verifies the UserEditableMemoryDataLayer.Updated event fires when UserEditableMemoryDataLayer.UpdateAsync() is called.
     /// </summary>
     [Fact]
@@ -366,6 +421,8 @@ public class UserEditableDataLayerUnitTest
             _ = await dataLayer.UpdateAsync(originalDataObjects);
         });
     }
+
+    
 
     /// <summary>
     /// The method verifies UserEditableMemoryDataLayer.UpdateAsync() updates a list of data objects in the data store.
