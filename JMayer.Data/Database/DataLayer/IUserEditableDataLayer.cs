@@ -15,13 +15,19 @@ public interface IUserEditableDataLayer<T> : IStandardCRUDDataLayer<T> where T :
     /// UserEditableDataObject.LastEditedOn property for old data object detection.
     /// </summary>
     /// <remarks>
-    /// Syncfusion converts all DateTime properties in an object to UTC and the millseconds, microseconds and nanoseconds
-    /// are stipped from the DateTime. Because of this, the data layer would always detect old data and throw a DataObjectUpdateConflictException 
-    /// so this property was introduced when the comparison needs to be less precise.
-    /// 
+    /// With client/server communication, its possible the milliseconds, microseconds and nanoseconds are stipped
+    /// from the DateTime when data is sent to the server. Because of this, the data layer would always detect old 
+    /// data and throw a DataObjectUpdateConflictException so this property was introduced when the comparison needs 
+    /// to be less precise.
+    /// <br/>
+    /// <br/>
+    /// The default functionality is strong precision but when you need less precision then in the constructor of your
+    /// child class, set this property to true.
+    /// <br/>
+    /// <br/>
     /// This property is ignored if the IsOldDataObjectDetectionEnabled property is set to false.
     /// </remarks>
-    bool IsLessPreciseTimestampComparisonEnabled { get; set; }
+    bool IsLessPreciseTimestampComparisonEnabled { get; init; }
 
     /// <summary>
     /// The property gets/sets if the data layer checks if the data object being updated is considered old.
@@ -32,8 +38,12 @@ public interface IUserEditableDataLayer<T> : IStandardCRUDDataLayer<T> where T :
     /// timestamps are the same then no one else has edited the data object and the update will occur. If the 
     /// timestamps are not the same, another user has edited the data object and the data layer throws a 
     /// DataObjectUpdateConflictException.
+    /// <br/>
+    /// <br/>
+    /// The default functionality is to check for data submission conflicts between users but when you don't want this 
+    /// then in the constructor of your child class, set this property to false.
     /// </remarks>
-    bool IsOldDataObjectDetectionEnabled { get; set; }
+    bool IsOldDataObjectDetectionEnabled { get; init; }
 
     /// <summary>
     /// The method returns all the data objects for the collection/table as a list view based on a where predicate with an order.

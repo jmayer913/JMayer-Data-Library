@@ -24,10 +24,10 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage;
 public class UserEditableDataLayer<T> : StandardCRUDDataLayer<T>, IUserEditableDataLayer<T> where T : UserEditableDataObject, new()
 {
     /// <inheritdoc/>
-    public bool IsLessPreciseTimestampComparisonEnabled { get; set; }
+    public bool IsLessPreciseTimestampComparisonEnabled { get; init; }
 
     /// <inheritdoc/>
-    public bool IsOldDataObjectDetectionEnabled { get; set; } = true;
+    public bool IsOldDataObjectDetectionEnabled { get; init; } = true;
 
     /// <summary>
     /// The method returns if there's no update conflict.
