@@ -11,6 +11,41 @@ namespace JMayer.Data.Database.DataLayer;
 public interface IUserEditableDataLayer<T> : IStandardCRUDDataLayer<T> where T : UserEditableDataObject
 {
     /// <summary>
+    /// The property gets/sets if milliseconds, microseconds and nanoseconds are ignored when comparing the 
+    /// UserEditableDataObject.LastEditedOn property for old data object detection.
+    /// </summary>
+    /// <remarks>
+    /// With client/server communication, its possible the milliseconds, microseconds and nanoseconds are stipped
+    /// from the DateTime when data is sent to the server. Because of this, the data layer would always detect old 
+    /// data and throw a DataObjectUpdateConflictException so this property was introduced when the comparison needs 
+    /// to be less precise.
+    /// <br/>
+    /// <br/>
+    /// The default functionality is strong precision but when you need less precision then in the constructor of your
+    /// child class, set this property to true.
+    /// <br/>
+    /// <br/>
+    /// This property is ignored if the IsOldDataObjectDetectionEnabled property is set to false.
+    /// </remarks>
+    bool IsLessPreciseTimestampComparisonEnabled { get; init; }
+
+    /// <summary>
+    /// The property gets/sets if the data layer checks if the data object being updated is considered old.
+    /// </summary>
+    /// <remarks>
+    /// When enabled, the data layer will compare the data object passed into UpdateAsync() with the data
+    /// object already stored in the collection/table. The LastEditedOn property will be compared and if the
+    /// timestamps are the same then no one else has edited the data object and the update will occur. If the 
+    /// timestamps are not the same, another user has edited the data object and the data layer throws a 
+    /// DataObjectUpdateConflictException.
+    /// <br/>
+    /// <br/>
+    /// The default functionality is to check for data submission conflicts between users but when you don't want this 
+    /// then in the constructor of your child class, set this property to false.
+    /// </remarks>
+    bool IsOldDataObjectDetectionEnabled { get; init; }
+
+    /// <summary>
     /// The method returns all the data objects for the collection/table as a list view based on a where predicate with an order.
     /// </summary>
     /// <param name="wherePredicate">The where predicate to use against the collection/table.</param>

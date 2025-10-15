@@ -16,23 +16,52 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage;
 /// Also, the underlying data storage is a List so this shouldn't be used with very large datasets.
 /// </para>
 /// <para>
-/// UpdateAsync() has conflict detection. Because the UserEditableDataObject has a LastEditedOn property, 
-/// update can now determine if the data object passed in is older than the record in memory. When this occurs, 
-/// an exception is thrown with the idea the user will need to refresh the data to have the latest and then
-/// try editing it again.
+/// By default, old data detection is enabled. UpdateAsync() will use the LastEditedOn property to determine
+/// if the data object passed in is older than the data object in memory. When a conflict is detected, an exception is thrown 
+/// with the idea the user will need to refresh the data to have the latest and then try editing it again.
 /// </para>
 /// </remarks>
 public class UserEditableDataLayer<T> : StandardCRUDDataLayer<T>, IUserEditableDataLayer<T> where T : UserEditableDataObject, new()
 {
+    /// <inheritdoc/>
+    public bool IsLessPreciseTimestampComparisonEnabled { get; init; }
+
+    /// <inheritdoc/>
+    public bool IsOldDataObjectDetectionEnabled { get; init; } = true;
+
     /// <summary>
     /// The method returns if there's no update conflict.
     /// </summary>
     /// <param name="databaseDataObject">The data object in the database.</param>
     /// <param name="userDataObject">The data object updated by the user.</param>
     /// <returns>True means the data object can be updated; false means there's a conflict.</returns>
-    private static bool AllowToUpdate(T databaseDataObject, T userDataObject)
+    private bool AllowToUpdate(T databaseDataObject, T userDataObject)
     {
-        return databaseDataObject.LastEditedOn == userDataObject.LastEditedOn;
+        if (IsLessPreciseTimestampComparisonEnabled)
+        {
+            //If both are not null, recreate the LastEditedOn but without the millseconds, microseconds & nanoseconds and then, compare to two.
+            if (databaseDataObject.LastEditedOn is not null && userDataObject.LastEditedOn is not null)
+            {
+                DateTime databaseDataObjectLastEditedOn = new(databaseDataObject.LastEditedOn.Value.Year, databaseDataObject.LastEditedOn.Value.Month, databaseDataObject.LastEditedOn.Value.Day, databaseDataObject.LastEditedOn.Value.Hour, databaseDataObject.LastEditedOn.Value.Minute, databaseDataObject.LastEditedOn.Value.Second);
+                DateTime userDataObjectLastEditedOn = new(userDataObject.LastEditedOn.Value.Year, userDataObject.LastEditedOn.Value.Month, userDataObject.LastEditedOn.Value.Day, userDataObject.LastEditedOn.Value.Hour, userDataObject.LastEditedOn.Value.Minute, userDataObject.LastEditedOn.Value.Second);
+
+                return databaseDataObjectLastEditedOn == userDataObjectLastEditedOn;
+            }
+            //If both null then no edits have occurred so allow the update.
+            else if (databaseDataObject.LastEditedOn is null && userDataObject.LastEditedOn is null)
+            {
+                return true;
+            }
+            //If one is null and the other not null then edits have occurred so do not allow an update.
+            else
+            {
+                return false;
+            }
+        }
+        else 
+        {
+            return databaseDataObject.LastEditedOn == userDataObject.LastEditedOn;
+        }
     }
 
     /// <summary>
@@ -112,14 +141,10 @@ public class UserEditableDataLayer<T> : StandardCRUDDataLayer<T>, IUserEditableD
             //Confirm the ID exists and the data object isn't old because this wants all or none updated.
             foreach (T dataObject in dataObjects)
             {
-                T? databaseDataObject = DataStorage.FirstOrDefault(obj => obj.Integer64ID == dataObject.Integer64ID);
+                T? databaseDataObject = DataStorage.FirstOrDefault(obj => obj.Integer64ID == dataObject.Integer64ID)
+                    ?? throw new IDNotFoundException(dataObject.Integer64ID.ToString());
 
-                if (databaseDataObject == null)
-                {
-                    throw new IDNotFoundException(dataObject.Integer64ID.ToString());
-                }
-
-                if (!AllowToUpdate(databaseDataObject, dataObject))
+                if (IsOldDataObjectDetectionEnabled && AllowToUpdate(databaseDataObject, dataObject) is false)
                 {
                     throw new DataObjectUpdateConflictException($"Failed to update because the data object was updated by {databaseDataObject.LastEditedBy ?? databaseDataObject.LastEditedByID ?? string.Empty} on {databaseDataObject.LastEditedOn}.");
                 }
@@ -137,7 +162,7 @@ public class UserEditableDataLayer<T> : StandardCRUDDataLayer<T>, IUserEditableD
             }
         }
 
-        OnUpdated(new UpdatedEventArgs([.. returnDataObjects]));
+        OnUpdated(new UpdatedEventArgs([..returnDataObjects]));
 
         return await Task.FromResult(returnDataObjects);
     }
@@ -149,7 +174,7 @@ public class UserEditableDataLayer<T> : StandardCRUDDataLayer<T>, IUserEditableD
 
         if (await ExistAsync(obj => obj.Integer64ID != dataObject.Integer64ID && obj.Name == dataObject.Name, cancellationToken) == true) 
         {
-            validationResults.Add(new ValidationResult($"The {dataObject.Name} name already exists in the data store.", new List<string>() { nameof(dataObject.Name) }));
+            validationResults.Add(new ValidationResult($"The {dataObject.Name} name already exists in the data store.", [nameof(dataObject.Name)]));
         }
 
         return validationResults;
