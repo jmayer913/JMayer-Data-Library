@@ -307,7 +307,7 @@ public class SubUserEditableDataLayerUnitTest
             [
                 new FilterDefinition()
                 {
-                    FilterOn = nameof(SimpleUserEditableDataObject.Value),
+                    FilterOn = nameof(SimpleSubUserEditableDataObject.Value),
                     Operator = FilterDefinition.StringContainsOperator,
                     Value = "1",
                 }
@@ -318,7 +318,7 @@ public class SubUserEditableDataLayerUnitTest
                 new SortDefinition()
                 {
                     Descending = false,
-                    SortOn = nameof(SimpleUserEditableDataObject.Value),
+                    SortOn = nameof(SimpleSubUserEditableDataObject.Value),
                 }
             ],
             Take = 20,

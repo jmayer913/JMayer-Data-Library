@@ -8,7 +8,7 @@ public class DataObjectDeleteConflictException : Exception
     /// <summary>
     /// The default constructor.
     /// </summary>
-    public DataObjectDeleteConflictException() : base() { }
+    public DataObjectDeleteConflictException() : base("Failed to delete because of a dependency.") { }
 
     /// <summary>
     /// The property constructor.

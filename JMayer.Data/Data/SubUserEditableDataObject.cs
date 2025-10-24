@@ -18,7 +18,7 @@
 /// property.
 /// </para>
 /// </remarks>
-public class SubUserEditableDataObject : UserEditableDataObject
+public class SubUserEditableDataObject : DataObject
 {
     /// <summary>
     /// The property gets/sets the owner ID for this data object as an 32-bit integer.

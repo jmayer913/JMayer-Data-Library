@@ -58,11 +58,11 @@ public sealed class ListView
     /// A copy constructor.
     /// </summary>
     /// <param name="copy">The copy.</param>
-    public ListView(UserEditableDataObject copy)
+    public ListView(DataObject copy)
     {
         ArgumentNullException.ThrowIfNull(copy);
         Integer64ID = copy.Integer64ID;
         StringID = copy.StringID;
-        Name = copy.Name;
+        Name = copy.Name ?? string.Empty;
     }
 }

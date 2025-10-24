@@ -21,7 +21,7 @@ public class DataObjectValidationException : Exception
     /// <summary>
     /// The default constructor.
     /// </summary>
-    public DataObjectValidationException() : base() { }
+    public DataObjectValidationException() : base("The data object failed validation.") { }
 
     /// <summary>
     /// The property constructor.
@@ -29,7 +29,7 @@ public class DataObjectValidationException : Exception
     /// <param name="dataObject">The data object that had a validation issue.</param>
     /// <param name="validationResults">The validation results for the data object.</param>
     public DataObjectValidationException(DataObject dataObject, List<ValidationResult> validationResults)
-        : base($"The data object failed validation.")
+        : base("The data object failed validation.")
     {
         ArgumentNullException.ThrowIfNull(dataObject);
         ArgumentNullException.ThrowIfNull(validationResults);

@@ -9,7 +9,7 @@ namespace JMayer.Data.HTTP.DataLayer;
 /// The class for interacting with remote sub user editable data objects via HTTP using CRUD operations.
 /// </summary>
 /// <typeparam name="T">A SubUserEditableDataObject which represents data on the remote server.</typeparam>
-public class SubUserEditableDataLayer<T> : UserEditableDataLayer<T>, ISubUserEditableDataLayer<T>
+public class SubUserEditableDataLayer<T> : StandardCRUDDataLayer<T>, ISubUserEditableDataLayer<T>
     where T : SubUserEditableDataObject
 {
     /// <inheritdoc/>

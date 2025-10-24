@@ -157,6 +157,20 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
     }
 
     /// <inheritdoc/>
+    public async Task<List<ListView>?> GetAllListViewAsync(CancellationToken cancellationToken = default)
+    {
+        List<ListView>? listView = [];
+        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/All/ListView", cancellationToken);
+
+        if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
+        {
+            listView = await httpResponseMessage.Content.ReadFromJsonAsync<List<ListView>?>(cancellationToken);
+        }
+
+        return listView;
+    }
+
+    /// <inheritdoc/>
     /// <exception cref="ArgumentNullException">Thrown if the queryDefinition parameter is null.</exception>
     public async Task<PagedList<T>?> GetPageAsync(QueryDefinition queryDefinition, CancellationToken cancellationToken = default)
     {
@@ -171,6 +185,23 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
         }
 
         return pagedDataObjects;
+    }
+
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentNullException">Thrown if the queryDefinition parameter is null.</exception>
+    public async Task<PagedList<ListView>?> GetPageListViewAsync(QueryDefinition queryDefinition, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(queryDefinition);
+
+        PagedList<ListView>? pagedListView = new();
+        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/Page/ListView?{queryDefinition.ToQueryString()}", cancellationToken);
+
+        if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
+        {
+            pagedListView = await httpResponseMessage.Content.ReadFromJsonAsync<PagedList<ListView>?>(cancellationToken);
+        }
+
+        return pagedListView;
     }
 
     /// <inheritdoc/>

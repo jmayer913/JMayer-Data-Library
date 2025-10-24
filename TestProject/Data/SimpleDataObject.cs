@@ -8,6 +8,11 @@ namespace TestProject.Data;
 /// </summary>
 internal class SimpleDataObject : DataObject
 {
+    /// <inheritdoc/>
+    /// <remarks>Overridden to enforce required data annotation.</remarks>
+    [Required]
+    public override string? Name { get => base.Name; set => base.Name = value; }
+
     /// <summary>
     /// The property gets/sets a value associated with the simple data object.
     /// </summary>

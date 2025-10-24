@@ -2,6 +2,8 @@
 
 namespace JMayer.Data.Data;
 
+#warning I need to test if the property is overridden and [JsonIgnore] is applied will it be respected.
+
 /// <summary>
 /// The class represents a record in the database.
 /// </summary>
@@ -23,6 +25,21 @@ namespace JMayer.Data.Data;
 public class DataObject
 {
     /// <summary>
+    /// The property gets/sets when the data object was created.
+    /// </summary>
+    public virtual DateTime CreatedOn { get; set; }
+
+    /// <summary>
+    /// The property gets/sets the description of the data object.
+    /// </summary>
+    /// <remarks>
+    /// This property is optional and can be ignored if your data doesn't require it. If you do use it and
+    /// it requires validation rules, you can override the property and add the necessry data annotation
+    /// attributes to it.
+    /// </remarks>
+    public virtual string? Description { get; set; }
+
+    /// <summary>
     /// The property gets/sets the ID for the data object as an 32-bit integer.
     /// </summary>
     /// <remarks>
@@ -38,6 +55,34 @@ public class DataObject
     /// The property gets/sets the ID for the data object as an 64-bit integer.
     /// </summary>
     public virtual long Integer64ID { get; set; }
+
+    /// <summary>
+    /// The property gets/sets the user who last edited the data object.
+    /// </summary>
+    /// <remarks>This property is optional and can be ignored if your data doesn't require it.</remarks>
+    public virtual string? LastEditedBy { get; set; }
+
+    /// <summary>
+    /// The property gets/sets the user ID for who last edited the data object.
+    /// </summary>
+    /// <remarks>This property is optional and can be ignored if your data doesn't require it.</remarks>
+    public virtual string? LastEditedByID { get; set; }
+
+    /// <summary>
+    /// The property gets/sets the last time the data object was edited.
+    /// </summary>
+    /// <remarks>This property is optional and can be ignored if your data doesn't require it.</remarks>
+    public virtual DateTime? LastEditedOn { get; set; }
+
+    /// <summary>
+    /// The property gets/sets the name of the user editable data.
+    /// </summary>
+    /// <remarks>
+    /// This property is optional and can be ignored if your data doesn't require it. If you do use it and
+    /// it requires validation rules, you can override the property and add the necessry data annotation
+    /// attributes to it.
+    /// </remarks>
+    public virtual string? Name { get; set; }
 
     /// <summary>
     /// The property gets/sets the ID for the data object as a string.
@@ -63,7 +108,13 @@ public class DataObject
     public virtual void MapProperties(DataObject dataObject)
     {
         ArgumentNullException.ThrowIfNull(dataObject);
+        CreatedOn = dataObject.CreatedOn;
+        Description = dataObject.Description;
         Integer64ID = dataObject.Integer64ID;
+        LastEditedBy = dataObject.LastEditedBy;
+        LastEditedByID = dataObject.LastEditedByID;
+        LastEditedOn = dataObject.LastEditedOn;
+        Name = dataObject.Name;
         StringID = dataObject.StringID;
     }
 
