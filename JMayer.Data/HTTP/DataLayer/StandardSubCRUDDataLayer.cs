@@ -6,17 +6,17 @@ using System.Net.Http.Json;
 namespace JMayer.Data.HTTP.DataLayer;
 
 /// <summary>
-/// The class for interacting with remote sub user editable data objects via HTTP using CRUD operations.
+/// The class for interacting with remote sub data objects via HTTP using CRUD operations.
 /// </summary>
-/// <typeparam name="T">A SubUserEditableDataObject which represents data on the remote server.</typeparam>
-public class SubUserEditableDataLayer<T> : StandardCRUDDataLayer<T>, ISubUserEditableDataLayer<T>
-    where T : SubUserEditableDataObject
+/// <typeparam name="T">A SubDataObject which represents data on the remote server.</typeparam>
+public class StandardSubCRUDDataLayer<T> : StandardCRUDDataLayer<T>, IStandardSubCRUDDataLayer<T>
+    where T : SubDataObject
 {
     /// <inheritdoc/>
-    public SubUserEditableDataLayer() : base() { }
+    public StandardSubCRUDDataLayer() : base() { }
 
     /// <inheritdoc/>
-    public SubUserEditableDataLayer(HttpClient httpClient) : base(httpClient) { }
+    public StandardSubCRUDDataLayer(HttpClient httpClient) : base(httpClient) { }
 
     /// <inheritdoc/>
     public async Task<List<T>?> GetAllAsync(long ownerID, CancellationToken cancellationToken = default)
@@ -29,10 +29,11 @@ public class SubUserEditableDataLayer<T> : StandardCRUDDataLayer<T>, ISubUserEdi
     public async Task<List<T>?> GetAllAsync(string ownerID, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(ownerID);
+
         List<T>? dataObjects = [];
         HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/All/{ownerID}", cancellationToken);
 
-        if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
+        if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode is not HttpStatusCode.NoContent)
         {
             dataObjects = await httpResponseMessage.Content.ReadFromJsonAsync<List<T>>(cancellationToken);
         }
@@ -51,10 +52,11 @@ public class SubUserEditableDataLayer<T> : StandardCRUDDataLayer<T>, ISubUserEdi
     public async Task<List<ListView>?> GetAllListViewAsync(string ownerID, CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(ownerID);
+
         List<ListView>? dataObjects = [];
         HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/All/ListView/{ownerID}", cancellationToken);
 
-        if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
+        if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode is not HttpStatusCode.NoContent)
         {
             dataObjects = await httpResponseMessage.Content.ReadFromJsonAsync<List<ListView>>(cancellationToken);
         }
@@ -79,7 +81,7 @@ public class SubUserEditableDataLayer<T> : StandardCRUDDataLayer<T>, ISubUserEdi
         PagedList<T>? dataObjects = new();
         HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/Page/{ownerID}?{queryDefinition.ToQueryString()}", cancellationToken);
 
-        if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
+        if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode is not HttpStatusCode.NoContent)
         {
             dataObjects = await httpResponseMessage.Content.ReadFromJsonAsync<PagedList<T>>(cancellationToken);
         }
@@ -104,7 +106,7 @@ public class SubUserEditableDataLayer<T> : StandardCRUDDataLayer<T>, ISubUserEdi
         PagedList<ListView>? dataObjects = new();
         HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/Page/ListView/{ownerID}?{queryDefinition.ToQueryString()}", cancellationToken);
 
-        if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
+        if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode is not HttpStatusCode.NoContent)
         {
             dataObjects = await httpResponseMessage.Content.ReadFromJsonAsync<PagedList<ListView>>(cancellationToken);
         }

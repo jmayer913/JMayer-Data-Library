@@ -9,7 +9,7 @@ using System.Linq.Expressions;
 namespace JMayer.Data.Database.DataLayer.MemoryStorage;
 
 /// <summary>
-/// The class manages CRUD interactions with a list memory storage.
+/// The class manages CRUD interactions with a list memory storage for data objects.
 /// </summary>
 /// <typeparam name="T">A DataObject which represents data in the collection/table.</typeparam>
 /// <remarks>

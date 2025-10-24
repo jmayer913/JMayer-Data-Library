@@ -6,7 +6,7 @@ using System.Linq.Expressions;
 namespace JMayer.Data.Database.DataLayer;
 
 /// <summary>
-/// The interface for interacting with a collection/table in a database using CRUD operations.
+/// The interface for interacting with data objects (records) in a database collection/table using CRUD operations.
 /// </summary>
 /// <typeparam name="T">A DataObject which represents data in the collection/table.</typeparam>
 public interface IStandardCRUDDataLayer<T> where T : DataObject
