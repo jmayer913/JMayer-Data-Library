@@ -1,5 +1,7 @@
 ﻿namespace JMayer.Data.Database.DataLayer;
 
+#warning I wonder if this should be renamed to DataObjectIdNotFound.
+
 /// <summary>
 /// The class represents an exception caused when an ID is not found.
 /// </summary>

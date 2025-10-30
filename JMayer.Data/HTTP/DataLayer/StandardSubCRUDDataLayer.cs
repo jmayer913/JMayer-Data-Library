@@ -31,11 +31,11 @@ public class StandardSubCRUDDataLayer<T> : StandardCRUDDataLayer<T>, IStandardSu
         ArgumentException.ThrowIfNullOrWhiteSpace(ownerID);
 
         List<T>? dataObjects = [];
-        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/All/{ownerID}", cancellationToken);
+        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/All/{ownerID}", cancellationToken: cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode is not HttpStatusCode.NoContent)
         {
-            dataObjects = await httpResponseMessage.Content.ReadFromJsonAsync<List<T>>(cancellationToken);
+            dataObjects = await httpResponseMessage.Content.ReadFromJsonAsync<List<T>>(cancellationToken: cancellationToken);
         }
         
         return dataObjects;
@@ -54,11 +54,11 @@ public class StandardSubCRUDDataLayer<T> : StandardCRUDDataLayer<T>, IStandardSu
         ArgumentException.ThrowIfNullOrWhiteSpace(ownerID);
 
         List<ListView>? dataObjects = [];
-        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/All/ListView/{ownerID}", cancellationToken);
+        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/All/ListView/{ownerID}", cancellationToken: cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode is not HttpStatusCode.NoContent)
         {
-            dataObjects = await httpResponseMessage.Content.ReadFromJsonAsync<List<ListView>>(cancellationToken);
+            dataObjects = await httpResponseMessage.Content.ReadFromJsonAsync<List<ListView>>(cancellationToken: cancellationToken);
         }
         
         return dataObjects;
@@ -79,11 +79,11 @@ public class StandardSubCRUDDataLayer<T> : StandardCRUDDataLayer<T>, IStandardSu
         ArgumentNullException.ThrowIfNull(queryDefinition);
 
         PagedList<T>? dataObjects = new();
-        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/Page/{ownerID}?{queryDefinition.ToQueryString()}", cancellationToken);
+        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/Page/{ownerID}?{queryDefinition.ToQueryString()}", cancellationToken: cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode is not HttpStatusCode.NoContent)
         {
-            dataObjects = await httpResponseMessage.Content.ReadFromJsonAsync<PagedList<T>>(cancellationToken);
+            dataObjects = await httpResponseMessage.Content.ReadFromJsonAsync<PagedList<T>>(cancellationToken: cancellationToken);
         }
 
         return dataObjects;
@@ -104,11 +104,11 @@ public class StandardSubCRUDDataLayer<T> : StandardCRUDDataLayer<T>, IStandardSu
         ArgumentNullException.ThrowIfNull(queryDefinition);
 
         PagedList<ListView>? dataObjects = new();
-        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/Page/ListView/{ownerID}?{queryDefinition.ToQueryString()}", cancellationToken);
+        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/Page/ListView/{ownerID}?{queryDefinition.ToQueryString()}", cancellationToken: cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode is not HttpStatusCode.NoContent)
         {
-            dataObjects = await httpResponseMessage.Content.ReadFromJsonAsync<PagedList<ListView>>(cancellationToken);
+            dataObjects = await httpResponseMessage.Content.ReadFromJsonAsync<PagedList<ListView>>(cancellationToken: cancellationToken);
         }
 
         return dataObjects;

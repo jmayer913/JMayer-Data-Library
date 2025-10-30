@@ -84,7 +84,7 @@ public class StandardSubCRUDDataLayerUnitTest
         List<SimpleSubDataObject>? returnedDataObjects = await dataLayer.GetAllAsync(DefaultOwnerId);
 
         //With positive, confirm json data objects were returned.
-        if (httpStatusCode == HttpStatusCode.OK)
+        if (httpStatusCode is HttpStatusCode.OK)
         {
             Assert.NotNull(returnedDataObjects); //Must have responded with json.
             Assert.Equal(respondingDataObjects.Count, returnedDataObjects.Count); //Must have parsed the json correctly.
@@ -140,7 +140,7 @@ public class StandardSubCRUDDataLayerUnitTest
         List<ListView>? returnedDataObjects = await dataLayer.GetAllListViewAsync(DefaultOwnerId);
 
         //With positive, confirm json data objects were returned.
-        if (httpStatusCode == HttpStatusCode.OK)
+        if (httpStatusCode is HttpStatusCode.OK)
         {
             Assert.NotNull(returnedDataObjects); //Must have responded with json.
             Assert.Equal(respondingDataObjects.Count, returnedDataObjects.Count); //Must have parsed the json correctly.
@@ -254,7 +254,7 @@ public class StandardSubCRUDDataLayerUnitTest
         PagedList<SimpleSubDataObject>? returnedPage = await dataLayer.GetPageAsync(DefaultOwnerId, queryDefinition);
 
         //With positive, confirm json data objects were returned.
-        if (httpStatusCode == HttpStatusCode.OK)
+        if (httpStatusCode is HttpStatusCode.OK)
         {
             Assert.NotNull(returnedPage); //Must have responded with json.
             Assert.Equal(respondingPage.DataObjects.Count, returnedPage.DataObjects.Count); //Must have parsed the json correctly.
@@ -368,7 +368,7 @@ public class StandardSubCRUDDataLayerUnitTest
         PagedList<ListView>? returnedPage = await dataLayer.GetPageListViewAsync(DefaultOwnerId, queryDefinition);
 
         //With positive, confirm json data objects were returned.
-        if (httpStatusCode == HttpStatusCode.OK)
+        if (httpStatusCode is HttpStatusCode.OK)
         {
             Assert.NotNull(returnedPage); //Must have parsed the json correctly.
             Assert.Equal(respondingPage.DataObjects.Count, returnedPage.DataObjects.Count); //Must have parsed the json correctly.

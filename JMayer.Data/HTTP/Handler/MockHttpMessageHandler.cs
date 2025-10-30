@@ -177,7 +177,7 @@ public class MockHttpMessageHandler : HttpMessageHandler
         ArgumentNullException.ThrowIfNull(value);
         string? stringContent = Convert.ToString(value);
 
-        if (stringContent == null)
+        if (stringContent is null)
         {
             throw new Exception("Failed to convert the value to a string.");
         }
@@ -207,12 +207,12 @@ public class MockHttpMessageHandler : HttpMessageHandler
             return await Task.FromResult(new HttpResponseMessage(HttpStatusCode.NotFound));
         }
 
-        if (request.Content == null && _requestContent != null)
+        if (request.Content is null && _requestContent is not null)
         {
             return await Task.FromResult(new HttpResponseMessage(HttpStatusCode.BadRequest));
         }
 
-        if (request.Content != null)
+        if (request.Content is not null)
         {
             string requestContent = await request.Content.ReadAsStringAsync(cancellationToken);
 

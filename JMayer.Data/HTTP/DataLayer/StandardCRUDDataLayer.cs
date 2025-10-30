@@ -1,8 +1,8 @@
 ﻿using JMayer.Data.Data;
 using JMayer.Data.Data.Query;
+using JMayer.Data.HTTP.Details;
 using System.Net;
 using System.Net.Http.Json;
-using System.Text.Json;
 
 namespace JMayer.Data.HTTP.DataLayer;
 
@@ -13,17 +13,9 @@ namespace JMayer.Data.HTTP.DataLayer;
 public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : DataObject
 {
     /// <summary>
-    /// The json serializer options for the bad request content.
-    /// </summary>
-    private readonly JsonSerializerOptions _jsonSerializerOptions = new() 
-    { 
-        PropertyNameCaseInsensitive = true 
-    };
-
-    /// <summary>
     /// The HTTP client used to interact with the remote server.
     /// </summary>
-    protected readonly HttpClient HttpClient = new();
+    protected HttpClient HttpClient { get; init; } = new();
 
     /// <summary>
     /// The name of the type associated with the data layer.
@@ -32,7 +24,7 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
     /// The type name is used in the route for the API. It uses 
     /// the standard format, api/typeName/action.
     /// </remarks>
-    protected readonly string TypeName = typeof(T).Name;
+    protected string TypeName { get; init; } = typeof(T).Name;
 
     /// <summary>
     /// The default constructor.
@@ -49,11 +41,11 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
     public async Task<long> CountAsync(CancellationToken cancellationToken = default)
     {
         long count = 0;
-        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/Count", cancellationToken);
+        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/Count", cancellationToken: cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode is not HttpStatusCode.NoContent)
         {
-            string content = await httpResponseMessage.Content.ReadAsStringAsync(cancellationToken);
+            string content = await httpResponseMessage.Content.ReadAsStringAsync(cancellationToken: cancellationToken);
             _ = long.TryParse(content, out count);
         }
 
@@ -66,20 +58,25 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
     {
         ArgumentNullException.ThrowIfNull(dataObject);
 
-        T? latestDataObject = null;
-        ServerSideValidationResult? validationResult = null;
-        HttpResponseMessage httpResponseMessage = await HttpClient.PostAsJsonAsync($"api/{TypeName}", dataObject, cancellationToken);
+        HttpResponseMessage httpResponseMessage = await HttpClient.PostAsJsonAsync($"api/{TypeName}", dataObject, cancellationToken: cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode is not HttpStatusCode.NoContent)
         {
-            latestDataObject = await httpResponseMessage.Content.ReadFromJsonAsync<T?>(cancellationToken);
+            T? returnedDataObject = await httpResponseMessage.Content.ReadFromJsonAsync<T?>(cancellationToken: cancellationToken);
+            return new OperationResult(httpResponseMessage.StatusCode, dataObject: returnedDataObject);
         }
-        else if (httpResponseMessage.IsSuccessStatusCode is false && httpResponseMessage.StatusCode == HttpStatusCode.BadRequest)
+        else if (httpResponseMessage.IsSuccessStatusCode is false && httpResponseMessage.StatusCode is HttpStatusCode.BadRequest)
         {
-            validationResult = await DeserializedBadRequestContent(httpResponseMessage, cancellationToken);
+            ValidationProblemDetails? details = await httpResponseMessage.Content.ReadFromJsonAsync<ValidationProblemDetails>(cancellationToken: cancellationToken);
+            return new OperationResult(httpResponseMessage.StatusCode, problemDetails: details?.Detail, validationErrors: details?.Errors);
+        }
+        else if (httpResponseMessage.IsSuccessStatusCode is false && httpResponseMessage.StatusCode is HttpStatusCode.InternalServerError)
+        {
+            ProblemDetails? details = await httpResponseMessage.Content.ReadFromJsonAsync<ProblemDetails>(cancellationToken: cancellationToken);
+            return new OperationResult(httpResponseMessage.StatusCode, problemDetails: details?.Detail);
         }
 
-        return new OperationResult(latestDataObject, validationResult, httpResponseMessage.StatusCode);
+        return new OperationResult(httpResponseMessage.StatusCode);
     }
 
     /// <inheritdoc/>
@@ -87,70 +84,31 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
     public async Task<OperationResult> DeleteAsync(T dataObject, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(dataObject);
-        HttpResponseMessage httpResponseMessage = await HttpClient.DeleteAsync($"api/{TypeName}/{(!string.IsNullOrWhiteSpace(dataObject.StringID) ? dataObject.StringID : dataObject.Integer64ID)}", cancellationToken);
-        return new OperationResult(null, null, httpResponseMessage.StatusCode);
-    }
+        HttpResponseMessage httpResponseMessage = await HttpClient.DeleteAsync($"api/{TypeName}/{(!string.IsNullOrWhiteSpace(dataObject.StringID) ? dataObject.StringID : dataObject.Integer64ID)}", cancellationToken: cancellationToken);
 
-    /// <summary>
-    /// The method deserializes the content of a bad request.
-    /// </summary>
-    /// <param name="httpResponseMessage">The HTTP response.</param>
-    /// <param name="cancellationToken">A token used for task cancellations.</param>
-    /// <returns>A ServerSideValidationResult object.</returns>
-    /// <remarks>
-    /// When a controller has the [ApiController] attribute, asp.net core will check the serialized [FromBody] object against the data
-    /// annotations on the object and if validation fails, asp.net core will return a bad request with a ValidationProblemDetails
-    /// object. Because asp.net core can return its own object, the HTTP datalyer needs to handle if a ServerSideValidationResult object 
-    /// or a ValidationProblemDetails object is returned in the response.
-    /// </remarks>
-    protected async Task<ServerSideValidationResult?> DeserializedBadRequestContent(HttpResponseMessage httpResponseMessage, CancellationToken cancellationToken)
-    {
-        Exception? originalException = null;
-        ServerSideValidationResult? result = null;
-        string content = await httpResponseMessage.Content.ReadAsStringAsync(cancellationToken);
-
-        try
+        if (httpResponseMessage.IsSuccessStatusCode is false && httpResponseMessage.StatusCode is HttpStatusCode.Conflict)
         {
-            result = JsonSerializer.Deserialize<ServerSideValidationResult>(content, _jsonSerializerOptions);
+            ConflictDetails? details = await httpResponseMessage.Content.ReadFromJsonAsync<ConflictDetails>(cancellationToken: cancellationToken);
+            return new OperationResult(httpResponseMessage.StatusCode, problemDetails: details?.Detail);
         }
-        catch (Exception e)
-        { 
-            //Capture the original exception so it can be potentially be thrown later.
-            originalException = e;
-        }
-
-        if (result == null)
+        else if (httpResponseMessage.IsSuccessStatusCode is false && httpResponseMessage.StatusCode is HttpStatusCode.InternalServerError)
         {
-            try
-            {
-                ValidationProblemDetails? dataAnnotationValidation = JsonSerializer.Deserialize<ValidationProblemDetails>(content, _jsonSerializerOptions);
-
-                if (dataAnnotationValidation != null)
-                {
-                    result = new(dataAnnotationValidation);
-                }
-            }
-            catch { }
+            ProblemDetails? details = await httpResponseMessage.Content.ReadFromJsonAsync<ProblemDetails>(cancellationToken: cancellationToken);
+            return new OperationResult(httpResponseMessage.StatusCode, problemDetails: details?.Detail);
         }
 
-        //Throw the original exception if the content failed to parse into a ServerSideValidationResult object or a ValidationProblemDetails object.
-        if (result == null && originalException != null)
-        {
-            throw originalException;
-        }
-
-        return result;
+        return new OperationResult(httpResponseMessage.StatusCode);
     }
 
     /// <inheritdoc/>
     public async Task<List<T>?> GetAllAsync(CancellationToken cancellationToken = default)
     {
         List<T>? dataObjects = [];
-        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/All", cancellationToken);
+        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/All", cancellationToken: cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode is not HttpStatusCode.NoContent)
         {
-            dataObjects = await httpResponseMessage.Content.ReadFromJsonAsync<List<T>?>(cancellationToken);
+            dataObjects = await httpResponseMessage.Content.ReadFromJsonAsync<List<T>?>(cancellationToken: cancellationToken);
         }
 
         return dataObjects;
@@ -160,11 +118,11 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
     public async Task<List<ListView>?> GetAllListViewAsync(CancellationToken cancellationToken = default)
     {
         List<ListView>? listView = [];
-        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/All/ListView", cancellationToken);
+        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/All/ListView", cancellationToken: cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode is not HttpStatusCode.NoContent)
         {
-            listView = await httpResponseMessage.Content.ReadFromJsonAsync<List<ListView>?>(cancellationToken);
+            listView = await httpResponseMessage.Content.ReadFromJsonAsync<List<ListView>?>(cancellationToken: cancellationToken);
         }
 
         return listView;
@@ -177,11 +135,11 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
         ArgumentNullException.ThrowIfNull(queryDefinition);
 
         PagedList<T>? pagedDataObjects = new();
-        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/Page?{queryDefinition.ToQueryString()}", cancellationToken);
+        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/Page?{queryDefinition.ToQueryString()}", cancellationToken: cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode is not HttpStatusCode.NoContent)
         {
-            pagedDataObjects = await httpResponseMessage.Content.ReadFromJsonAsync<PagedList<T>?>(cancellationToken);
+            pagedDataObjects = await httpResponseMessage.Content.ReadFromJsonAsync<PagedList<T>?>(cancellationToken: cancellationToken);
         }
 
         return pagedDataObjects;
@@ -194,11 +152,11 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
         ArgumentNullException.ThrowIfNull(queryDefinition);
 
         PagedList<ListView>? pagedListView = new();
-        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/Page/ListView?{queryDefinition.ToQueryString()}", cancellationToken);
+        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/Page/ListView?{queryDefinition.ToQueryString()}", cancellationToken: cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode is not HttpStatusCode.NoContent)
         {
-            pagedListView = await httpResponseMessage.Content.ReadFromJsonAsync<PagedList<ListView>?>(cancellationToken);
+            pagedListView = await httpResponseMessage.Content.ReadFromJsonAsync<PagedList<ListView>?>(cancellationToken: cancellationToken);
         }
 
         return pagedListView;
@@ -208,11 +166,11 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
     public async Task<T?> GetSingleAsync(CancellationToken cancellationToken = default)
     {
         T? dataObject = null;
-        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/Single", cancellationToken);
+        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/Single", cancellationToken: cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode is not HttpStatusCode.NoContent)
         {
-            dataObject = await httpResponseMessage.Content.ReadFromJsonAsync<T?>(cancellationToken);
+            dataObject = await httpResponseMessage.Content.ReadFromJsonAsync<T?>(cancellationToken: cancellationToken);
         }
 
         return dataObject;
@@ -230,11 +188,11 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
 
         T? dataObject = null;
-        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/Single/{id}", cancellationToken);
+        HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/Single/{id}", cancellationToken: cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode is not HttpStatusCode.NoContent)
         {
-            dataObject = await httpResponseMessage.Content.ReadFromJsonAsync<T?>(cancellationToken);
+            dataObject = await httpResponseMessage.Content.ReadFromJsonAsync<T?>(cancellationToken: cancellationToken);
         }
 
         return dataObject;
@@ -246,40 +204,57 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
     {
         ArgumentNullException.ThrowIfNull(dataObject);
 
-        T? latestDataObject = null;
-        ServerSideValidationResult? validationResult = null;
-        HttpResponseMessage httpResponseMessage = await HttpClient.PutAsJsonAsync($"api/{TypeName}", dataObject, cancellationToken);
+        HttpResponseMessage httpResponseMessage = await HttpClient.PutAsJsonAsync($"api/{TypeName}", dataObject, cancellationToken: cancellationToken);
 
         if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode is not HttpStatusCode.NoContent)
         {
-            latestDataObject = await httpResponseMessage.Content.ReadFromJsonAsync<T?>(cancellationToken);
+            T? returnedDataObject = await httpResponseMessage.Content.ReadFromJsonAsync<T?>(cancellationToken: cancellationToken);
+            return new OperationResult(httpResponseMessage.StatusCode, dataObject: returnedDataObject);
+        }
+        else if (httpResponseMessage.IsSuccessStatusCode is false && httpResponseMessage.StatusCode is HttpStatusCode.Conflict)
+        {
+            ConflictDetails? details = await httpResponseMessage.Content.ReadFromJsonAsync<ConflictDetails>(cancellationToken: cancellationToken);
+            return new OperationResult(httpResponseMessage.StatusCode, problemDetails: details?.Detail);
         }
         else if (httpResponseMessage.IsSuccessStatusCode is false && httpResponseMessage.StatusCode is HttpStatusCode.BadRequest)
         {
-            validationResult = await DeserializedBadRequestContent(httpResponseMessage, cancellationToken);
+            ValidationProblemDetails? details = await httpResponseMessage.Content.ReadFromJsonAsync<ValidationProblemDetails>(cancellationToken: cancellationToken);
+            return new OperationResult(httpResponseMessage.StatusCode, problemDetails: details?.Detail, validationErrors: details?.Errors);
+        }
+        else if (httpResponseMessage.IsSuccessStatusCode is false && httpResponseMessage.StatusCode is HttpStatusCode.NotFound)
+        {
+            NotFoundDetails? details = await httpResponseMessage.Content.ReadFromJsonAsync<NotFoundDetails>(cancellationToken: cancellationToken);
+            return new OperationResult(httpResponseMessage.StatusCode, problemDetails: details?.Detail);
+        }
+        else if (httpResponseMessage.IsSuccessStatusCode is false && httpResponseMessage.StatusCode is HttpStatusCode.InternalServerError)
+        {
+            ProblemDetails? details = await httpResponseMessage.Content.ReadFromJsonAsync<ProblemDetails>(cancellationToken: cancellationToken);
+            return new OperationResult(httpResponseMessage.StatusCode, problemDetails: details?.Detail);
         }
 
-        return new OperationResult(latestDataObject, validationResult, httpResponseMessage.StatusCode);
+        return new OperationResult(httpResponseMessage.StatusCode);
     }
 
-    /// <inheritdoc/>
-    /// <exception cref="ArgumentNullException">Thrown if the queryDefinition parameter is null.</exception>
-    public async Task<ServerSideValidationResult?> ValidationAsync(T dataObject, CancellationToken cancellationToken = default)
-    {
-        ArgumentNullException.ThrowIfNull(dataObject);
+#warning For Validate(), I need to figure out what is returned since ServerSideValidationResult will be removed.
 
-        ServerSideValidationResult? validationResult = null;
-        HttpResponseMessage httpResponseMessage = await HttpClient.PostAsJsonAsync($"api/{TypeName}/Validate", dataObject, cancellationToken);
+    ///// <inheritdoc/>
+    ///// <exception cref="ArgumentNullException">Thrown if the queryDefinition parameter is null.</exception>
+    //public async Task<ServerSideValidationResult?> ValidationAsync(T dataObject, CancellationToken cancellationToken = default)
+    //{
+    //    ArgumentNullException.ThrowIfNull(dataObject);
 
-        if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode is not HttpStatusCode.NoContent)
-        {
-            validationResult = await httpResponseMessage.Content.ReadFromJsonAsync<ServerSideValidationResult?>(cancellationToken);
-        }
-        else if (httpResponseMessage.IsSuccessStatusCode is false && httpResponseMessage.StatusCode is HttpStatusCode.BadRequest)
-        {
-            validationResult = await DeserializedBadRequestContent(httpResponseMessage, cancellationToken);
-        }
+    //    ServerSideValidationResult? validationResult = null;
+    //    HttpResponseMessage httpResponseMessage = await HttpClient.PostAsJsonAsync($"api/{TypeName}/Validate", dataObject, cancellationToken);
 
-        return validationResult;
-    }
+    //    if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode is not HttpStatusCode.NoContent)
+    //    {
+    //        validationResult = await httpResponseMessage.Content.ReadFromJsonAsync<ServerSideValidationResult?>(cancellationToken: cancellationToken);
+    //    }
+    //    else if (httpResponseMessage.IsSuccessStatusCode is false && httpResponseMessage.StatusCode is HttpStatusCode.BadRequest)
+    //    {
+    //        validationResult = await DeserializedBadRequestContent(httpResponseMessage, cancellationToken);
+    //    }
+
+    //    return validationResult;
+    //}
 }

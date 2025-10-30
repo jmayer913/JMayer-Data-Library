@@ -93,11 +93,12 @@ public interface IStandardCRUDDataLayer<T> where T : DataObject
     /// <returns>The results of the update operation.</returns>
     Task<OperationResult> UpdateAsync(T dataObject, CancellationToken cancellationToken = default);
 
+#warning For Validate(), I need to figure out what is returned since ServerSideValidationResult will be removed.
     /// <summary>
     /// The method validates the data object on the remote server.
     /// </summary>
     /// <param name="dataObject">The data object to validate.</param>
     /// <param name="cancellationToken">A token used for task cancellations.</param>
     /// <returns>The results of the validation.</returns>
-    Task<ServerSideValidationResult?> ValidationAsync(T dataObject, CancellationToken cancellationToken = default);
+    //Task<ServerSideValidationResult?> ValidationAsync(T dataObject, CancellationToken cancellationToken = default);
 }
