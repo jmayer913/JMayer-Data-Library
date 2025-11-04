@@ -5,6 +5,9 @@ namespace JMayer.Data.HTTP.Details;
 /// <summary>
 /// The class represnets the details when a problem is returned from the server.
 /// </summary>
+/// <remarks>
+/// Microsoft.AspNetCore.App does not work with blazor web-assembly so we need to have our own ProblemDetails class.
+/// </remarks>
 public class ProblemDetails
 {
     /// <summary>
@@ -19,7 +22,6 @@ public class ProblemDetails
     /// The property gets the additional members for the details.
     /// </summary>
     [JsonExtensionData]
-    [JsonPropertyName("extensions")]
     public Dictionary<string, object?> Extensions { get; init; } = [];
 
     /// <summary>
