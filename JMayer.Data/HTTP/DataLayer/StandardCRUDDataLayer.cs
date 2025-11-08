@@ -234,27 +234,4 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
 
         return new OperationResult(httpResponseMessage.StatusCode);
     }
-
-#warning For Validate(), I need to figure out what is returned since ServerSideValidationResult will be removed.
-
-    ///// <inheritdoc/>
-    ///// <exception cref="ArgumentNullException">Thrown if the queryDefinition parameter is null.</exception>
-    //public async Task<ServerSideValidationResult?> ValidationAsync(T dataObject, CancellationToken cancellationToken = default)
-    //{
-    //    ArgumentNullException.ThrowIfNull(dataObject);
-
-    //    ServerSideValidationResult? validationResult = null;
-    //    HttpResponseMessage httpResponseMessage = await HttpClient.PostAsJsonAsync($"api/{TypeName}/Validate", dataObject, cancellationToken);
-
-    //    if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode is not HttpStatusCode.NoContent)
-    //    {
-    //        validationResult = await httpResponseMessage.Content.ReadFromJsonAsync<ServerSideValidationResult?>(cancellationToken: cancellationToken);
-    //    }
-    //    else if (httpResponseMessage.IsSuccessStatusCode is false && httpResponseMessage.StatusCode is HttpStatusCode.BadRequest)
-    //    {
-    //        validationResult = await DeserializedBadRequestContent(httpResponseMessage, cancellationToken);
-    //    }
-
-    //    return validationResult;
-    //}
 }
