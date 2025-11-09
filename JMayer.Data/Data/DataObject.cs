@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 
 namespace JMayer.Data.Data;
 
@@ -24,6 +25,14 @@ namespace JMayer.Data.Data;
 /// </remarks>
 public class DataObject
 {
+    /// <summary>
+    /// Used when serializing this data object.
+    /// </summary>
+    private readonly JsonSerializerOptions _jsonSerializerOptions = new()
+    {
+        WriteIndented = true,
+    };
+
     /// <summary>
     /// The property gets/sets when the data object was created.
     /// </summary>
@@ -59,19 +68,36 @@ public class DataObject
     /// <summary>
     /// The property gets/sets the user who last edited the data object.
     /// </summary>
-    /// <remarks>This property is optional and can be ignored if your data doesn't require it.</remarks>
+    /// <remarks>
+    /// This property is optional and can be ignored if your data doesn't require it. If you do use it and
+    /// it requires validation rules, you can override the property and add the necessry data annotation
+    /// attributes to it.
+    /// </remarks>
     public virtual string? LastEditedBy { get; set; }
 
     /// <summary>
     /// The property gets/sets the user ID for who last edited the data object.
     /// </summary>
-    /// <remarks>This property is optional and can be ignored if your data doesn't require it.</remarks>
-    public virtual string? LastEditedByID { get; set; }
+    /// <remarks>
+    /// This property is optional and can be ignored if your data doesn't require it. If you do use it and
+    /// it requires validation rules, you can override the property and add the necessry data annotation
+    /// attributes to it.
+    /// </remarks>
+    public virtual long? LastEditedByInteger64ID { get; set; }
+
+    /// <summary>
+    /// The property gets/sets the user ID for who last edited the data object.
+    /// </summary>
+    /// <remarks>
+    /// This property is optional and can be ignored if your data doesn't require it. If you do use it and
+    /// it requires validation rules, you can override the property and add the necessry data annotation
+    /// attributes to it.
+    /// </remarks>
+    public virtual string? LastEditedByStringID { get; set; }
 
     /// <summary>
     /// The property gets/sets the last time the data object was edited.
     /// </summary>
-    /// <remarks>This property is optional and can be ignored if your data doesn't require it.</remarks>
     public virtual DateTime? LastEditedOn { get; set; }
 
     /// <summary>
@@ -112,11 +138,19 @@ public class DataObject
         Description = dataObject.Description;
         Integer64ID = dataObject.Integer64ID;
         LastEditedBy = dataObject.LastEditedBy;
-        LastEditedByID = dataObject.LastEditedByID;
+        LastEditedByInteger64ID = dataObject.LastEditedByInteger64ID;
+        LastEditedByStringID = dataObject.LastEditedByStringID;
         LastEditedOn = dataObject.LastEditedOn;
         Name = dataObject.Name;
         StringID = dataObject.StringID;
     }
+
+    /// <summary>
+    /// The method returns json of this data object.
+    /// </summary>
+    /// <returns>Json of this data object.</returns>
+    /// <remarks>The intent is to call this when logging the data object with a logging framework.</remarks>
+    public string ToJson() => JsonSerializer.Serialize(this, _jsonSerializerOptions);
 
     /// <summary>
     /// The method validates the data annotations on the data object.

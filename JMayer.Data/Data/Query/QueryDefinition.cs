@@ -1,4 +1,5 @@
-﻿using System.Web;
+﻿using System.Text.Json;
+using System.Web;
 
 namespace JMayer.Data.Data.Query;
 
@@ -7,6 +8,14 @@ namespace JMayer.Data.Data.Query;
 /// </summary>
 public class QueryDefinition
 {
+    /// <summary>
+    /// Used when serializing this data object.
+    /// </summary>
+    private readonly JsonSerializerOptions _jsonSerializerOptions = new()
+    {
+        WriteIndented = true,
+    };
+
     /// <summary>
     /// The property gets/sets the filter definitions for the query.
     /// </summary>
@@ -31,6 +40,13 @@ public class QueryDefinition
     /// The constant for all records to be taken.
     /// </summary>
     public const int TakeAll = -1;
+
+    /// <summary>
+    /// The method returns json of this query definition.
+    /// </summary>
+    /// <returns>Json of this query definition.</returns>
+    /// <remarks>The intent is to call this when logging the query definition with a logging framework.</remarks>
+    public string ToJson() => JsonSerializer.Serialize(this, _jsonSerializerOptions);
 
     /// <summary>
     /// The method returns the object formatted for a query string.
