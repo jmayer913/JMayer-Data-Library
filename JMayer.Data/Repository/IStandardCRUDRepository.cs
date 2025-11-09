@@ -1,14 +1,13 @@
 ﻿using JMayer.Data.Data;
 using JMayer.Data.Data.Query;
-using System.ComponentModel.DataAnnotations;
 
-namespace JMayer.Data.HTTP.DataLayer;
+namespace JMayer.Data.Repository;
 
 /// <summary>
-/// The interface for interacting with remote data using CRUD operations.
+/// The interface used to access the repository layer; contains CRUD operations for local or remote data.
 /// </summary>
-/// <typeparam name="T">A DataObject which represents data on the remote server.</typeparam>
-public interface IStandardCRUDDataLayer<T> where T : DataObject
+/// <typeparam name="T">A DataObject which represents data stored in the repository.</typeparam>
+public interface IStandardCRUDRepository<T> where T : DataObject
 {
     /// <summary>
     /// The method returns the total count of data objects in a collection/table.
@@ -22,16 +21,16 @@ public interface IStandardCRUDDataLayer<T> where T : DataObject
     /// </summary>
     /// <param name="dataObject">The data object to create.</param>
     /// <param name="cancellationToken">A token used for task cancellations.</param>
-    /// <returns>The results of the create operation.</returns>
-    Task<OperationResult> CreateAsync(T dataObject, CancellationToken cancellationToken = default);
+    /// <returns>The created data object.</returns>
+    Task<T> CreateAsync(T dataObject, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// The method deletes a remote data object.
     /// </summary>
     /// <param name="dataObject">The data object to delete.</param>
     /// <param name="cancellationToken">A token used for task cancellations.</param>
-    /// <returns>The results of the delete operation.</returns>
-    Task<OperationResult> DeleteAsync(T dataObject, CancellationToken cancellationToken = default);
+    /// <returns>The deleted data object.</returns>
+    Task DeleteAsync(T dataObject, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// The method returns all the remote data objects.
@@ -87,18 +86,18 @@ public interface IStandardCRUDDataLayer<T> where T : DataObject
     Task<T?> GetSingleAsync(string id, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// The method returns if the name exists or not in the repository.
+    /// </summary>
+    /// <param name="dataObject">The data object to check.</param>
+    /// <param name="cancellationToken">A token used for task cancellations.</param>
+    /// <returns>If the name exists or not.</returns>
+    Task<bool> NameExistsAsync(T dataObject, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// The method updates a remote data object.
     /// </summary>
     /// <param name="dataObject">The data object to update.</param>
     /// <param name="cancellationToken">A token used for task cancellations.</param>
-    /// <returns>The results of the update operation.</returns>
-    Task<OperationResult> UpdateAsync(T dataObject, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// The method validates a data object.
-    /// </summary>
-    /// <param name="dataObject">The data object to validate.</param>
-    /// <param name="cancellationToken">A token used for task cancellations.</param>
-    /// <returns>The validation result.</returns>
-    Task<List<ValidationResult>> ValidateAsync(T dataObject, CancellationToken cancellationToken = default);
+    /// <returns>The updated data object.</returns>
+    Task<T> UpdateAsync(T dataObject, CancellationToken cancellationToken = default);
 }
