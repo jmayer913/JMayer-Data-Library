@@ -461,7 +461,7 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
 
                 if (IsOldDataObjectDetectionEnabled && AllowToUpdate(databaseDataObject, dataObject) is false)
                 {
-                    throw new DataObjectUpdateConflictException($"Failed to update because the data object was updated by {databaseDataObject.LastEditedBy ?? databaseDataObject.LastEditedByID ?? string.Empty} on {databaseDataObject.LastEditedOn}.");
+                    throw new DataObjectUpdateConflictException($"Failed to update because the data object was updated by {databaseDataObject.LastEditedBy ?? databaseDataObject.LastEditedByInteger64ID?.ToString() ?? databaseDataObject.LastEditedByStringID ?? string.Empty} on {databaseDataObject.LastEditedOn}.");
                 }
 
                 databaseDataObjects.Add(databaseDataObject);
