@@ -150,7 +150,8 @@ public class DataObject
     /// </summary>
     /// <returns>Json of this data object.</returns>
     /// <remarks>The intent is to call this when logging the data object with a logging framework.</remarks>
-    public string ToJson() => JsonSerializer.Serialize(this, _jsonSerializerOptions);
+    public string ToJson<T>() where T : DataObject
+        => JsonSerializer.Serialize((T)this, _jsonSerializerOptions);
 
     /// <summary>
     /// The method validates the data annotations on the data object.
