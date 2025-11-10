@@ -157,7 +157,7 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
         ArgumentNullException.ThrowIfNull(dataObjects);
 
         //Confirm validation because this wants all or none created.
-        await ValidateParamaterDataObjects(dataObjects, cancellationToken);
+        await ValidateParamaterDataObjectsAsync(dataObjects, cancellationToken);
 
         List<T> returnDataObjects = [];
 
@@ -446,7 +446,7 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
         ArgumentNullException.ThrowIfNull(dataObjects);
 
         //Confirm validation because this wants all or none updated.
-        await ValidateParamaterDataObjects(dataObjects, cancellationToken);
+        await ValidateParamaterDataObjectsAsync(dataObjects, cancellationToken);
 
         List<T> returnDataObjects = [];
 
@@ -502,9 +502,10 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
     /// </summary>
     /// <param name="dataObjects">The data objects to check.</param>
     /// <param name="cancellationToken">A token used for task cancellations.</param>
+    /// <returns>A Task for the async.</returns>
     /// <exception cref="DataObjectValidationException">Thrown if a parameter data object fails validation (data annotations and custom validation rules).</exception>
     /// <exception cref="ParameterDuplicateNameException">Thrown if parameter data objects fail name uniqueness with each other; the IsUniqueNameRequired property needs to be set to true.</exception>
-    protected async Task ValidateParamaterDataObjects(List<T> dataObjects, CancellationToken cancellationToken = default)
+    protected async Task ValidateParamaterDataObjectsAsync(List<T> dataObjects, CancellationToken cancellationToken = default)
     {
         //Confirm the names of the passed in data objects have unique names
         //with each other when uniqueness is enforced by the data layer. To do
