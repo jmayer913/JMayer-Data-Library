@@ -17,15 +17,17 @@ public interface IStandardCRUDService<T, U>
     /// The property gets/sets if the service layer checks if the data object being updated is considered old.
     /// </summary>
     /// <remarks>
+    /// <para>
     /// When enabled, the service layer will compare the data object passed into UpdateAsync() with the data
     /// object already stored in the repository. The LastEditedOn property will be compared and if the
     /// timestamps are the same then that means no one else has edited the data object and the update will occur. 
     /// If the timestamps are not the same, another user has edited the data object and the service layer 
     /// returns an operation failure.
-    /// <br/>
-    /// <br/>
+    /// </para>
+    /// <para>
     /// The default functionality is to not check for data submission conflicts between users but when you want this 
     /// then in the constructor of your child class, set this property to true.
+    /// </para>
     /// </remarks>
     bool IsOldDataDetectionEnabled { get; init; }
 
@@ -42,11 +44,13 @@ public interface IStandardCRUDService<T, U>
     /// The property gets/sets if the service layer does any validation checks.
     /// </summary>
     /// <remarks>
+    /// <para>
     /// If the repository represents remote data, you may want the remote source to handle valdation so this allows you to control that.
-    /// <br/>
-    /// <br/>
+    /// </para>
+    /// <para>
     /// The default functionality is to check validation on the data object for a create or update operation but if you don't want 
     /// this then in the constructor of your child class, set this property to true.
+    /// </para>
     /// </remarks>
     bool IsValidationEnabled { get; init; }
 
@@ -93,6 +97,10 @@ public interface IStandardCRUDService<T, U>
     /// </summary>
     /// <param name="cancellationToken">A token used for task cancellations.</param>
     /// <returns>A list of list views or null if issue on the server side.</returns>
+    /// <remarks>
+    /// The DataObject.Name property will be mapped to the ListView.Name property so only use this
+    /// if your application requires a Name to be stored.
+    /// </remarks>
     Task<List<ListView>?> GetAllListViewAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -109,6 +117,10 @@ public interface IStandardCRUDService<T, U>
     /// <param name="queryDefinition">Defines how the data should be queried; includes filtering, paging and sorting.</param>
     /// <param name="cancellationToken">A token used for task cancellations.</param>
     /// <returns>A page of list views or null if issue on the server side.</returns>
+    /// <remarks>
+    /// The DataObject.Name property will be mapped to the ListView.Name property so only use this
+    /// if your application requires a Name to be stored.
+    /// </remarks>
     Task<PagedList<ListView>?> GetPageListViewAsync(QueryDefinition queryDefinition, CancellationToken cancellationToken = default);
 
     /// <summary>

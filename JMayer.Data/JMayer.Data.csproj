@@ -17,4 +17,8 @@
     <InternalsVisibleTo Include="TestProject" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Repository\Http\" />
+  </ItemGroup>
+
 </Project>

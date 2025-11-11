@@ -7,9 +7,39 @@ namespace JMayer.Data.Repository.Database.Memory;
 
 #warning The database version also had Created, Deleted and Updated events so another layer could respond to the operation (like cascade delete or cascade update). Not sure where to put these.
 
+#warning Right now, I'm experimenting with having an interface with linq methods. I like the idea of if the repository is a database then you can run linq queries against it.
+#warning It would be better if the linq methods were extensions but that requires direct access to the database (in my case the list).
+#warning I'm not sure if its worth the trouble trying to create a universal database interface.
+#warning I only have experience with SQL Server with EF and mongodb so I'm not sure what I create will work for everything.
+#warning It means I'm creating another layer to setup and manage.
+
+#warning I should double check if I'm using the linq methods. If they're not really being used, maybe I should ditch them.
+#warning I think only the sub controller uses them to create where predicates to query for the owner id but I feel like this should be on the repository level and the owner parameter is passed down to it.
+#warning I need to double check my example projects and see if any of those utilize the linq methods.
+
+/// <summary>
+/// The class manages CRUD interactions with a list of data objects stored in memory.
+/// </summary>
+/// <typeparam name="T">A DataObject which represents data stored memory.</typeparam>
+/// <remarks>
+/// <para>
+/// This uses an 64-integer identity (auto-increments) ID so the DataObject.Integer64ID will be
+/// used by this and any outside interactions with the data layer must use DataObject.Integer64ID. 
+/// Also, the underlying data storage is a List so this shouldn't be used with very large datasets.
+/// </para>
+/// <para>
+/// The create and update operations are dependent on the DataObject.MapProperties() method; a copy 
+/// is created so the data object passed in and returned are a separate entity from the data object stored
+/// in memory. What this means is in your child class, you must override the DataObject.MapProperties() 
+/// and add mappings for the properties in your data object.
+/// </para>
+/// </remarks>
 public class StandardCRUDRepository<T> : IStandardCRUDRepository<T>
     where T : DataObject, new()
 {
+    /// <inheritdoc/>
+    public event EventHandler<CreatedEventArgs>? Created;
+
     /// <summary>
     /// The memory data storage for this database.
     /// </summary>
@@ -30,6 +60,9 @@ public class StandardCRUDRepository<T> : IStandardCRUDRepository<T>
     /// </summary>
     protected Lock DataStorageLock => _dataStorageLock;
 
+    /// <inheritdoc/>
+    public event EventHandler<DeletedEventArgs>? Deleted;
+
     /// <summary>
     /// The identity of the last created record.
     /// </summary>
@@ -39,6 +72,9 @@ public class StandardCRUDRepository<T> : IStandardCRUDRepository<T>
     /// The property gets the identity of the last created record.
     /// </summary>
     protected long Identity => _identity;
+
+    /// <inheritdoc/>
+    public event EventHandler<UpdatedEventArgs>? Updated;
 
     /// <summary>
     /// The method converts the data objects to list view objects.
@@ -80,17 +116,18 @@ public class StandardCRUDRepository<T> : IStandardCRUDRepository<T>
         {
             foreach (T dataObject in dataObjects)
             {
-                PrepForCreate(dataObject);
-                DataStorage.Add(dataObject);
+                T storageDataObject = CreateCopy(dataObject);
+                PrepForCreate(storageDataObject);
+                DataStorage.Add(storageDataObject);
                 IncrementIdentity();
 
                 //Create a copy so its independent of the data storage.
-                T returnDataObject = CreateCopy(dataObject);
+                T returnDataObject = CreateCopy(storageDataObject);
                 returnDataObjects.Add(returnDataObject);
             }
         }
 
-        //Created event?
+        OnCreated(new CreatedEventArgs([.. returnDataObjects]));
 
         return await Task.FromResult(returnDataObjects);
     }
@@ -131,7 +168,10 @@ public class StandardCRUDRepository<T> : IStandardCRUDRepository<T>
             }
         }
 
-        //Deleted event?
+        if (databaseDataObject is not null)
+        {
+            OnDeleted(new DeletedEventArgs([databaseDataObject]));
+        }
 
         return Task.CompletedTask;
     }
@@ -153,7 +193,7 @@ public class StandardCRUDRepository<T> : IStandardCRUDRepository<T>
             _ = DataStorage.RemoveAll(obj => ids.Any(id => id == obj.Integer64ID));
         }
 
-        //Deleted event?
+        OnDeleted(new DeletedEventArgs([.. databaseDataObjects]));
 
         return Task.CompletedTask;
     }
@@ -230,17 +270,17 @@ public class StandardCRUDRepository<T> : IStandardCRUDRepository<T>
 
         bool result;
 
-        //Exclude the string id because you don't want to find data object being passed in.
+        //Exclude the string id because you don't want to find the data object being passed in.
         if (dataObject.StringID is not null)
         {
             result = QueryData(obj => obj.StringID != dataObject.StringID && obj.Name == dataObject.Name).FirstOrDefault() is not null;
         }
-        //Exclude the integer id because you don't want to find data object being passed in.
+        //Exclude the integer id because you don't want to find the data object being passed in.
         else if (dataObject.Integer64ID > 0)
         {
             result = QueryData(obj => obj.Integer64ID != dataObject.Integer64ID && obj.Name == dataObject.Name).FirstOrDefault() is not null;
         }
-        //Just check the name; the data object is in the process of being created.
+        //Just check the name; more than likely, the data object is in the process of being created.
         else
         {
             result = QueryData(obj => obj.Name == dataObject.Name).FirstOrDefault() is not null;
@@ -248,6 +288,24 @@ public class StandardCRUDRepository<T> : IStandardCRUDRepository<T>
 
         return await Task.FromResult(result);
     }
+
+    /// <summary>
+    /// The method calls the Created event so any registered handler can react to the event.
+    /// </summary>
+    /// <param name="e">The arguments associated with the event.</param>
+    protected virtual void OnCreated(CreatedEventArgs e) => Created?.Invoke(this, e);
+
+    /// <summary>
+    /// The method calls the Deleted event so any registered handler can react to the event.
+    /// </summary>
+    /// <param name="e">The arguments associated with the event.</param>
+    protected virtual void OnDeleted(DeletedEventArgs e) => Deleted?.Invoke(this, e);
+
+    /// <summary>
+    /// The method calls the Updated event so any registered handler can react to the event.
+    /// </summary>
+    /// <param name="e">The arguments associated with the event.</param>
+    protected virtual void OnUpdated(UpdatedEventArgs e) => Updated?.Invoke(this, e);
 
     /// <summary>
     /// The method preps the data object for a create operation.
@@ -389,7 +447,7 @@ public class StandardCRUDRepository<T> : IStandardCRUDRepository<T>
             }
         }
 
-        //Updated event?
+        OnUpdated(new UpdatedEventArgs([.. returnDataObjects]));
 
         return await Task.FromResult(returnDataObjects);
     }

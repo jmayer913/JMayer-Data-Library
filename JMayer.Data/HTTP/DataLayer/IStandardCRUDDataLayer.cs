@@ -1,6 +1,5 @@
 ﻿using JMayer.Data.Data;
 using JMayer.Data.Data.Query;
-using System.ComponentModel.DataAnnotations;
 
 namespace JMayer.Data.HTTP.DataLayer;
 
@@ -93,12 +92,4 @@ public interface IStandardCRUDDataLayer<T> where T : DataObject
     /// <param name="cancellationToken">A token used for task cancellations.</param>
     /// <returns>The results of the update operation.</returns>
     Task<OperationResult> UpdateAsync(T dataObject, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// The method validates a data object.
-    /// </summary>
-    /// <param name="dataObject">The data object to validate.</param>
-    /// <param name="cancellationToken">A token used for task cancellations.</param>
-    /// <returns>The validation result.</returns>
-    Task<List<ValidationResult>> ValidateAsync(T dataObject, CancellationToken cancellationToken = default);
 }

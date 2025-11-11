@@ -8,10 +8,38 @@ namespace JMayer.Data.Repository;
 /// </summary>
 /// <typeparam name="T">A DataObject which represents data stored in the repository.</typeparam>
 /// <remarks>
-/// This is meant to be universal meaning it'll work if your accessing a database or accessing a server with HTTP.
+/// This is meant to be a universal way of doing CRUD operations and it shouldn't care if the 
+/// source is a database, a server with HTTP or any other entity.
 /// </remarks>
 public interface IStandardCRUDRepository<T> where T : DataObject
 {
+    /// <summary>
+    /// A event for when data objects are created in the repository.
+    /// </summary>
+    /// <remarks>
+    /// Another repository in the service layer can register to this event if it
+    /// requires reacting to the creation of data objects in some way.
+    /// </remarks>
+    event EventHandler<CreatedEventArgs>? Created;
+
+    /// <summary>
+    /// A event for when data objects are deleted in the repository.
+    /// </summary>
+    /// <remarks>
+    /// Another repository in the service layer can register to this event if it
+    /// requires reacting to the deletion of data objects in some way.
+    /// </remarks>
+    event EventHandler<DeletedEventArgs>? Deleted;
+
+    /// <summary>
+    /// A event for when data objects are updated in the repository.
+    /// </summary>
+    /// <remarks>
+    /// Another repository in the service layer can register to this event if it
+    /// requires reacting to the update of data objects in some way.
+    /// </remarks>
+    event EventHandler<UpdatedEventArgs>? Updated;
+
     /// <summary>
     /// The method returns the total count of data objects in the repository.
     /// </summary>
@@ -63,6 +91,10 @@ public interface IStandardCRUDRepository<T> where T : DataObject
     /// </summary>
     /// <param name="cancellationToken">A token used for task cancellations.</param>
     /// <returns>A list of list views or null if an issue occurred.</returns>
+    /// <remarks>
+    /// The DataObject.Name property will be mapped to the ListView.Name property so only use this
+    /// if your application requires a Name to be stored.
+    /// </remarks>
     Task<List<ListView>?> GetAllListViewAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -79,6 +111,10 @@ public interface IStandardCRUDRepository<T> where T : DataObject
     /// <param name="queryDefinition">Defines how the data should be queried; includes filtering, paging and sorting.</param>
     /// <param name="cancellationToken">A token used for task cancellations.</param>
     /// <returns>A page of list views or null if an issue occurred.</returns>
+    /// <remarks>
+    /// The DataObject.Name property will be mapped to the ListView.Name property so only use this
+    /// if your application requires a Name to be stored.
+    /// </remarks>
     Task<PagedList<ListView>?> GetPageListViewAsync(QueryDefinition queryDefinition, CancellationToken cancellationToken = default);
 
     /// <summary>
