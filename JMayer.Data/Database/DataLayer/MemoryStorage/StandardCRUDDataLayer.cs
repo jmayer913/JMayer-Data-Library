@@ -27,23 +27,17 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
     /// <summary>
     /// The property gets the data storage for this database.
     /// </summary>
-    protected List<T> DataStorage
-    {
-        get => _dataStorage;
-    }
+    protected List<T> DataStorage => _dataStorage;
 
     /// <summary>
     /// The lock used when accessing the data storage.
     /// </summary>
-    private readonly object _dataStorageLock = new();
+    private readonly Lock _dataStorageLock = new();
 
     /// <summary>
     /// The property gets the lock used when accessing the data storage.
     /// </summary>
-    protected object DataStorageLock 
-    { 
-        get => _dataStorageLock; 
-    }
+    protected Lock DataStorageLock => _dataStorageLock; 
 
     /// <summary>
     /// The identity of the last created record.
@@ -53,10 +47,7 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
     /// <summary>
     /// The property gets the identity of the last created record.
     /// </summary>
-    protected long Identity
-    {
-        get => _identity;
-    }
+    protected long Identity => _identity;
 
     /// <inheritdoc/>
     public event EventHandler<CreatedEventArgs>? Created;
@@ -121,7 +112,7 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
     /// <inheritdoc/>
     public async virtual Task<long> CountAsync(CancellationToken cancellationToken = default)
     {
-        long count = 0;
+        long count;
 
         lock (DataStorageLock)
         {
@@ -203,15 +194,21 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
     {
         ArgumentNullException.ThrowIfNull(dataObject);
 
+        T? databaseDataObject = null;
+
         lock (DataStorageLock)
         {
-            T? databaseDataObject = DataStorage.FirstOrDefault(obj => obj.Integer64ID == dataObject.Integer64ID);
+            databaseDataObject = DataStorage.FirstOrDefault(obj => obj.Integer64ID == dataObject.Integer64ID);
 
             if (databaseDataObject is not null)
             {
                 _ = DataStorage.Remove(databaseDataObject);
-                OnDeleted(new DeletedEventArgs([databaseDataObject]));
             }
+        }
+
+        if (databaseDataObject is not null)
+        {
+            OnDeleted(new DeletedEventArgs([databaseDataObject]));
         }
 
         await Task.CompletedTask;
