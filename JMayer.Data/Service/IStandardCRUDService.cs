@@ -5,7 +5,7 @@ using JMayer.Data.Repository;
 namespace JMayer.Data.Service;
 
 /// <summary>
-/// The interface used to access the service layer; contains CRUD operations for local or remote data.
+/// The interface is used to access the service layer.
 /// </summary>
 /// <typeparam name="T">A DataObject which represents data for the service interactions.</typeparam>
 /// <typeparam name="U">An IStandardCRUDRepository which the service uses to interact with data in the repository.</typeparam>
@@ -25,7 +25,7 @@ public interface IStandardCRUDService<T, U>
     /// <br/>
     /// <br/>
     /// The default functionality is to not check for data submission conflicts between users but when you want this 
-    /// then in the constructor of your child class, set this property to false.
+    /// then in the constructor of your child class, set this property to true.
     /// </remarks>
     bool IsOldDataDetectionEnabled { get; init; }
 
@@ -33,10 +33,6 @@ public interface IStandardCRUDService<T, U>
     /// The property gets/sets if the service layer ensures the name is unique in the repository.
     /// </summary>
     /// <remarks>
-    /// When enabled, the service layer will see if the name already exists for another object during validation and if one does,
-    /// a DataObjectValidationException will be thrown.
-    /// <br/>
-    /// <br/>
     /// The default functionality is to not check for name uniqueness because DataObject.Name is an optional field but if you do use 
     /// the name and you want to ensure name uniqueness then in the constructor of your child class, set this property to true.
     /// </remarks>
@@ -49,7 +45,7 @@ public interface IStandardCRUDService<T, U>
     /// If the repository represents remote data, you may want the remote source to handle valdation so this allows you to control that.
     /// <br/>
     /// <br/>
-    /// The default functionality is to check validation on the data object for a create or update action but if you don't want 
+    /// The default functionality is to check validation on the data object for a create or update operation but if you don't want 
     /// this then in the constructor of your child class, set this property to true.
     /// </remarks>
     bool IsValidationEnabled { get; init; }

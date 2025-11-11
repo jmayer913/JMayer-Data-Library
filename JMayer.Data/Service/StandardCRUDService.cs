@@ -75,13 +75,13 @@ public class StandardCRUDService<T, U> : IStandardCRUDService<T, U>
 
             if (validationResults.Count > 0)
             {
-                return new OperationResult(validationResults);
+                return OperationResult.Failure(validationResults);
             }
         }
 
         dataObject = await Repository.CreateAsync(dataObject, cancellationToken);
 
-        return new OperationResult(dataObject);
+        return OperationResult.Success(dataObject);
     }
 
     /// <inheritdoc/>
@@ -92,12 +92,12 @@ public class StandardCRUDService<T, U> : IStandardCRUDService<T, U>
         if (dataObject is null)
         {
 #warning Cleanup the message.
-            return new OperationResult("Not Found.");
+            return OperationResult.Failure("Not Found.", operationFailureType: OperationFailureType.NotFound);
         }
 
         await Repository.DeleteAsync(dataObject, cancellationToken);
 
-        return new OperationResult(dataObject);
+        return OperationResult.Success(dataObject);
     }
 
     /// <inheritdoc/>
@@ -108,12 +108,12 @@ public class StandardCRUDService<T, U> : IStandardCRUDService<T, U>
         if (dataObject is null)
         {
 #warning Cleanup the message.
-            return new OperationResult("Not Found.");
+            return OperationResult.Failure("Not Found.", operationFailureType: OperationFailureType.NotFound);
         }
 
         await Repository.DeleteAsync(dataObject, cancellationToken);
 
-        return new OperationResult(dataObject);
+        return OperationResult.Success(dataObject);
     }
 
     /// <inheritdoc/>
@@ -153,7 +153,7 @@ public class StandardCRUDService<T, U> : IStandardCRUDService<T, U>
 
             if (validationResults.Count > 0)
             {
-                return new OperationResult(validationResults);
+                return OperationResult.Failure(validationResults);
             }
         }
 
@@ -173,19 +173,19 @@ public class StandardCRUDService<T, U> : IStandardCRUDService<T, U>
             if (databaseDataObject is null)
             {
 #warning Cleanup the message.
-                return new OperationResult("Not Found.");
+                return OperationResult.Failure("Not Found.", operationFailureType: OperationFailureType.NotFound);
             }
 
             if (AllowToUpdate(databaseDataObject, dataObject) is false)
             {
 #warning Cleanup the message.
-                return new OperationResult("Data Conflict");
+                return OperationResult.Failure("Data Conflict", operationFailureType: OperationFailureType.DataConflict);
             }
         }
 
         dataObject = await Repository.UpdateAsync(dataObject, cancellationToken);
 
-        return new OperationResult(dataObject);
+        return OperationResult.Success(dataObject);
     }
 
     /// <summary>
