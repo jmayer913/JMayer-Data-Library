@@ -3,9 +3,6 @@ using JMayer.Data.Data.Query;
 using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 
-#warning I wonder if it should do less precision by default or maybe it only does less precision because milliseconds and below are overkill.
-#warning I also wonder if the update data conflict should be disabled by default.
-
 namespace JMayer.Data.Database.DataLayer.MemoryStorage;
 
 /// <summary>
@@ -13,9 +10,17 @@ namespace JMayer.Data.Database.DataLayer.MemoryStorage;
 /// </summary>
 /// <typeparam name="T">A DataObject which represents data in the collection/table.</typeparam>
 /// <remarks>
+/// <para>
 /// This uses an 64-integer identity (auto-increments) ID so the DataObject.Integer64ID will be
 /// used by this and any outside interactions with the data layer must use DataObject.Integer64ID. 
 /// Also, the underlying data storage is a List so this shouldn't be used with very large datasets.
+/// </para>
+/// <para>
+/// The create and update operations are dependent on the DataObject.MapProperties() method; a copy 
+/// is created so the data object passed in and returned are a separate entity from the data object stored
+/// in memory. What this means is in your child class, you must override the DataObject.MapProperties() 
+/// and add mappings for the properties in your data object.
+/// </para>
 /// </remarks>
 public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : DataObject, new()
 {
@@ -56,9 +61,6 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
     public event EventHandler<DeletedEventArgs>? Deleted;
 
     /// <inheritdoc/>
-    public bool IsLessPreciseTimestampComparisonEnabled { get; init; }
-
-    /// <inheritdoc/>
     public bool IsOldDataObjectDetectionEnabled { get; init; } = true;
 
     /// <inheritdoc/>
@@ -75,30 +77,23 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
     /// <returns>True means the data object can be updated; false means there's a conflict.</returns>
     private bool AllowToUpdate(T databaseDataObject, T userDataObject)
     {
-        if (IsLessPreciseTimestampComparisonEnabled)
+        //If both are not null, recreate the LastEditedOn but without the millseconds, microseconds & nanoseconds and then, compare to two.
+        if (databaseDataObject.LastEditedOn is not null && userDataObject.LastEditedOn is not null)
         {
-            //If both are not null, recreate the LastEditedOn but without the millseconds, microseconds & nanoseconds and then, compare to two.
-            if (databaseDataObject.LastEditedOn is not null && userDataObject.LastEditedOn is not null)
-            {
-                DateTime databaseDataObjectLastEditedOn = new(databaseDataObject.LastEditedOn.Value.Year, databaseDataObject.LastEditedOn.Value.Month, databaseDataObject.LastEditedOn.Value.Day, databaseDataObject.LastEditedOn.Value.Hour, databaseDataObject.LastEditedOn.Value.Minute, databaseDataObject.LastEditedOn.Value.Second);
-                DateTime userDataObjectLastEditedOn = new(userDataObject.LastEditedOn.Value.Year, userDataObject.LastEditedOn.Value.Month, userDataObject.LastEditedOn.Value.Day, userDataObject.LastEditedOn.Value.Hour, userDataObject.LastEditedOn.Value.Minute, userDataObject.LastEditedOn.Value.Second);
+            DateTime databaseDataObjectLastEditedOn = new(databaseDataObject.LastEditedOn.Value.Year, databaseDataObject.LastEditedOn.Value.Month, databaseDataObject.LastEditedOn.Value.Day, databaseDataObject.LastEditedOn.Value.Hour, databaseDataObject.LastEditedOn.Value.Minute, databaseDataObject.LastEditedOn.Value.Second);
+            DateTime userDataObjectLastEditedOn = new(userDataObject.LastEditedOn.Value.Year, userDataObject.LastEditedOn.Value.Month, userDataObject.LastEditedOn.Value.Day, userDataObject.LastEditedOn.Value.Hour, userDataObject.LastEditedOn.Value.Minute, userDataObject.LastEditedOn.Value.Second);
 
-                return databaseDataObjectLastEditedOn == userDataObjectLastEditedOn;
-            }
-            //If both null then no edits have occurred so allow the update.
-            else if (databaseDataObject.LastEditedOn is null && userDataObject.LastEditedOn is null)
-            {
-                return true;
-            }
-            //If one is null and the other not null then edits have occurred so do not allow an update.
-            else
-            {
-                return false;
-            }
+            return databaseDataObjectLastEditedOn == userDataObjectLastEditedOn;
         }
+        //If both null then no edits have occurred so allow the update.
+        else if (databaseDataObject.LastEditedOn is null && userDataObject.LastEditedOn is null)
+        {
+            return true;
+        }
+        //If one is null and the other not null then edits have occurred so do not allow an update.
         else
         {
-            return databaseDataObject.LastEditedOn == userDataObject.LastEditedOn;
+            return false;
         }
     }
 
