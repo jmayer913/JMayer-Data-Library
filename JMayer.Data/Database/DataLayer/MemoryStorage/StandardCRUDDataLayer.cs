@@ -156,12 +156,17 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
         {
             foreach (T dataObject in dataObjects)
             {
-                PrepForCreate(dataObject);
-                DataStorage.Add(dataObject);
+                //Create a copy so the object passed in is independent of what is stored.
+                T storageDataObject = CreateCopy(dataObject);
+                
+                //Prep and insert the data object into storage.
+                PrepForCreate(storageDataObject);
+                DataStorage.Add(storageDataObject);
                 IncrementIdentity();
 
-                T returnDataObject = CreateCopy(dataObject);
-                returnDataObjects.Add(returnDataObject); //Create a copy so its independent of the data storage.
+                //Create a copy so its independent of the data storage.
+                T returnDataObject = CreateCopy(storageDataObject);
+                returnDataObjects.Add(returnDataObject);
             }
         }
 
@@ -380,6 +385,7 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
                 dataObjectEnumerable = dataObjectEnumerable.Take(queryDefinition.Take);
             }
 
+            //Create a copy so its independent of the data storage.
             pagedDataObjects.DataObjects = [.. dataObjectEnumerable.Select(CreateCopy)];
         }
 
@@ -418,6 +424,7 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
                 }
             }
 
+            //Create a copy so its independent of the data storage.
             dataObjects = [.. dataObjectEnumerable.Select(CreateCopy)];
         }
 
@@ -466,9 +473,11 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
 
             for (int index = 0; index < dataObjects.Count; ++index)
             {
+                //Prep and update the data object in storage.
                 PrepForUpdate(dataObjects[index]);
                 databaseDataObjects[index].MapProperties(dataObjects[index]);
 
+                //Create a copy so its independent of the data storage.
                 T returnDataObject = CreateCopy(databaseDataObjects[index]);
                 returnDataObjects.Add(returnDataObject);
             }
