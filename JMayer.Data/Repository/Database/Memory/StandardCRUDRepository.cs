@@ -1,21 +1,8 @@
 ﻿using JMayer.Data.Data;
 using JMayer.Data.Data.Query;
-using JMayer.Data.Database.DataLayer;
 using System.Linq.Expressions;
 
 namespace JMayer.Data.Repository.Database.Memory;
-
-#warning The database version also had Created, Deleted and Updated events so another layer could respond to the operation (like cascade delete or cascade update). Not sure where to put these.
-
-#warning Right now, I'm experimenting with having an interface with linq methods. I like the idea of if the repository is a database then you can run linq queries against it.
-#warning It would be better if the linq methods were extensions but that requires direct access to the database (in my case the list).
-#warning I'm not sure if its worth the trouble trying to create a universal database interface.
-#warning I only have experience with SQL Server with EF and mongodb so I'm not sure what I create will work for everything.
-#warning It means I'm creating another layer to setup and manage.
-
-#warning I should double check if I'm using the linq methods. If they're not really being used, maybe I should ditch them.
-#warning I think only the sub controller uses them to create where predicates to query for the owner id but I feel like this should be on the repository level and the owner parameter is passed down to it.
-#warning I need to double check my example projects and see if any of those utilize the linq methods.
 
 /// <summary>
 /// The class manages CRUD interactions with a list of data objects stored in memory.
@@ -98,15 +85,15 @@ public class StandardCRUDRepository<T> : IStandardCRUDRepository<T>
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentNullException">Thrown if the dataObject parameter is null.</exception>
-    public virtual async Task<T> CreateAsync(T dataObject, CancellationToken cancellationToken = default)
+    public virtual async Task<OperationResult<T>> CreateAsync(T dataObject, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(dataObject);
-        return (await CreateAsync([dataObject], cancellationToken)).First();
+        return await CreateAsync([dataObject], cancellationToken);
     }
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentNullException">Thrown if the dataObjects parameter is null.</exception>
-    public async Task<List<T>> CreateAsync(List<T> dataObjects, CancellationToken cancellationToken = default)
+    public async Task<OperationResult<T>> CreateAsync(List<T> dataObjects, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(dataObjects);
 
@@ -129,7 +116,7 @@ public class StandardCRUDRepository<T> : IStandardCRUDRepository<T>
 
         OnCreated(new CreatedEventArgs([.. returnDataObjects]));
 
-        return await Task.FromResult(returnDataObjects);
+        return await Task.FromResult(OperationResult<T>.Success(returnDataObjects));
     }
 
     /// <summary>
@@ -152,7 +139,7 @@ public class StandardCRUDRepository<T> : IStandardCRUDRepository<T>
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentNullException">Thrown if the dataObject parameter is null.</exception>
-    public virtual Task DeleteAsync(T dataObject, CancellationToken cancellationToken = default)
+    public virtual async Task<OperationResult<T>> DeleteAsync(T dataObject, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(dataObject);
 
@@ -162,30 +149,29 @@ public class StandardCRUDRepository<T> : IStandardCRUDRepository<T>
         {
             databaseDataObject = DataStorage.FirstOrDefault(obj => obj.Integer64ID == dataObject.Integer64ID);
 
-            if (databaseDataObject is not null)
+            if (databaseDataObject is null)
             {
-                _ = DataStorage.Remove(databaseDataObject);
+#warning Cleanup the message.
+                return OperationResult<T>.Failure(404, "Not Found");
             }
+
+            _ = DataStorage.Remove(databaseDataObject);
         }
 
-        if (databaseDataObject is not null)
-        {
-            OnDeleted(new DeletedEventArgs([databaseDataObject]));
-        }
+        OnDeleted(new DeletedEventArgs([databaseDataObject]));
 
-        return Task.CompletedTask;
+        return await Task.FromResult(OperationResult<T>.Success(databaseDataObject));
     }
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentNullException">Thrown if the dataObject parameter is null.</exception>
-    public Task DeleteAsync(List<T> dataObjects, CancellationToken cancellationToken = default)
+    public async Task<OperationResult<T>> DeleteAsync(List<T> dataObjects, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(dataObjects);
 
+#warning I'm wondering if this needs to be rewritten to make sure each data object exists before deletion.
+
         List<long> ids = [.. dataObjects.Select(obj => obj.Integer64ID)];
-        
-        //I'm probably bringing back the linq get methods.
-        //List<T> databaseDataObjects = await GetAllAsync(obj => ids.Any(id => id == obj.Integer64ID), cancellationToken: cancellationToken);
         List<T> databaseDataObjects = QueryData(obj => ids.Any(id => id == obj.Integer64ID));
 
         lock (DataStorageLock)
@@ -195,7 +181,7 @@ public class StandardCRUDRepository<T> : IStandardCRUDRepository<T>
 
         OnDeleted(new DeletedEventArgs([.. databaseDataObjects]));
 
-        return Task.CompletedTask;
+        return await Task.FromResult(OperationResult<T>.Success(databaseDataObjects));
     }
 
     /// <inheritdoc/>
@@ -410,15 +396,15 @@ public class StandardCRUDRepository<T> : IStandardCRUDRepository<T>
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentNullException">Thrown if the dataObject parameter is null.</exception>
-    public virtual async Task<T> UpdateAsync(T dataObject, CancellationToken cancellationToken = default)
+    public virtual async Task<OperationResult<T>> UpdateAsync(T dataObject, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(dataObject);
-        return (await UpdateAsync([dataObject], cancellationToken)).First();
+        return await UpdateAsync([dataObject], cancellationToken);
     }
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentNullException">Thrown if the dataObjects parameter is null.</exception>
-    public async Task<List<T>> UpdateAsync(List<T> dataObjects, CancellationToken cancellationToken = default)
+    public async Task<OperationResult<T>> UpdateAsync(List<T> dataObjects, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(dataObjects);
 
@@ -430,8 +416,13 @@ public class StandardCRUDRepository<T> : IStandardCRUDRepository<T>
 
             foreach (T dataObject in dataObjects)
             {
-                T? databaseDataObject = DataStorage.FirstOrDefault(obj => obj.Integer64ID == dataObject.Integer64ID)
-                    ?? throw new IDNotFoundException(dataObject.Integer64ID.ToString());
+                T? databaseDataObject = DataStorage.FirstOrDefault(obj => obj.Integer64ID == dataObject.Integer64ID);
+
+                if (databaseDataObject is null)
+                {
+#warning Cleanup the message.
+                    return OperationResult<T>.Failure(404, "Not Found");
+                }
 
                 databaseDataObjects.Add(databaseDataObject);
             }
@@ -449,6 +440,6 @@ public class StandardCRUDRepository<T> : IStandardCRUDRepository<T>
 
         OnUpdated(new UpdatedEventArgs([.. returnDataObjects]));
 
-        return await Task.FromResult(returnDataObjects);
+        return await Task.FromResult(OperationResult<T>.Success(returnDataObjects));
     }
 }

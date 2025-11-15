@@ -15,7 +15,7 @@ public sealed class ValidationProblemDetails : ProblemDetails
     /// The property gets the validation errors.
     /// </summary>
     [JsonPropertyName("errors")]
-    public Dictionary<string, string[]> Errors { get; init; } = [];
+    public Dictionary<string, List<string>> Errors { get; init; } = [];
 
     /// <summary>
     /// The default constructor.
@@ -31,7 +31,7 @@ public sealed class ValidationProblemDetails : ProblemDetails
     /// <param name="type">a URI reference [RFC3986] that identifies the problem type.</param>
     /// <param name="extensions">Additional members for the details.</param>
     /// <param name="errors">The validation errors.</param>
-    public ValidationProblemDetails(string? detail = null, string? title = "One or more validation errors occurred.", string? instance = null, string? type = null, Dictionary<string, object?>? extensions = null, Dictionary<string, string[]>? errors = null)
+    public ValidationProblemDetails(string? detail = null, string? title = "One or more validation errors occurred.", string? instance = null, string? type = null, Dictionary<string, object?>? extensions = null, Dictionary<string, List<string>>? errors = null)
         : base(detail, (int)HttpStatusCode.BadRequest, title, instance, type, extensions) 
         => Errors = errors ?? [];
 }

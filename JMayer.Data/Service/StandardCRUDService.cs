@@ -67,7 +67,7 @@ public class StandardCRUDService<T, U> : IStandardCRUDService<T, U>
         => await Repository.CountAsync(cancellationToken);
 
     /// <inheritdoc/>
-    public async Task<OperationResult> CreateAsync(T dataObject, CancellationToken cancellationToken = default)
+    public async Task<OperationResult<T>> CreateAsync(T dataObject, CancellationToken cancellationToken = default)
     {
         if (IsValidationEnabled)
         {
@@ -75,45 +75,39 @@ public class StandardCRUDService<T, U> : IStandardCRUDService<T, U>
 
             if (validationResults.Count > 0)
             {
-                return OperationResult.Failure(validationResults);
+                return OperationResult<T>.Failure(validationResults);
             }
         }
 
-        dataObject = await Repository.CreateAsync(dataObject, cancellationToken);
-
-        return OperationResult.Success(dataObject);
+        return await Repository.CreateAsync(dataObject, cancellationToken);
     }
 
     /// <inheritdoc/>
-    public async Task<OperationResult> DeleteAsync(long id, CancellationToken cancellationToken = default)
+    public async Task<OperationResult<T>> DeleteAsync(long id, CancellationToken cancellationToken = default)
     {
         T? dataObject = await GetSingleAsync(id, cancellationToken);
 
         if (dataObject is null)
         {
 #warning Cleanup the message.
-            return OperationResult.Failure("Not Found.", operationFailureType: OperationFailureType.NotFound);
+            return OperationResult<T>.Failure(404, "Not Found.");
         }
 
-        await Repository.DeleteAsync(dataObject, cancellationToken);
-
-        return OperationResult.Success(dataObject);
+        return await Repository.DeleteAsync(dataObject, cancellationToken);
     }
 
     /// <inheritdoc/>
-    public async Task<OperationResult> DeleteAsync(string id, CancellationToken cancellationToken = default)
+    public async Task<OperationResult<T>> DeleteAsync(string id, CancellationToken cancellationToken = default)
     {
         T? dataObject = await GetSingleAsync(id, cancellationToken);
 
         if (dataObject is null)
         {
 #warning Cleanup the message.
-            return OperationResult.Failure("Not Found.", operationFailureType: OperationFailureType.NotFound);
+            return OperationResult<T>.Failure(404, "Not Found.");
         }
 
-        await Repository.DeleteAsync(dataObject, cancellationToken);
-
-        return OperationResult.Success(dataObject);
+        return await Repository.DeleteAsync(dataObject, cancellationToken);
     }
 
     /// <inheritdoc/>
@@ -145,7 +139,7 @@ public class StandardCRUDService<T, U> : IStandardCRUDService<T, U>
         => await Repository.GetSingleAsync(id, cancellationToken);
 
     /// <inheritdoc/>
-    public async Task<OperationResult> UpdateAsync(T dataObject, CancellationToken cancellationToken = default)
+    public async Task<OperationResult<T>> UpdateAsync(T dataObject, CancellationToken cancellationToken = default)
     {
         if (IsValidationEnabled)
         {
@@ -153,7 +147,7 @@ public class StandardCRUDService<T, U> : IStandardCRUDService<T, U>
 
             if (validationResults.Count > 0)
             {
-                return OperationResult.Failure(validationResults);
+                return OperationResult<T>.Failure(validationResults);
             }
         }
 
@@ -173,19 +167,17 @@ public class StandardCRUDService<T, U> : IStandardCRUDService<T, U>
             if (databaseDataObject is null)
             {
 #warning Cleanup the message.
-                return OperationResult.Failure("Not Found.", operationFailureType: OperationFailureType.NotFound);
+                return OperationResult<T>.Failure(404, "Not Found.");
             }
 
             if (AllowToUpdate(databaseDataObject, dataObject) is false)
             {
 #warning Cleanup the message.
-                return OperationResult.Failure("Data Conflict", operationFailureType: OperationFailureType.DataConflict);
+                return OperationResult<T>.Failure(409, "Data Conflict");
             }
         }
 
-        dataObject = await Repository.UpdateAsync(dataObject, cancellationToken);
-
-        return OperationResult.Success(dataObject);
+        return await Repository.UpdateAsync(dataObject, cancellationToken);
     }
 
     /// <summary>

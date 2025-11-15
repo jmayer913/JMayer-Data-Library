@@ -67,7 +67,7 @@ public interface IStandardCRUDService<T, U>
     /// <param name="dataObject">The data object to create.</param>
     /// <param name="cancellationToken">A token used for task cancellations.</param>
     /// <returns>The results of the create operation.</returns>
-    Task<OperationResult> CreateAsync(T dataObject, CancellationToken cancellationToken = default);
+    Task<OperationResult<T>> CreateAsync(T dataObject, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// The method deletes a ata object in the repository
@@ -75,7 +75,7 @@ public interface IStandardCRUDService<T, U>
     /// <param name="id">The id to delete.</param>
     /// <param name="cancellationToken">A token used for task cancellations.</param>
     /// <returns>The results of the delete operation.</returns>
-    Task<OperationResult> DeleteAsync(long id, CancellationToken cancellationToken = default);
+    Task<OperationResult<T>> DeleteAsync(long id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// The method deletes a ata object in the repository
@@ -83,7 +83,7 @@ public interface IStandardCRUDService<T, U>
     /// <param name="id">The id to delete.</param>
     /// <param name="cancellationToken">A token used for task cancellations.</param>
     /// <returns>The results of the delete operation.</returns>
-    Task<OperationResult> DeleteAsync(string id, CancellationToken cancellationToken = default);
+    Task<OperationResult<T>> DeleteAsync(string id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// The method returns all the data objects in the repository.
@@ -152,5 +152,5 @@ public interface IStandardCRUDService<T, U>
     /// <param name="dataObject">The data object to update.</param>
     /// <param name="cancellationToken">A token used for task cancellations.</param>
     /// <returns>The results of the update operation.</returns>
-    Task<OperationResult> UpdateAsync(T dataObject, CancellationToken cancellationToken = default);
+    Task<OperationResult<T>> UpdateAsync(T dataObject, CancellationToken cancellationToken = default);
 }

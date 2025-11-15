@@ -53,7 +53,7 @@ public interface IStandardCRUDRepository<T> where T : DataObject
     /// <param name="dataObject">The data object to create.</param>
     /// <param name="cancellationToken">A token used for task cancellations.</param>
     /// <returns>The created data object.</returns>
-    Task<T> CreateAsync(T dataObject, CancellationToken cancellationToken = default);
+    Task<OperationResult<T>> CreateAsync(T dataObject, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// The method creates multiple data objects in the repository.
@@ -61,7 +61,7 @@ public interface IStandardCRUDRepository<T> where T : DataObject
     /// <param name="dataObjects">The data objects to create.</param>
     /// <param name="cancellationToken">A token used for task cancellations.</param>
     /// <returns>The created data object.</returns>
-    Task<List<T>> CreateAsync(List<T> dataObjects, CancellationToken cancellationToken = default);
+    Task<OperationResult<T>> CreateAsync(List<T> dataObjects, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// The method deletes a data object in the repository.
@@ -69,7 +69,7 @@ public interface IStandardCRUDRepository<T> where T : DataObject
     /// <param name="dataObject">The data object to delete.</param>
     /// <param name="cancellationToken">A token used for task cancellations.</param>
     /// <returns>A Task for the async.</returns>
-    Task DeleteAsync(T dataObject, CancellationToken cancellationToken = default);
+    Task<OperationResult<T>> DeleteAsync(T dataObject, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// The method deletes multiple data objects in the repository.
@@ -77,7 +77,7 @@ public interface IStandardCRUDRepository<T> where T : DataObject
     /// <param name="dataObjects">The data objects to delete.</param>
     /// <param name="cancellationToken">A token used for task cancellations.</param>
     /// <returns>A Task for the async.</returns>
-    Task DeleteAsync(List<T> dataObjects, CancellationToken cancellationToken = default);
+    Task<OperationResult<T>> DeleteAsync(List<T> dataObjects, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// The method returns all the data objects in the repository.
@@ -154,7 +154,7 @@ public interface IStandardCRUDRepository<T> where T : DataObject
     /// <param name="dataObject">The data object to update.</param>
     /// <param name="cancellationToken">A token used for task cancellations.</param>
     /// <returns>The updated data object.</returns>
-    Task<T> UpdateAsync(T dataObject, CancellationToken cancellationToken = default);
+    Task<OperationResult<T>> UpdateAsync(T dataObject, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// The method updates multiple data objects in the repository.
@@ -162,5 +162,5 @@ public interface IStandardCRUDRepository<T> where T : DataObject
     /// <param name="dataObjects">The data objects to update.</param>
     /// <param name="cancellationToken">A token used for task cancellations.</param>
     /// <returns>The latest data objects.</returns>
-    Task<List<T>> UpdateAsync(List<T> dataObjects, CancellationToken cancellationToken = default);
+    Task<OperationResult<T>> UpdateAsync(List<T> dataObjects, CancellationToken cancellationToken = default);
 }
