@@ -23,25 +23,50 @@ public class Account : DataObject
    }
 }
 ```
-The library is built on the idea you create a class which represents your data and it inherits from one of the three base classes defined in the library. Each base class describes the data in certain ways.
+The library is built on the idea you create a class which represents your data and it inherits from one of the two base classes defined in the library. Each base class describes the data in certain ways.
 
 ### Data Object Class
-This only contains an identifier or key for a record in a database table or collection. It has two identifier properties, an integer property and string property, and **the library expects you to choose if an integer or string identifier is used by your application and data layers.**
+This contains an identifier the record in a database table or collection and there are two properties, an Integer64ID property and StringID property, and **the library expects you to choose if either one or both are used by your application and your data layers.** Also, included is a CreatedOn and LastEditedOn properties which keep track of when
+the data object was created and when it was lasted edited. Additionally, there are common optional properties, Name, Description, LastEditedBy (a user name), LastEditedByInteger64ID (if integer identifiers are used) and LastEditedByStringID (if string identifiers are used).
 <br/>
 <br/>
-There is an overridable MapProperties() method which you can override it in your subclasses to define how data is copied from one data object to another. There is also a Validate() method which can be used by the data layer to validate the data of the object.
+There is an overridable MapProperties() method which you can override it in your subclasses to define how data is copied from one data object to another. There is also a Validate() method which can be used by the data layer to validate the data of the object; this uses data annotations.
 
-### User Editable Data Object Class
-This represents data a user can edit with your application. It contains properties for keeping track of when the data object was created, last edited and by who. It also contains a required Name and optional Description properties because name and description are common.
+#### Data Annotations
+If you need to make Name required or apply any other data annotation attributes to the base properties, you can override them; they're all virtual.
+```
+public class Account : DataObject
+{
+   AccountType AccountType { get; set; }
 
-### Sub User Editable Data Object Class
-This represents data that's relationally under something else; think *this* has *that* and *that* would be the sub of *this*. Like the DataObject class, it has two owner identifier properties that reference an owner data object and **the library expects you to choose if an integer or string identifier is used by your application and data layers.**
+   public Decimal TotalAmount { get; set; }
+
+   //I overridden the base to include a Required data annotation attribute.
+   //The base.Validate() will respect this.
+   [Required]
+   public override string? Name { get => base.Name; set => base.Name = value; }
+
+   public override MapProperties(DataObject dataObject)
+   {
+      base.MapProperties(dataObject);
+
+      if (dataObject is Account account)
+      {
+         AccountType = account.AccountType;
+         TotalAmount = account.TotalAmount;
+      }
+   }
+}
+```
+
+### Sub Data Object Class
+This represents data that's relationally under something else; think *this* has *that* and *that* would be the sub of *this*. Like the DataObject class, it has two owner identifier properties, OwnerInteger64ID and OwnerStringID, and these will reference an owner data object. **The library expects you to choose if either one or both are used by your application and your data layers.**
 <br/>
 <br/>
 Going back to the banking example, an account will have transactions taken by the user or externally (auto deposit/withdrawl) so that's something your application would need to display. Your application would need a Transaction object and you would need to set the owner identifier property to the identifier of the Account object. This defines 
 a relationship between the Account object and Transaction object.
 ```
-public class Transaction : SubUserEditableDataObject
+public class Transaction : SubDataObject
 {
    public ActionType ActionTaken { get; set; }
 
@@ -59,7 +84,7 @@ public class Transaction : SubUserEditableDataObject
    }
 }
 
-//Somewhere in your code you would create a new transaction and
+//Somewhere in your application you would create a new transaction and
 //bind it to the account the transaction was taken on with the OwnerInteger64ID.
 await dataLayer.CreateAsync(new Transaction()
 {
@@ -70,7 +95,7 @@ await dataLayer.CreateAsync(new Transaction()
 ```
 
 ### List View Class
-This is not a data object but its derived from the UserEditableDataObject or SubUserEditableDataObject. A list view only contains a name and identifier and its meant for a dropdown or similar UI where it only needs the name and identifier and nothing else.
+This is not a data object but its derived from the DataObject or SubDataObject. A list view only contains a name and identifier and its meant for a dropdown or similar UI where it only needs the name and identifier and nothing else.
 
 ## Data Layer
 Your application will use the data layer to access or manipulate data objects. The data layer will act as a wrapper for the database or a remote server. This abstraction allows your application to only know about the data objects and the data layers and not how its needs to talk to the source.
