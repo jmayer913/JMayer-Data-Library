@@ -3,8 +3,6 @@ using System.Text.Json;
 
 namespace JMayer.Data.Data;
 
-#warning I need to test if the property is overridden and [JsonIgnore] is applied will it be respected.
-
 /// <summary>
 /// The class represents a record in the database.
 /// </summary>

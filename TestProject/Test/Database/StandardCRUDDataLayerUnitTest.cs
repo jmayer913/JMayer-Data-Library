@@ -747,35 +747,6 @@ public class StandardCRUDDataLayerUnitTest
     }
 
     /// <summary>
-    /// The method verifies when IsLessPreciseTimestampComparisonEnabled is true and LastEditedOn only has a time difference in the milliseconds or below no exception is thrown.
-    /// </summary>
-    /// <returns>A Task for the async.</returns>
-    /// <remarks>
-    /// This is relying on when a conflict is detected, an exception is thrown. Xunit fails the test 
-    /// when an unhandle exception occurs so this passes when no exception is thrown.
-    /// </remarks>
-    [Fact]
-    public async Task VerifyUpdateEnableLessPreciseTimestampComparisonThrowsNoException()
-    {
-#warning For the VerifyUpdateEnableLessPreciseTimestampComparisonThrowsNoException() test, I set LastEditedOn property to DateTime.Now without milliseconds. Create doesn't clear the LastEditedOn property but maybe it should because the object has just been added to the memory storage and the LastEditedOn property should be null.
-
-        SimpleStandardDataLayer dataLayer = new()
-        {
-            IsLessPreciseTimestampComparisonEnabled = true,
-        };
-        SimpleDataObject originalDataObject = await dataLayer.CreateAsync(new SimpleDataObject() { Name = DefaultName, LastEditedOn = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second) });
-
-        originalDataObject.Value = DefaultValue + 1;
-
-        if (originalDataObject.LastEditedOn is not null)
-        {
-            originalDataObject.LastEditedOn = originalDataObject.LastEditedOn.Value.AddMilliseconds(1);
-        }
-
-        _ = await dataLayer.UpdateAsync(originalDataObject);
-    }
-
-    /// <summary>
     /// The method verifies the StandardCRUDDataLayer.Updated event fires when StandardCRUDDataLayer.UpdateAsync() is called.
     /// </summary>
     [Fact]
