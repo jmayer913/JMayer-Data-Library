@@ -111,7 +111,7 @@ The data layer classes in the library are generic. The library is built on the i
 **First, let's start off by saying the memory storage data layer uses an auto incrementing long identity as the identifier so this means your application needs to use the DataObject.Integer64ID property when interacting with a data object and its data layer.** 
 
 #### How to Create Your Memory Storage Data Layer 
-Going back to our banking account example, your application needs a way to interact with the account data so you need to define an interface for your account data layer and an account sub class which inherits from StandardCRUDDataLayer in the JMayer.Data.Database.DataLayer.MemoryStorage namespace. Optionally, the data layer would need to be
+Going back to our banking account example, your application needs a way to interact with the account data so you need to define an interface for your account data layer and an account data layer sub class which inherits from StandardCRUDDataLayer in the JMayer.Data.Database.DataLayer.MemoryStorage namespace. Optionally, the data layer would need to be
 registered to the middleware in the Program.cs; this allows for depedency injection if your application utilizes it.
 ```
 public interface IAccountDataLayer : IStandardCRUDDataLayer<Account>
@@ -125,7 +125,7 @@ public class AccountDataLayer : StandardCRUDDataLayer<Account>, IAccountDataLaye
 //Optionally, register the data layer with the middleware in Program.cs.
 builder.Services.AddSingleton<IAccountDataLayer, AccountDataLayer>();
 ```
-You now have an account data layer which your application can interact with and it contains a standard set of ways to retrieve or manipulate account data objects.
+You now have an account data layer which your application can interact with and it contains a standard set of ways to retrieve or manipulate account data objects. The same can be done when using the StandardSubCRUDDataLayer.
 
 #### How to Create a New Data Object Using Your Memory Storage Data Layer
 ```
@@ -323,10 +323,10 @@ public class AccountDataLayer : StandardCRUDDataLayer<Account>, IAccountDataLaye
 ```
 
 ### HTTP Data Layer
-**First, let's start off by saying the HTTP data layer is tightly coupled with the controllers defined in the JMayer.Web.Mvc library. If you're not using the JMayer.Web.Mvc library then your controllers will need to match the expected HTTP request and response defined here.**
+**First, let's start off by saying the HTTP data layer is tightly coupled with the web API controllers defined in the JMayer.Web.Mvc library. If you're not using the JMayer.Web.Mvc library then your web API controllers will need to match the expected HTTP request and response defined here.**
 
 #### How to Create Your HTTP Data Layer 
-Going back to our banking account example, your application needs a way to interact with the account data so you need to define an interface for your account data layer and an account sub class which inherits from StandardCRUDDataLayer in the JMayer.Data.HTTP.DataLayer namespace. Optionally, the data layer would need to be
+Going back to our banking account example, your application needs a way to interact with the account data so you need to define an interface for your account data layer and an account data layer sub class which inherits from StandardCRUDDataLayer in the JMayer.Data.HTTP.DataLayer namespace. Optionally, the data layer would need to be
 registered to the middleware in the Program.cs; this allows for depedency injection if your application utilizes it.
 ```
 public interface IAccountDataLayer : IStandardCRUDDataLayer<Account>
@@ -341,7 +341,7 @@ public class AccountDataLayer : StandardCRUDDataLayer<Account>, IAccountDataLaye
 //The base addresss will need to be assigned; this is how you would do it in WebAssembly Blazor.
 builder.Services.AddSingleton<IAccountDataLayer, AccountDataLayer>(httpClient => httpClient.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress));
 ```
-You now have an account data layer which your application can interact with and it contains a standard set of ways to retrieve or manipulate account data objects using a web API. The same can be done when using the UserEditableDataLayer and SubUserEditableDataLayer.
+You now have an account data layer which your application can interact with and it contains a standard set of ways to retrieve or manipulate account data objects using a web API. The same can be done when using the StandardSubCRUDDataLayer.
 
 #### How to Create a New Data Object Using Your HTTP Data Layer
 ```
@@ -355,9 +355,16 @@ if (operationResult.IsSuccessStatusCode && operationResult.DataObject is Account
 {
    //Do something with the newly created data object.
 }
-else if (!operationResult.IsSuccessStatusCode && operationResult.ServerSideValidationResult is not null)
+else if (operationResult.IsSuccessStatusCode is false)
 {
-   //Display the validation failures.
+   if (operationResult.ValidationErrors.Count > 0)
+   {
+      //Display the validation failures.
+   }
+   else if (operationResult.ProblemDetails is not null)
+   {
+      //Display an error message returned by the server.
+   }
 }
 ```
 This will send a POST HTTP request to the web API and it will contain the data object in the body as json. The Uri will be formatted as {BaseAddress}/api/{TypeName} and the TypeName would be Account in our example.
@@ -369,6 +376,10 @@ OperationResult operationResult = await accountDataLayer.DeleteAsync(account);
 if (operationResult.IsSuccessStatusCode)
 {
    //Do something on successful deletion.
+}
+else if (operationResult.IsSuccessStatusCode is false && operationResult.ProblemDetails is not null)
+{
+   //Display an error message returned by the server.
 }
 ```
 This will send a DELETE HTTP request to the web API. The Uri will be formatted as {BaseAddress}/api/{TypeName}/{Integer64ID} or {BaseAddress}/api/{TypeName}/{StringID} and the TypeName would be Account in our example.
@@ -382,9 +393,16 @@ if (operationResult.IsSuccessStatusCode && operationResult.DataObject is Account
 {
    //Do something with the updated data object.
 }
-else if (!operationResult.IsSuccessStatusCode && operationResult.ServerSideValidationResult is not null)
+else if (operationResult.IsSuccessStatusCode is false)
 {
-   //Display the validation failures.
+   if (operationResult.ValidationErrors.Count > 0)
+   {
+      //Display the validation failures.
+   }
+   else if (operationResult.ProblemDetails is not null)
+   {
+      //Display an error message returned by the server.
+   }
 }
 ```
 This will send a PUT HTTP request to the web API and it will contain the data object in the body as json. The Uri will be formatted as {BaseAddress}/api/{TypeName} and the TypeName would be Account in our example.
@@ -392,18 +410,18 @@ This will send a PUT HTTP request to the web API and it will contain the data ob
 #### How to Get Data Objects Using Your HTTP Data Layer
 ```
 var accounts = await accountDataLayer.GetAllAsync();
+//or
+var accountListViews = await accountDataLayer.GetAllListViewAsync();
 ```
-This will send a GET HTTP request to the web API. The Uri will be formatted as {BaseAddress}/api/{TypeName}/All and the TypeName would be Account in our example.
+This will send a GET HTTP request to the web API. The Uri will be formatted as {BaseAddress}/api/{TypeName}/All or {BaseAddress}/api/{TypeName}/All/ListView and the TypeName would be Account in our example.
 <br/>
 <br/>
-The SubUserEditableDataLayer has a GetAllAsync() method which accepts an owner ID; the idea is the web API returns all sub data objects under an owner. The Uri will be formatted as {BaseAddress}/api/{TypeName}/All/{ownerID}; ownerID can be an integer or string.
-<br/>
-<br/>
-The UserEditableDataLayer has a list view version of the GetAllAsync() method.
+The StandardSubCRUDDataLayer has a GetAllAsync() and GetAllListViewAsync() method which accepts an owner ID; the idea is the web API returns all sub data objects under an owner. The Uri will be formatted as {BaseAddress}/api/{TypeName}/All/{OwnerInteger64ID} or {BaseAddress}/api/{TypeName}/All/{OwnerStringID} or 
+{BaseAddress}/api/{TypeName}/All/ListView/{OwnerInteger64ID} or {BaseAddress}/api/{TypeName}/All/ListView/{OwnerStringID}.
 
 #### How to Get Paged Data Objects Using Your HTTP Data Layer
 ```
-//Skip 3 pages and then, take 10 data objects.
+//Skip 3 pages and then, take 10 accounts.
 QueryDefinition queryDefinition = new()
 {
     Skip = 3,
@@ -428,7 +446,7 @@ QueryDefinition queryDefinition = new()
 };
 PagedList pagedList = accountDataLayer.GetPageAsync(queryDefinition);
 //or
-//Order descending by total amount.
+//Accounts ordered descending by total amount.
 QueryDefinition queryDefinition = new()
 {
     SortDefinitions =
@@ -443,24 +461,65 @@ QueryDefinition queryDefinition = new()
     Take = 10,
 };
 PagedList pagedList = accountDataLayer.GetPageAsync(queryDefinition);
+//or
+//Skip 3 pages and then, take 10 accounts as list views.
+QueryDefinition queryDefinition = new()
+{
+    Skip = 3,
+    Take = 10,
+};
+PagedList pagedList = accountDataLayer.GetPageListViewAsync(queryDefinition);
+//or
+//Filter for savings accounts as list views.
+QueryDefinition queryDefinition = new()
+{
+    FilterDefinitions =
+    [
+       new FilterDefinition()
+       {
+          FilterOn = nameof(Account.AccountType),
+          Operator = FilterDefinition.EqualsOperator,
+          Value = AccountType.Savings,
+       }
+    ],
+    Skip = 3,
+    Take = 10,
+};
+PagedList pagedList = accountDataLayer.GetPageListViewAsync(queryDefinition);
+//or
+//Accounts as list views ordered descending by total amount.
+QueryDefinition queryDefinition = new()
+{
+    SortDefinitions =
+    [
+       new SortDefinition()
+       {
+          SortOn = nameof(Account.TotalAmount),
+          Descending = true,
+       }
+    ],
+    Skip = 3,
+    Take = 10,
+};
+PagedList pagedList = accountDataLayer.GetPageListViewAsync(queryDefinition);
 ```
-This will send a GET HTTP request to the web API. The Uri will be formatted as {BaseAddress}/api/{TypeName}/Page?{queryDefinition} and the TypeName would be Account in our example. The query definition will be in the query string of the Uri and it'll be formatted as 
+This will send a GET HTTP request to the web API. The Uri will be formatted as {BaseAddress}/api/{TypeName}/Page?{queryDefinition} or {BaseAddress}/api/{TypeName}/Page/ListView?{queryDefinition} and the TypeName would be Account in our example. The query definition will be in the query string of the Uri and it'll be formatted as 
 <br/>
 Skip={Skip}&Take={Take}&FilterDefinition[X].FilterOn={FilterOn}&FilterDefinition[X].Operator={Operator}&FilterDefinition[X].Value={Value}&SortDefinition[X].SortOn={SortOn}&SortDefinition[X].Descending={Descending}. X will be 0 to N; based on the number FilterDefinitions or SortDefinitions in each list.
 <br/>
 <br/>
-The SubUserEditableDataLayer has a GetPageAsync() method which accepts an owner ID; the idea is the web API returns all sub data objects under an owner. The Uri will be formatted as {BaseAddress}/api/{TypeName}/Page/{ownerID}?{queryDefinition}; ownerID can be an integer or string.
-<br/>
-<br/>
-The UserEditableDataLayer has a list view version of the GetPageAsync() method.
+The StandardSubCRUDDataLayer has a GetPageAsync() and GetPageListViewAsync() method which accepts an owner ID; the idea is the web API returns all sub data objects under an owner. The Uri will be formatted as {BaseAddress}/api/{TypeName}/Page/{OwnerInteger64ID}?{queryDefinition} or {BaseAddress}/api/{TypeName}/Page/{OwnerStringID}?{queryDefinition}
+or {BaseAddress}/api/{TypeName}/Page/ListView/{OwnerInteger64ID}?{queryDefinition} or {BaseAddress}/api/{TypeName}/Page/ListView/{OwnerStringID}?{queryDefinition}.
 
 #### How to Get a Single Data Object Using Your HTTP Data Layer
 ```
+//Query the first account stored on the server.
 var account = await accountDataLayer.GetSingleAsync();
 //or
+//Query a specific account stored on the server.
 var account = await accountDataLayer.GetSingleAsync(10);
 ```
-This will send a GET HTTP request to the web API. The Uri will be formatted as {BaseAddress}/api/{TypeName}/Single/{Integer64ID} or {BaseAddress}/api/{TypeName}/Single/{StringID} and the TypeName would be Account in our example.
+This will send a GET HTTP request to the web API. The Uri will be formatted as {BaseAddress}/api/{TypeName}/Single or {BaseAddress}/api/{TypeName}/Single/{Integer64ID} or {BaseAddress}/api/{TypeName}/Single/{StringID} and the TypeName would be Account in our example.
 
 #### How to Expand Your HTTP Data Layer
 Now, let's say you need to add additional functionality to the account data layer and you can easy do so by adding a new method to the IAccountDataLayer interface and to the AccountDataLayer class.
@@ -477,7 +536,7 @@ public class AccountDataLayer : StandardCRUDDataLayer<Account>, IAccountDataLaye
       List<Account>? dataObjects = [];
       HttpResponseMessage httpResponseMessage = await HttpClient.GetAsync($"api/{TypeName}/All/{AccountType.Savings}", cancellationToken);
       
-      if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
+      if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode is not HttpStatusCode.NoContent)
       {
          dataObjects = await httpResponseMessage.Content.ReadFromJsonAsync<List<Account>?>(cancellationToken);
       }
@@ -486,7 +545,7 @@ public class AccountDataLayer : StandardCRUDDataLayer<Account>, IAccountDataLaye
    }
 }
 ```
-Use the HttpClient field to make calls to the web API. The same can be done when using the UserEditableDataLayer and SubUserEditableDataLayer.
+Use the base HttpClient property to make calls to the web API and the base TypeName property when formatting the route. The same can be done when using the StandardSubCRUDDataLayer.
 
 #### How to Override Base Functionality in Your HTTP Data Layer
 Let's also say you need to send xml instead of json in the CreateAsync() method. It's easy because the methods are virtual so you can override them.
@@ -497,30 +556,34 @@ public class AccountDataLayer : StandardCRUDDataLayer<Account>, IAccountDataLaye
    {
       ArgumentNullException.ThrowIfNull(dataObject);
 
-      Account? latestDataObject = null;
-      ServerSideValidationResult? validationResult = null;
-
       //Post as xml.
       HttpResponseMessage httpResponseMessage = await HttpClient.PostAsXmlAsync($"api/{TypeName}", dataObject, cancellationToken);
       
-      if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode != HttpStatusCode.NoContent)
+      if (httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode is not HttpStatusCode.NoContent)
       {
-          latestDataObject = await httpResponseMessage.Content.ReadFromJsonAsync<T?>(cancellationToken);
+          Account? returnedDataObject = await httpResponseMessage.Content.ReadFromJsonAsync<Account?>(cancellationToken: cancellationToken);
+          return new OperationResult(httpResponseMessage.StatusCode, dataObject: returnedDataObject);
       }
-      else if (!httpResponseMessage.IsSuccessStatusCode && httpResponseMessage.StatusCode == HttpStatusCode.BadRequest)
+      else if (httpResponseMessage.IsSuccessStatusCode is false && httpResponseMessage.StatusCode is HttpStatusCode.BadRequest)
       {
-         validationResult = await DeserializedBadRequestContent(httpResponseMessage, cancellationToken);
+          ValidationProblemDetails? details = await httpResponseMessage.Content.ReadFromJsonAsync<ValidationProblemDetails>(cancellationToken: cancellationToken);
+          return new OperationResult(httpResponseMessage.StatusCode, problemDetails: details?.Detail, validationErrors: details?.Errors);
       }
-      
-      return new OperationResult(latestDataObject, validationResult, httpResponseMessage.StatusCode);
+      else if (httpResponseMessage.IsSuccessStatusCode is false && httpResponseMessage.StatusCode is HttpStatusCode.InternalServerError)
+      {
+          ProblemDetails? details = await httpResponseMessage.Content.ReadFromJsonAsync<ProblemDetails>(cancellationToken: cancellationToken);
+          return new OperationResult(httpResponseMessage.StatusCode, problemDetails: details?.Detail);
+      }
+
+      return new OperationResult(httpResponseMessage.StatusCode);
    }
 }
 ```
-The same can be done when using the UserEditableDataLayer and SubUserEditableDataLayer.
+The same can be done when using the StandardSubCRUDDataLayer.
 
 ### Build Your Own
-In the real world, your application will need to interact with an actual database instead of the memory storage classes provided and currently, the JMayer library suite doesn't provide data layer classes for accessing the various databases in existence. It's also possible the HTTP data layer is too restrictive or it needs to be replaced with a different 
-networking protocol; gRPC is the new hotness for web applications. Either way, you can build your own. 
+In the real world, your application will need to interact with an actual database instead of the memory storage classes provided and currently, the JMayer library suite doesn't provide data layer classes for accessing the various databases in existence. It's also possible the HTTP data layer is too restrictive or it needs to interact with something other
+than a Web API. Either way, you can build your own. 
 <br/>
 <br/>
 You'll need to create a data layer class for X and implement at least the IStandardCRUDDataLayer interface. Then, its about using the necessary library to communicate with the database or remote server and filling out the interface methods with functionality.
