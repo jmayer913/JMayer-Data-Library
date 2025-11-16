@@ -125,7 +125,7 @@ public class AccountDataLayer : StandardCRUDDataLayer<Account>, IAccountDataLaye
 //Optionally, register the data layer with the middleware in Program.cs.
 builder.Services.AddSingleton<IAccountDataLayer, AccountDataLayer>();
 ```
-You now have an account data layer which your application can interact with and it contains a standard set of ways to retrieve or manipulate account data objects. The same can be done when using the UserEditableDataLayer.
+You now have an account data layer which your application can interact with and it contains a standard set of ways to retrieve or manipulate account data objects.
 
 #### How to Create a New Data Object Using Your Memory Storage Data Layer
 ```
@@ -135,7 +135,7 @@ Account account = await accountDataLayer.CreateAsync(new Account()
    TotalAmount = 100.00,
 });
 ```
-The CreateAsync() method can take a single object or a list. ValidateAsync() will be called for each data object; base functionality checks the data annotations on the object but the ValidateAsync() method can be overriden to add additional validation checks. Any validation issue will throw a DataObjectValidationException. The Created event will 
+The CreateAsync() method can take a single object or a list. ValidateAsync() will be called for each data object; base functionality checks the data annotations on the object but the ValidateAsync() method can be overridden to add additional validation checks. Any validation issue will throw a DataObjectValidationException. The Created event will 
 also be called after all the data objects have been inserted into the list. If your application needs to react to the creation in some way, you can register an event handler with the Created event.
 
 #### How to Delete a Data Object Using Your Memory Storage Data Layer
@@ -151,12 +151,9 @@ The DeleteAsync() method can take a single object or a list. It can also take an
 account.TotalAmount = 250.00;
 account = await accountDataLayer.UpdateAsync(account);
 ```
-The UpdateAsync() method can take a single object or a list. ValidateAsync() will be called for each data object; base functionality checks the data annotations on the object but the ValidateAsync() method can be overriden to add additional validation checks. Any validation issue will throw a DataObjectValidationException. Additionally, the existence
-of each data object will be confirmed in the list (this is before the list is update) and if any are missing, an IDNotFoundException will be thrown. The Updated event will also be called after all the data objects have been updated in the list. If your application needs to react to the update in some way, you can register an event handler with the 
+The UpdateAsync() method can take a single object or a list. ValidateAsync() will be called for each data object; base functionality checks the data annotations on the object but the ValidateAsync() method can be overridden to add additional validation checks. Any validation issue will throw a DataObjectValidationException. Additionally, the existence
+of each data object will be confirmed in the list (this is before the list is update) and if any are missing, an DataObjectIDNotFoundException will be thrown. The Updated event will also be called after all the data objects have been updated in the list. If your application needs to react to the update in some way, you can register an event handler with the 
 Updated event.
-<br/>
-<br/>
-If the base class is UserEditableDataLayer, the LastEditedOn property will be used to determine if the data object being passed in isn't old. If the data object in memory storage has a newer timestamp, a DataObjectUpdateConflictException is thrown.
 
 #### How to Get Data Objects Using Your Memory Storage Data Layer
 ```
@@ -167,15 +164,20 @@ var accounts = await accountDataLayer.GetAllAsync(wherePredicate: obj => obj.Tot
 var accounts = await accountDataLayer.GetAllAsync(wherePredicate: obj => obj.TotalAmount > 10000, orderByPredicate: obj => obj.TotalAmount, descending: true);
 //or
 var accounts = await accountDataLayer.GetAllAsync(orderByPredicate: obj => obj.TotalAmount, descending: true);
+//
+var accounts = await accountDataLayer.GetAllListViewAsync();
+//or
+var accounts = await accountDataLayer.GetAllListViewAsync(wherePredicate: obj => obj.TotalAmount > 10000);
+//or
+var accounts = await accountDataLayer.GetAllListViewAsync(wherePredicate: obj => obj.TotalAmount > 10000, orderByPredicate: obj => obj.TotalAmount, descending: true);
+//or
+var accounts = await accountDataLayer.GetAllListViewAsync(orderByPredicate: obj => obj.TotalAmount, descending: true);
 ```
 You can pass in an expression for the where predicate. You can pass in an expression for the order by predicate. You can also pass in if the order by is descending.
-<br/>
-<br/>
-The UserEditableDataLayer has a list view version of the GetAllAsync() method.
 
 #### How to Get Paged Data Objects Using Your Memory Storage Data Layer
 ```
-//Skip 3 pages and then, take 10 data objects.
+//Skip 3 pages and then, take 10 accounts.
 QueryDefinition queryDefinition = new()
 {
     Skip = 3,
@@ -200,7 +202,7 @@ QueryDefinition queryDefinition = new()
 };
 PagedList pagedList = accountDataLayer.GetPageAsync(queryDefinition);
 //or
-//Order descending by total amount.
+//Accounts ordered descending by total amount.
 QueryDefinition queryDefinition = new()
 {
     SortDefinitions =
@@ -215,11 +217,49 @@ QueryDefinition queryDefinition = new()
     Take = 10,
 };
 PagedList pagedList = accountDataLayer.GetPageAsync(queryDefinition);
+//or
+//Skip 3 pages and then, take 10 accounts as list views.
+QueryDefinition queryDefinition = new()
+{
+    Skip = 3,
+    Take = 10,
+};
+PagedList pagedList = accountDataLayer.GetPageListViewAsync(queryDefinition);
+//or
+//Filter for savings accounts as list views.
+QueryDefinition queryDefinition = new()
+{
+    FilterDefinitions =
+    [
+       new FilterDefinition()
+       {
+          FilterOn = nameof(Account.AccountType),
+          Operator = FilterDefinition.EqualsOperator,
+          Value = AccountType.Savings,
+       }
+    ],
+    Skip = 3,
+    Take = 10,
+};
+PagedList pagedList = accountDataLayer.GetPageListViewAsync(queryDefinition);
+//or
+//Accounts as list views ordered descending by total amount.
+QueryDefinition queryDefinition = new()
+{
+    SortDefinitions =
+    [
+       new SortDefinition()
+       {
+          SortOn = nameof(Account.TotalAmount),
+          Descending = true,
+       }
+    ],
+    Skip = 3,
+    Take = 10,
+};
+PagedList pagedList = accountDataLayer.GetPageListViewAsync(queryDefinition);
 ```
 This will return a page of data objects and it accepts a QueryDefinition object. The QueryDefinition defines how to filter and/or sort, how many data objects to take and what page of data objects to return.
-<br/>
-<br/>
-The UserEditableDataLayer has a list view version of the GetPageAsync() method.
 
 #### How to Get a Single Data Object Using Your Memory Storage Data Layer
 ```
@@ -228,6 +268,24 @@ var account = await accountDataLayer.GetSingleAsync();
 var account = await accountDataLayer.GetSingleAsync(obj => obj.Integer64ID == 10);
 ```
 You can pass in an expression for the where predicate. Either call will do a FirstOrDefault() method call.
+
+#### How to Enable Name Uniqueness Check
+```
+public class AccountDataLayer : StandardCRUDDataLayer<Account>, IAccountDataLayer
+{
+   public AccountDataLayer() => IsUniqueNameRequired = true
+}
+```
+IsUniqueNameRequired can only be set during object creation (constructor or object initializer). When its set to true, on CreateAsync() or UpdateAsync(), the base ValidateAsync() will check the Name property is unique compared to the other data objects in memory storage.
+
+#### How to Enable Old Data Object Check
+```
+public class AccountDataLayer : StandardCRUDDataLayer<Account>, IAccountDataLayer
+{
+   public AccountDataLayer() => IsOldDataObjectDetectionEnabled = true
+}
+```
+IsOldDataObjectDetectionEnabled can only be set during object creation (constructor or object initializer). When its set to true, on UpdateAsync(), the LastEditedOn property will be used to determine if the data object being passed in isn't old. If the data object in memory storage has a newer timestamp, a DataObjectUpdateConflictException is thrown.
 
 #### How to Expand Your Memory Storage Data Layer
 Now, let's say you need to add additional functionality to the account data layer and you can easy do so by adding a new method to the IAccountDataLayer interface and to the AccountDataLayer class.
@@ -241,19 +299,14 @@ public class AccountDataLayer : StandardCRUDDataLayer<Account>, IAccountDataLaye
 {
    public async Task<List<Account>> GetSavingAccountsAsync()
    {
-      lock (DataStorageLock)
-      {
-         var savingAccounts = DataStorage.Where(obj => obj.AccountType == AccountType.Savings).ToList();
-         return Task.FromResult(savingAccounts);
-      }
+      var savingAccounts = base.QueryData(wherePredicate: obj => obj.AccountType == AccountType.Savings);
+      return Task.FromResult(savingAccounts);
    }
 }
 ```
-To access storage, you will need to call the DataStorage property and it will need to be locked using the DataStorageLock property in order to maintain thread-safety. If for some reason, the CreateAsync() method needs to be overriden, to access the identity, use the Identity property and to increment the identity use the IncrementIdentity() method; again,
-in order to maintain thread-safety, calling either needs to be locked using the DataStorageLock property. 
-<br/>
-<br/>
-The same can be done when using the UserEditableDataLayer.
+The base has a QueryData() method you can call; you can either pass in a QueryDefinition object or linq for a where predicate and/or linq for an order predicate and/or bool for ascending/descending order. If for some reason, you need direct access to the list, it can be accessed with the DataStorage property but it will require a 
+lock(DataStorageLock) { ... } statement in order to maintain thread-safety. If for some reason, the CreateAsync() method needs to be overridden, to access the identity, use the Identity property and to increment the identity use the IncrementIdentity() method; again, in order to maintain thread-safety, calling either will require a 
+lock(DataStorageLock) { ... } statement. 
 
 #### How to Override Base Functionality in Your Memory Storage Data Layer
 Let's also say you need to do something extra in the CreateAsync() method. It's easy because the methods are virtual so you can override them.
@@ -268,7 +321,6 @@ public class AccountDataLayer : StandardCRUDDataLayer<Account>, IAccountDataLaye
    }
 }
 ```
-The same can be done when using the UserEditableDataLayer.
 
 ### HTTP Data Layer
 **First, let's start off by saying the HTTP data layer is tightly coupled with the controllers defined in the JMayer.Web.Mvc library. If you're not using the JMayer.Web.Mvc library then your controllers will need to match the expected HTTP request and response defined here.**
