@@ -834,8 +834,8 @@ public class StandardCRUDDataLayerUnitTest
     [Fact]
     public async Task VerifyUpdateAsyncIDNotFoundException()
     {
-        await Assert.ThrowsAsync<IDNotFoundException>(() => new SimpleStandardDataLayer().UpdateAsync(new SimpleDataObject() { Integer64ID = NotFoundId, Name = DefaultName }));
-        await Assert.ThrowsAsync<IDNotFoundException>(() => new SimpleStandardDataLayer().UpdateAsync([new SimpleDataObject() { Integer64ID = NotFoundId, Name = DefaultName }]));
+        await Assert.ThrowsAsync<DataObjectIDNotFoundException>(() => new SimpleStandardDataLayer().UpdateAsync(new SimpleDataObject() { Integer64ID = NotFoundId, Name = DefaultName }));
+        await Assert.ThrowsAsync<DataObjectIDNotFoundException>(() => new SimpleStandardDataLayer().UpdateAsync([new SimpleDataObject() { Integer64ID = NotFoundId, Name = DefaultName }]));
     }
 
     /// <summary>

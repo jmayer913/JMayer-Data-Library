@@ -5,6 +5,8 @@ using System.Linq.Expressions;
 
 namespace JMayer.Data.Database.DataLayer.MemoryStorage;
 
+#warning I feel like IsOldDataObjectDetectionEnabled should be false by default and if the developer wants this feature they need to turn it on.
+
 /// <summary>
 /// The class manages CRUD interactions with a list memory storage for data objects.
 /// </summary>
@@ -429,7 +431,7 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
     /// <inheritdoc/>
     /// <exception cref="ArgumentNullException">Thrown if the dataObject parameter is null.</exception>
     /// <exception cref="DataObjectValidationException">Thrown if the data object fails validation.</exception>
-    /// <exception cref="IDNotFoundException">Thrown if the data object's ID is not found in the collection/table.</exception>
+    /// <exception cref="DataObjectIDNotFoundException">Thrown if the data object's ID is not found in the collection/table.</exception>
     public async virtual Task<T> UpdateAsync(T dataObject, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(dataObject);
@@ -439,7 +441,7 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
     /// <inheritdoc/>
     /// <exception cref="ArgumentNullException">Thrown if the dataObjects parameter is null.</exception>
     /// <exception cref="DataObjectValidationException">Thrown if any data object fails validation.</exception>
-    /// <exception cref="IDNotFoundException">Thrown if any data objects' ID is not found in the collection/table.</exception>
+    /// <exception cref="DataObjectIDNotFoundException">Thrown if any data objects' ID is not found in the collection/table.</exception>
     public async virtual Task<List<T>> UpdateAsync(List<T> dataObjects, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(dataObjects);
@@ -456,7 +458,7 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
             foreach (T dataObject in dataObjects)
             {
                 T? databaseDataObject = DataStorage.FirstOrDefault(obj => obj.Integer64ID == dataObject.Integer64ID) 
-                    ?? throw new IDNotFoundException(dataObject.Integer64ID.ToString());
+                    ?? throw new DataObjectIDNotFoundException(dataObject.Integer64ID.ToString());
 
                 if (IsOldDataObjectDetectionEnabled && AllowToUpdate(databaseDataObject, dataObject) is false)
                 {
