@@ -5,8 +5,6 @@ using System.Linq.Expressions;
 
 namespace JMayer.Data.Database.DataLayer.MemoryStorage;
 
-#warning I feel like IsOldDataObjectDetectionEnabled should be false by default and if the developer wants this feature they need to turn it on.
-
 /// <summary>
 /// The class manages CRUD interactions with a list memory storage for data objects.
 /// </summary>
@@ -63,7 +61,7 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
     public event EventHandler<DeletedEventArgs>? Deleted;
 
     /// <inheritdoc/>
-    public bool IsOldDataObjectDetectionEnabled { get; init; } = true;
+    public bool IsOldDataObjectDetectionEnabled { get; init; }
 
     /// <inheritdoc/>
     public bool IsUniqueNameRequired { get; init; }

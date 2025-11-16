@@ -731,10 +731,7 @@ public class StandardCRUDDataLayerUnitTest
     [Fact]
     public async Task VerifyUpdateDisableOldDataObjectDetectionThrowsNoException()
     {
-        SimpleStandardDataLayer dataLayer = new()
-        {
-            IsOldDataObjectDetectionEnabled = false,
-        };
+        SimpleStandardDataLayer dataLayer = new();
         SimpleDataObject originalDataObject = await dataLayer.CreateAsync(new SimpleDataObject() { Name = DefaultName });
 
         _ = await dataLayer.UpdateAsync(new SimpleDataObject(originalDataObject)
@@ -832,7 +829,7 @@ public class StandardCRUDDataLayerUnitTest
     /// The method verifies if a non-existing ID is passed to the StandardCRUDDataLayer.UpdateAsync(), an exception is thrown.
     /// </summary>
     [Fact]
-    public async Task VerifyUpdateAsyncIDNotFoundException()
+    public async Task VerifyUpdateAsyncDataObjectIDNotFoundException()
     {
         await Assert.ThrowsAsync<DataObjectIDNotFoundException>(() => new SimpleStandardDataLayer().UpdateAsync(new SimpleDataObject() { Integer64ID = NotFoundId, Name = DefaultName }));
         await Assert.ThrowsAsync<DataObjectIDNotFoundException>(() => new SimpleStandardDataLayer().UpdateAsync([new SimpleDataObject() { Integer64ID = NotFoundId, Name = DefaultName }]));
@@ -863,7 +860,10 @@ public class StandardCRUDDataLayerUnitTest
     {
         await Assert.ThrowsAsync<DataObjectUpdateConflictException>(async Task () =>
         {
-            SimpleStandardDataLayer dataLayer = new();
+            SimpleStandardDataLayer dataLayer = new()
+            {
+                IsOldDataObjectDetectionEnabled = true,
+            };
             SimpleDataObject originalDataObject = await dataLayer.CreateAsync(new SimpleDataObject() { Name = DefaultName });
 
             _ = await dataLayer.UpdateAsync(new SimpleDataObject(originalDataObject)
@@ -876,7 +876,10 @@ public class StandardCRUDDataLayerUnitTest
         });
         await Assert.ThrowsAsync<DataObjectUpdateConflictException>(async Task () =>
         {
-            SimpleStandardDataLayer dataLayer = new();
+            SimpleStandardDataLayer dataLayer = new()
+            {
+                IsOldDataObjectDetectionEnabled = true,
+            };
             List<SimpleDataObject> originalDataObjects = await dataLayer.CreateAsync([new SimpleDataObject() { Name = DefaultName }, new SimpleDataObject() { Name = AnotherName }]);
 
             _ = await dataLayer.UpdateAsync([new SimpleDataObject(originalDataObjects[0]) { Value = DefaultValue }, new SimpleDataObject(originalDataObjects[1]) { Value = DefaultValue + 1 }]);
