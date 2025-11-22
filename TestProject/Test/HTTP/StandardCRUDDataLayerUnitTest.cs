@@ -275,10 +275,12 @@ public class StandardCRUDDataLayerUnitTest
     [InlineData(HttpStatusCode.Conflict)]
     [InlineData(HttpStatusCode.InternalServerError)]
     [InlineData(HttpStatusCode.NoContent)]
+    [InlineData(HttpStatusCode.NotFound)]
     [InlineData(HttpStatusCode.Unauthorized)]
     public async Task VerifyDelete(HttpStatusCode httpStatusCode)
     {
         long id = DefaultId;
+        ProblemDetails responding404ProblemDetails = new(detail: $"The {typeof(SimpleDataObject).Name} record was not found; please refresh the page because another user may have deleted it.");
         ProblemDetails responding409ProblemDetails = new(detail: $"The {typeof(SimpleDataObject).Name} record has a dependency that prevents it from being deleted; the dependency needs to be deleted first.");
         ProblemDetails responding500ProblemDetails = new(detail: $"Failed to delete the {typeof(SimpleDataObject).Name} record because of an error on the server.");
 
@@ -302,6 +304,16 @@ public class StandardCRUDDataLayerUnitTest
                 .WithRouteParameters([id.ToString()])
                 .RespondingHttpStatusCode(httpStatusCode)
                 .RespondingJsonContent(responding500ProblemDetails)
+                .Build();
+        }
+        else if (httpStatusCode is HttpStatusCode.NotFound)
+        {
+            httpClient = new MockHttpMessageHandler()
+                .WithMethod(HttpMethod.Delete)
+                .WithRoute($"api/{nameof(SimpleDataObject)}")
+                .WithRouteParameters([id.ToString()])
+                .RespondingHttpStatusCode(httpStatusCode)
+                .RespondingJsonContent(responding404ProblemDetails)
                 .Build();
         }
         else
@@ -341,6 +353,15 @@ public class StandardCRUDDataLayerUnitTest
             Assert.Equal(httpStatusCode, operationResult.StatusCode); //Confirm the negative response.
             Assert.Null(operationResult.DataObject); //Confirm a data object wasn't the response
             Assert.Equal(responding500ProblemDetails.Detail, operationResult.ProblemDetails); //Confirm the details match.
+            Assert.Empty(operationResult.ValidationErrors); //Confirm there are no validation errors.
+        }
+        //With an internal server error, confirm only the status and problem details was set.
+        else if (httpStatusCode is HttpStatusCode.NotFound)
+        {
+            Assert.False(operationResult.IsSuccessStatusCode, "The IsSuccessStatusCode should have been false."); //Confirm the negative response.
+            Assert.Equal(httpStatusCode, operationResult.StatusCode); //Confirm the negative response.
+            Assert.Null(operationResult.DataObject); //Confirm a data object wasn't the response
+            Assert.Equal(responding404ProblemDetails.Detail, operationResult.ProblemDetails); //Confirm the details match.
             Assert.Empty(operationResult.ValidationErrors); //Confirm there are no validation errors.
         }
         //With other negative responses, confirm only the status was set.

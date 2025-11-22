@@ -91,6 +91,11 @@ public class StandardCRUDDataLayer<T> : IStandardCRUDDataLayer<T> where T : Data
             ConflictDetails? details = await httpResponseMessage.Content.ReadFromJsonAsync<ConflictDetails>(cancellationToken: cancellationToken);
             return new OperationResult(httpResponseMessage.StatusCode, problemDetails: details?.Detail);
         }
+        else if (httpResponseMessage.IsSuccessStatusCode is false && httpResponseMessage.StatusCode is HttpStatusCode.NotFound)
+        {
+            NotFoundDetails? details = await httpResponseMessage.Content.ReadFromJsonAsync<NotFoundDetails>(cancellationToken: cancellationToken);
+            return new OperationResult(httpResponseMessage.StatusCode, problemDetails: details?.Detail);
+        }
         else if (httpResponseMessage.IsSuccessStatusCode is false && httpResponseMessage.StatusCode is HttpStatusCode.InternalServerError)
         {
             ProblemDetails? details = await httpResponseMessage.Content.ReadFromJsonAsync<ProblemDetails>(cancellationToken: cancellationToken);
