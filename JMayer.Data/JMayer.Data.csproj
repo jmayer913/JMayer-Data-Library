@@ -11,6 +11,7 @@
     <RepositoryUrl>https://github.com/jmayer913/JMayer-Data-Library</RepositoryUrl>
     <PackageTags>data;library;net-core;data-access-layer;http-clients;repository-pattern</PackageTags>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <PackageTags>data;library;net-core;data-access-layer;http-clients;repository-pattern</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
