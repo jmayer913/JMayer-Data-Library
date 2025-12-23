@@ -592,3 +592,30 @@ You'll need to create a data layer class for X and implement at least the IStand
 Things to be aware of on the database side:
 * Expressions. Your database library will need a linq to database translator.
 * Property Mappings. Your database library may need to know if Column A in Table 1 is mapped to Property A in Data Object 1.
+
+# v9.0.0 Change Log
+---
+* Updated to .NET9.
+* **Breaking Change:** The UserEditableDataObject has been merged into DataObject.
+* **Breaking Change:** The SubUserEditableDataObject has become SubDataObject.
+* **Breaking Change:** The database IUserEditableDataLayer has been merged into IStandardCRUDDataLayer.
+* **Breaking Change:** The memory storage UserEditableDataLayer has been merged into StandardCRUDDataLayer.
+* **Breaking Change:** The database ISubUserEditableDataLayer has become IStandardSubCRUDDataLayer.
+* Created a memory storage StandardSubCRUDDataLayer.
+* **Breaking Change:** The memory storage StandardCRUDDataLayer.IsOldDataObjectDetectionEnabled property is now false by default; the developer should decide what features are turned on.
+* **Breaking Change:** Removed IsLessPreciseTimestampComparisonEnabled  property from the database IStandardCRUDDataLayer and memory storage StandardCRUDDataLayer. Conflict detection will compare to the seconds; lower than that seems like overkill.
+* Added IsUniqueNameRequired  property to the database IStandardCRUDDataLayer and memory storage StandardCRUDDataLayer. Before unique names would always be enforced; now its up to the developer.
+* **Breaking Change** Renamed IDNotFoundException to DataObjectIDNotFoundException; the other data object related exceptions start with DataObject so this should too.
+* **Breaking Change:** The HTTP IUserEditableDataLayer has been merged into IStandardCRUDDataLayer.
+* **Breaking Change:** The HTTP UserEditableDataLayer has been merged into StandardCRUDDataLayer.
+* **Breaking Change:** The HTTP ISubUserEditableDataLayer has become IStandardSubCRUDDataLayer.
+* **Breaking Change:** The HTTP SubUserEditableDataLayer has become StandardSubCRUDDataLayer.
+* **Breaking Change:** Removed HTTP ServerSideValidationResult and ServerSideValidationError; it's expected the server will return a ValidationProblemDetails when validation issues occur.
+* **Breaking Change:** The HTTP OperationResult.ServerSideValidationResult property has become OperationResult.ValidationErrors.
+* Added ProblemDetails property to the OperationResult. When the server returns a conflict (409), not found (404) or internal server error (500), the HTTP data layer will attempt to serialize the body as a ProblemDetails and the details will be set to ProblemDetails on the OperationResult.
+* **Breaking Change:** Removed HTTP IStandardCRUDDataLayer.ValidateAsync().
+---
+* [ASP.NET Core MVC with Syncfusion Example Project](https://github.com/jmayer913/JMayer-Example-ASPSyncfusionMVC)
+* [ASP.NET Core / React Example Project](https://github.com/jmayer913/JMayer-Example-ASPReact)
+* [Blazor WebAssembly Example Project](https://github.com/jmayer913/JMayer-Example-WebAssemblyBlazor)
+---

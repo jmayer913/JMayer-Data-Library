@@ -12,10 +12,18 @@
     <PackageTags>data;library;net-core;data-access-layer;http-clients;repository-pattern</PackageTags>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
     <PackageTags>data;library;net-core;data-access-layer;http-clients;repository-pattern</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
     <InternalsVisibleTo Include="TestProject" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
