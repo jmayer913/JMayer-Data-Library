@@ -596,23 +596,23 @@ Things to be aware of on the database side:
 # v9.0.0 Change Log
 ---
 * Updated to .NET9.
-* **Breaking Change:** The UserEditableDataObject has been merged into DataObject.
-* **Breaking Change:** The SubUserEditableDataObject has become SubDataObject.
-* **Breaking Change:** The database IUserEditableDataLayer has been merged into IStandardCRUDDataLayer.
-* **Breaking Change:** The memory storage UserEditableDataLayer has been merged into StandardCRUDDataLayer.
-* **Breaking Change:** The database ISubUserEditableDataLayer has become IStandardSubCRUDDataLayer.
+* **Breaking Change:** Merged the UserEditableDataObject into the DataObject.
+* **Breaking Change:** Renamed the SubUserEditableDataObject to the SubDataObject.
+* **Breaking Change:** Merged the database IUserEditableDataLayer into the IStandardCRUDDataLayer.
+* **Breaking Change:** Merged the memory storage UserEditableDataLayer into the StandardCRUDDataLayer.
+* **Breaking Change:** Renamed the ISubUserEditableDataLayer to the IStandardSubCRUDDataLayer.
 * Created a memory storage StandardSubCRUDDataLayer.
-* **Breaking Change:** The memory storage StandardCRUDDataLayer.IsOldDataObjectDetectionEnabled property is now false by default; the developer should decide what features are turned on.
+* **Breaking Change:** Changed memory storage StandardCRUDDataLayer.IsOldDataObjectDetectionEnabled property to be false by default; the developer should decide what features are turned on.
 * **Breaking Change:** Removed IsLessPreciseTimestampComparisonEnabled  property from the database IStandardCRUDDataLayer and memory storage StandardCRUDDataLayer. Conflict detection will compare to the seconds; lower than that seems like overkill.
 * Added IsUniqueNameRequired  property to the database IStandardCRUDDataLayer and memory storage StandardCRUDDataLayer. Before unique names would always be enforced; now its up to the developer.
-* **Breaking Change** Renamed IDNotFoundException to DataObjectIDNotFoundException; the other data object related exceptions start with DataObject so this should too.
-* **Breaking Change:** The HTTP IUserEditableDataLayer has been merged into IStandardCRUDDataLayer.
-* **Breaking Change:** The HTTP UserEditableDataLayer has been merged into StandardCRUDDataLayer.
-* **Breaking Change:** The HTTP ISubUserEditableDataLayer has become IStandardSubCRUDDataLayer.
-* **Breaking Change:** The HTTP SubUserEditableDataLayer has become StandardSubCRUDDataLayer.
+* **Breaking Change** Renamed the database IDNotFoundException to the DataObjectIDNotFoundException; the other data object related exceptions start with DataObject so this should too.
+* **Breaking Change:** Merged the HTTP IUserEditableDataLayer into the IStandardCRUDDataLayer.
+* **Breaking Change:** Merged the HTTP UserEditableDataLayer into the StandardCRUDDataLayer.
+* **Breaking Change:** Renamed the HTTP ISubUserEditableDataLayer to the IStandardSubCRUDDataLayer.
+* **Breaking Change:** Renamed the HTTP SubUserEditableDataLayer to the StandardSubCRUDDataLayer.
 * **Breaking Change:** Removed HTTP ServerSideValidationResult and ServerSideValidationError; it's expected the server will return a ValidationProblemDetails when validation issues occur.
-* **Breaking Change:** The HTTP OperationResult.ServerSideValidationResult property has become OperationResult.ValidationErrors.
-* Added ProblemDetails property to the OperationResult. When the server returns a conflict (409), not found (404) or internal server error (500), the HTTP data layer will attempt to serialize the body as a ProblemDetails and the details will be set to ProblemDetails on the OperationResult.
+* **Breaking Change:** Renamed HTTP OperationResult.ServerSideValidationResult property to the ValidationErrors property. Type has changed too; its now a dictionary.
+* Added ProblemDetails property to the OperationResult. When the server returns a conflict (409), not found (404) or internal server error (500), the HTTP data layer will attempt to serialize the body as a ProblemDetails and the details will be set to OperationResult.ProblemDetails.
 * **Breaking Change:** Removed HTTP IStandardCRUDDataLayer.ValidateAsync().
 ---
 * [ASP.NET Core MVC with Syncfusion Example Project](https://github.com/jmayer913/JMayer-Example-ASPSyncfusionMVC)
