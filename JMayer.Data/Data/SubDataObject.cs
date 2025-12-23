@@ -1,7 +1,7 @@
 ﻿namespace JMayer.Data.Data;
 
 /// <summary>
-/// The class represents a user editable record in the database which another data object has ownership of.
+/// The class represents a data object record in the database which another data object has ownership of.
 /// </summary>
 /// <remarks>
 /// <para>
@@ -18,7 +18,7 @@
 /// property.
 /// </para>
 /// </remarks>
-public class SubUserEditableDataObject : UserEditableDataObject
+public class SubDataObject : DataObject
 {
     /// <summary>
     /// The property gets/sets the owner ID for this data object as an 32-bit integer.
@@ -43,20 +43,20 @@ public class SubUserEditableDataObject : UserEditableDataObject
     public virtual string OwnerStringID { get; set; } = string.Empty;
 
     /// <inheritdoc/>
-    public SubUserEditableDataObject() : base() { }
+    public SubDataObject() : base() { }
 
     /// <inheritdoc/>
-    public SubUserEditableDataObject(SubUserEditableDataObject copy) : base(copy) { }
+    public SubDataObject(SubDataObject copy) : base(copy) { }
 
     /// <inheritdoc/>
     public override void MapProperties(DataObject dataObject)
     {
         base.MapProperties(dataObject);
 
-        if (dataObject is SubUserEditableDataObject subUserEditableDataObject)
+        if (dataObject is SubDataObject subDataObject)
         {
-            OwnerInteger64ID = subUserEditableDataObject.OwnerInteger64ID;
-            OwnerStringID = subUserEditableDataObject.OwnerStringID;
+            OwnerInteger64ID = subDataObject.OwnerInteger64ID;
+            OwnerStringID = subDataObject.OwnerStringID;
         }
     }
 }

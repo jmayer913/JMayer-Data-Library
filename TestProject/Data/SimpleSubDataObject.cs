@@ -4,15 +4,10 @@ using System.ComponentModel.DataAnnotations;
 namespace TestProject.Data;
 
 /// <summary>
-/// The represents a very simple data object to be used for testing.
+/// The represents a very simple sub data object to be used for testing.
 /// </summary>
-internal class SimpleDataObject : DataObject
+public class SimpleSubDataObject : SubDataObject
 {
-    /// <inheritdoc/>
-    /// <remarks>Overridden to enforce required data annotation.</remarks>
-    [Required]
-    public override string? Name { get => base.Name; set => base.Name = value; }
-
     /// <summary>
     /// The property gets/sets a value associated with the simple data object.
     /// </summary>
@@ -20,17 +15,17 @@ internal class SimpleDataObject : DataObject
     public int Value { get; set; }
 
     /// <inheritdoc/>
-    public SimpleDataObject() : base() { }
+    public SimpleSubDataObject() : base() { }
 
     /// <inheritdoc/>
-    public SimpleDataObject(SimpleDataObject copy) : base(copy) { }
+    public SimpleSubDataObject(SimpleSubDataObject copy) : base(copy) { }
 
     /// <inheritdoc/>
     public override void MapProperties(DataObject dataObject)
     {
         base.MapProperties(dataObject);
 
-        if (dataObject is SimpleDataObject simpleDataObject)
+        if (dataObject is SimpleSubDataObject simpleDataObject)
         {
             Value = simpleDataObject.Value;
         }

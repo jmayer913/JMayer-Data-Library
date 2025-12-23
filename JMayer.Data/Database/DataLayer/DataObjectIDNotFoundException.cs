@@ -3,7 +3,7 @@
 /// <summary>
 /// The class represents an exception caused when an ID is not found.
 /// </summary>
-public class IDNotFoundException : Exception
+public class DataObjectIDNotFoundException : Exception
 {
     /// <summary>
     /// The property gets the ID associated with the missing record.
@@ -13,14 +13,14 @@ public class IDNotFoundException : Exception
     /// <summary>
     /// The default constructor.
     /// </summary>
-    public IDNotFoundException() : base() { }
+    public DataObjectIDNotFoundException() : base() { }
 
     /// <summary>
     /// The property constructor.
     /// </summary>
     /// <param name="id">The ID associated with the missing record.</param>
     /// <exception cref="ArgumentException">Thrown if the id parameter is null or empty.</exception>
-    public IDNotFoundException(string id)
+    public DataObjectIDNotFoundException(string id)
         : base($"The {id} ID was not found.") 
     { 
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
@@ -33,7 +33,7 @@ public class IDNotFoundException : Exception
     /// <param name="id">The ID associated with the missing record.</param>
     /// <param name="message">The message associated with the exception.</param>
     /// <exception cref="ArgumentException">Thrown if the id parameter is null or empty.</exception>
-    public IDNotFoundException(string id, string? message) 
+    public DataObjectIDNotFoundException(string id, string? message) 
         : base(message)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);
@@ -47,7 +47,7 @@ public class IDNotFoundException : Exception
     /// <param name="message">The message associated with the exception.</param>
     /// <param name="innerException">The inner exception associated with this exception.</param>
     /// <exception cref="ArgumentException">Thrown if the id parameter is null or empty.</exception>
-    public IDNotFoundException(string id, string? message, Exception? innerException) 
+    public DataObjectIDNotFoundException(string id, string? message, Exception? innerException) 
         : base(message, innerException)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(id);

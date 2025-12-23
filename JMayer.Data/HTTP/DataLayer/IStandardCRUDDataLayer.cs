@@ -36,22 +36,37 @@ public interface IStandardCRUDDataLayer<T> where T : DataObject
     /// The method returns all the remote data objects.
     /// </summary>
     /// <param name="cancellationToken">A token used for task cancellations.</param>
-    /// <returns>A list of DataObjects.</returns>
+    /// <returns>A list of data objects or null if issue on the server side.</returns>
     Task<List<T>?> GetAllAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// The method returns all the remote data objects as a list view.
+    /// </summary>
+    /// <param name="cancellationToken">A token used for task cancellations.</param>
+    /// <returns>A list of list views or null if issue on the server side.</returns>
+    Task<List<ListView>?> GetAllListViewAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
     /// The method returns a page of remote data objects.
     /// </summary>
     /// <param name="queryDefinition">Defines how the data should be queried; includes filtering, paging and sorting.</param>
     /// <param name="cancellationToken">A token used for task cancellations.</param>
-    /// <returns>A list of DataObjects.</returns>
+    /// <returns>A list of data objects or null if issue on the server side.</returns>
     Task<PagedList<T>?> GetPageAsync(QueryDefinition queryDefinition, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// The method returns a page of remote data objects as a list view.
+    /// </summary>
+    /// <param name="queryDefinition">Defines how the data should be queried; includes filtering, paging and sorting.</param>
+    /// <param name="cancellationToken">A token used for task cancellations.</param>
+    /// <returns>A page of list views or null if issue on the server side.</returns>
+    Task<PagedList<ListView>?> GetPageListViewAsync(QueryDefinition queryDefinition, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// The method returns the first remote data object.
     /// </summary>
     /// <param name="cancellationToken">A token used for task cancellations.</param>
-    /// <returns>A DataObject.</returns>
+    /// <returns>A data object or null if not found or issue on the server side.</returns>
     Task<T?> GetSingleAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -59,7 +74,7 @@ public interface IStandardCRUDDataLayer<T> where T : DataObject
     /// </summary>
     /// <param name="id">The ID to filter for.</param>
     /// <param name="cancellationToken">A token used for task cancellations.</param>
-    /// <returns>A DataObject.</returns>
+    /// <returns>A data object or null if not found or issue on the server side.</returns>
     Task<T?> GetSingleAsync(long id, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -67,7 +82,7 @@ public interface IStandardCRUDDataLayer<T> where T : DataObject
     /// </summary>
     /// <param name="id">The ID to filter for.</param>
     /// <param name="cancellationToken">A token used for task cancellations.</param>
-    /// <returns>A DataObject.</returns>
+    /// <returns>A data object or null if not found or issue on the server side.</returns>
     Task<T?> GetSingleAsync(string id, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -77,12 +92,4 @@ public interface IStandardCRUDDataLayer<T> where T : DataObject
     /// <param name="cancellationToken">A token used for task cancellations.</param>
     /// <returns>The results of the update operation.</returns>
     Task<OperationResult> UpdateAsync(T dataObject, CancellationToken cancellationToken = default);
-
-    /// <summary>
-    /// The method validates the data object on the remote server.
-    /// </summary>
-    /// <param name="dataObject">The data object to validate.</param>
-    /// <param name="cancellationToken">A token used for task cancellations.</param>
-    /// <returns>The results of the validation.</returns>
-    Task<ServerSideValidationResult?> ValidationAsync(T dataObject, CancellationToken cancellationToken = default);
 }

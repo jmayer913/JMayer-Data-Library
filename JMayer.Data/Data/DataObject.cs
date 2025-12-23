@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 
 namespace JMayer.Data.Data;
 
@@ -23,6 +24,29 @@ namespace JMayer.Data.Data;
 public class DataObject
 {
     /// <summary>
+    /// Used when serializing this data object.
+    /// </summary>
+    private readonly JsonSerializerOptions _jsonSerializerOptions = new()
+    {
+        WriteIndented = true,
+    };
+
+    /// <summary>
+    /// The property gets/sets when the data object was created.
+    /// </summary>
+    public virtual DateTime CreatedOn { get; set; }
+
+    /// <summary>
+    /// The property gets/sets the description of the data object.
+    /// </summary>
+    /// <remarks>
+    /// This property is optional and can be ignored if your data doesn't require it. If you do use it and
+    /// it requires validation rules, you can override the property and add the necessry data annotation
+    /// attributes to it.
+    /// </remarks>
+    public virtual string? Description { get; set; }
+
+    /// <summary>
     /// The property gets/sets the ID for the data object as an 32-bit integer.
     /// </summary>
     /// <remarks>
@@ -38,6 +62,51 @@ public class DataObject
     /// The property gets/sets the ID for the data object as an 64-bit integer.
     /// </summary>
     public virtual long Integer64ID { get; set; }
+
+    /// <summary>
+    /// The property gets/sets the user who last edited the data object.
+    /// </summary>
+    /// <remarks>
+    /// This property is optional and can be ignored if your data doesn't require it. If you do use it and
+    /// it requires validation rules, you can override the property and add the necessry data annotation
+    /// attributes to it.
+    /// </remarks>
+    public virtual string? LastEditedBy { get; set; }
+
+    /// <summary>
+    /// The property gets/sets the user ID for who last edited the data object.
+    /// </summary>
+    /// <remarks>
+    /// This property is optional and can be ignored if your data doesn't require it. If you do use it and
+    /// it requires validation rules, you can override the property and add the necessry data annotation
+    /// attributes to it.
+    /// </remarks>
+    public virtual long? LastEditedByInteger64ID { get; set; }
+
+    /// <summary>
+    /// The property gets/sets the user ID for who last edited the data object.
+    /// </summary>
+    /// <remarks>
+    /// This property is optional and can be ignored if your data doesn't require it. If you do use it and
+    /// it requires validation rules, you can override the property and add the necessry data annotation
+    /// attributes to it.
+    /// </remarks>
+    public virtual string? LastEditedByStringID { get; set; }
+
+    /// <summary>
+    /// The property gets/sets the last time the data object was edited.
+    /// </summary>
+    public virtual DateTime? LastEditedOn { get; set; }
+
+    /// <summary>
+    /// The property gets/sets the name of the user editable data.
+    /// </summary>
+    /// <remarks>
+    /// This property is optional and can be ignored if your data doesn't require it. If you do use it and
+    /// it requires validation rules, you can override the property and add the necessry data annotation
+    /// attributes to it.
+    /// </remarks>
+    public virtual string? Name { get; set; }
 
     /// <summary>
     /// The property gets/sets the ID for the data object as a string.
@@ -63,9 +132,24 @@ public class DataObject
     public virtual void MapProperties(DataObject dataObject)
     {
         ArgumentNullException.ThrowIfNull(dataObject);
+        CreatedOn = dataObject.CreatedOn;
+        Description = dataObject.Description;
         Integer64ID = dataObject.Integer64ID;
+        LastEditedBy = dataObject.LastEditedBy;
+        LastEditedByInteger64ID = dataObject.LastEditedByInteger64ID;
+        LastEditedByStringID = dataObject.LastEditedByStringID;
+        LastEditedOn = dataObject.LastEditedOn;
+        Name = dataObject.Name;
         StringID = dataObject.StringID;
     }
+
+    /// <summary>
+    /// The method returns json of this data object.
+    /// </summary>
+    /// <returns>Json of this data object.</returns>
+    /// <remarks>The intent is to call this when logging the data object with a logging framework.</remarks>
+    public string ToJson<T>() where T : DataObject
+        => JsonSerializer.Serialize((T)this, _jsonSerializerOptions);
 
     /// <summary>
     /// The method validates the data annotations on the data object.
