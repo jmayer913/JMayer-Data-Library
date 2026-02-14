@@ -31,6 +31,19 @@ public class RequiredDependsOnUnitTest
     public void VerifyConstructorThrowsArgumentNullExceptionForDependentMemberNameParameter() => Assert.Throws<ArgumentNullException>(() => new RequiredDependsOnAttribute(null, true));
 
     /// <summary>
+    /// The method verifies a failure when the types are invalid.
+    /// </summary>
+    [Fact]
+    public void VerifyFailureInvalidType()
+    {
+        RequiredDependsOnInvalidType dataObject = new();
+        List<ValidationResult> validationResults = dataObject.Validate();
+
+        Assert.Single(validationResults);
+        Assert.Equal(DataAnnotationMemberHelper.InvalidTypeErrorMessage, validationResults[0].ErrorMessage);
+    }
+
+    /// <summary>
     /// The method verifies a failure when the depends on member is not found.
     /// </summary>
     [Fact]
@@ -40,9 +53,7 @@ public class RequiredDependsOnUnitTest
         List<ValidationResult> validationResults = dataObject.Validate();
 
         Assert.Single(validationResults);
-        Assert.Equal(RequiredDependsOnAttribute.MemberNotFoundErrorMessage, validationResults[0].ErrorMessage);
-        //Assert.Single(validationResults[0].MemberNames);
-        //Assert.Equal(nameof(RequiredDependsOnTrue.ConditionalRequireValue), validationResults[0].MemberNames.First());
+        Assert.Equal(DataAnnotationMemberHelper.MemberNotFoundErrorMessage, validationResults[0].ErrorMessage);
     }
 
     /// <summary>
@@ -55,9 +66,7 @@ public class RequiredDependsOnUnitTest
         List<ValidationResult> validationResults = dataObject.Validate();
 
         Assert.Single(validationResults);
-        Assert.Equal(RequiredDependsOnAttribute.SameMemberErrorMessage, validationResults[0].ErrorMessage);
-        //Assert.Single(validationResults[0].MemberNames);
-        //Assert.Equal(nameof(RequiredDependsOnTrue.ConditionalRequireValue), validationResults[0].MemberNames.First());
+        Assert.Equal(DataAnnotationMemberHelper.SameMemberErrorMessage, validationResults[0].ErrorMessage);
     }
 
     /// <summary>
@@ -70,9 +79,7 @@ public class RequiredDependsOnUnitTest
         List<ValidationResult> validationResults = dataObject.Validate();
 
         Assert.Single(validationResults);
-        Assert.Equal(RequiredDependsOnAttribute.TypeMismatchErrorMessage, validationResults[0].ErrorMessage);
-        //Assert.Single(validationResults[0].MemberNames);
-        //Assert.Equal(nameof(RequiredDependsOnTrue.ConditionalRequireValue), validationResults[0].MemberNames.First());
+        Assert.Equal(DataAnnotationMemberHelper.TypeMismatchErrorMessage, validationResults[0].ErrorMessage);
     }
 
     /// <summary>

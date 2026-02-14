@@ -12,17 +12,25 @@ namespace JMayer.Data.DataAnnotations;
 /// which has the condition that needs to be evaluated. Set the conditionValue to true, false or an enum value based on what condition needs to occur for the required
 /// data annotation to be evaluated.
 /// <code>
-/// [RequiredDependsOn(dependentMemberName: nameof(DependentBoolMember), conditionValue: true)]
-/// public string ConditionalRequiredProperty { get; set; }
-/// 
-/// public bool DependentBoolMember { get; set; }
+/// public class ObjectRequiringValidation
+/// {
+///     //A required validation check will be done if DependentBoolMember is true.
+///     [RequiredDependsOn(dependentMemberName: nameof(DependentBoolMember), conditionValue: true)]
+///     public string ConditionalRequiredProperty { get; set; }
+///     
+///     public bool DependentBoolMember { get; set; }
+/// }
 /// </code>
 /// or
 /// <code>
-/// [RequiredDependsOn(dependentMemberName: nameof(DependentEnumMember), conditionValue: YourEnum.RequiredValue)]
-/// public string ConditionalRequiredProperty { get; set; }
-/// 
-/// public YourEnum DependentEnumMember { get; set; }
+/// public class ObjectRequiringValidation
+/// {
+///     //A required validation check will be done if DependentEnumMember is YourEnum.RequiredValue.
+///     [RequiredDependsOn(dependentMemberName: nameof(DependentEnumMember), conditionValue: YourEnum.RequiredValue)]
+///     public string ConditionalRequiredProperty { get; set; }
+///     
+///     public YourEnum DependentEnumMember { get; set; }
+/// }
 /// </code>
 /// </remarks>
 [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
@@ -39,21 +47,6 @@ public sealed class RequiredDependsOnAttribute : RequiredAttribute
     private readonly string _dependentMemberName;
 
     /// <summary>
-    /// The constant for the same member error message.
-    /// </summary>
-    internal const string SameMemberErrorMessage = "Failed to validate because the dependent member name is the same as the attribute's member name.";
-
-    /// <summary>
-    /// The constant for the member not found error message.
-    /// </summary>
-    internal const string MemberNotFoundErrorMessage = "Failled to validate because the dependent member name was not found.";
-
-    /// <summary>
-    /// The constant for the type mismatch error message.
-    /// </summary>
-    internal const string TypeMismatchErrorMessage = "Failed to validate because the dependent member value type does not match the required value type.";
-
-    /// <summary>
     /// The constructor which takes the dependency and condition.
     /// </summary>
     /// <param name="dependentMemberName">The name of the member the Required data annotation is dependent on.</param>
@@ -67,26 +60,6 @@ public sealed class RequiredDependsOnAttribute : RequiredAttribute
 
         _conditionValue = conditionValue;
         _dependentMemberName = dependentMemberName;
-    }
-
-    /// <summary>
-    /// The method returns the value stored by the dependent member.
-    /// </summary>
-    /// <param name="dependentMemberInfo">Meta data about the depedent member.</param>
-    /// <param name="objectInstance">The instance of the object being validated.</param>
-    /// <returns>The value or null if not found.</returns>
-    private static object? GetDependentMemberValue(MemberInfo dependentMemberInfo, object objectInstance)
-    {
-        if (dependentMemberInfo is FieldInfo fieldInfo)
-        {
-            return fieldInfo.GetValue(objectInstance);
-        }
-        else if (dependentMemberInfo is PropertyInfo propertyInfo)
-        {
-            return propertyInfo.GetValue(objectInstance);
-        }
-
-        return null;
     }
 
     /// <summary>
@@ -111,17 +84,17 @@ public sealed class RequiredDependsOnAttribute : RequiredAttribute
     {
         if (_dependentMemberName == validationContext.MemberName)
         {
-            return new ValidationResult(SameMemberErrorMessage);
+            return new ValidationResult(DataAnnotationMemberHelper.SameMemberErrorMessage);
         }
 
         MemberInfo? dependentMemberInfo = validationContext.ObjectType.FindMembers(MemberTypes.Field | MemberTypes.Property, BindingFlags.Public | BindingFlags.Instance, Type.FilterName, _dependentMemberName).FirstOrDefault();
 
         if (dependentMemberInfo is null)
         {
-            return new ValidationResult(MemberNotFoundErrorMessage);
+            return new ValidationResult(DataAnnotationMemberHelper.MemberNotFoundErrorMessage);
         }
 
-        object? dependentMemberValue = GetDependentMemberValue(dependentMemberInfo, validationContext.ObjectInstance);
+        object? dependentMemberValue = DataAnnotationMemberHelper.GetMemberValue(dependentMemberInfo, validationContext.ObjectInstance);
 
         if (dependentMemberValue is null)
         {
@@ -130,7 +103,7 @@ public sealed class RequiredDependsOnAttribute : RequiredAttribute
 
         if (dependentMemberValue.GetType() != _conditionValue.GetType())
         {
-            return new ValidationResult(TypeMismatchErrorMessage);
+            return new ValidationResult(DataAnnotationMemberHelper.TypeMismatchErrorMessage);
         }
 
         if (dependentMemberValue is bool dependentMemberBoolValue && _conditionValue is bool conditionBoolValue)
@@ -146,6 +119,10 @@ public sealed class RequiredDependsOnAttribute : RequiredAttribute
             {
                 return base.IsValid(value, validationContext);
             }
+        }
+        else
+        {
+            return new ValidationResult(DataAnnotationMemberHelper.InvalidTypeErrorMessage);
         }
 
         return ValidationResult.Success;
