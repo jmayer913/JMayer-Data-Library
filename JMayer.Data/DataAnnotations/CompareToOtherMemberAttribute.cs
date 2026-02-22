@@ -75,7 +75,7 @@ public sealed class CompareToOtherMemberAttribute : ValidationAttribute
     /// have a null value or the comparison is not equal and one of the members has a null value.
     /// </param>
     /// <exception cref="ArgumentException">Thrown when the otherMemberName parameter is null or an empty string.</exception>
-    public CompareToOtherMemberAttribute(string otherMemberName, ComparisonOperation compareToOperation, bool allowNullCheck)
+    public CompareToOtherMemberAttribute(string otherMemberName, ComparisonOperation compareToOperation, bool allowNullCheck = false)
     {
         ArgumentException.ThrowIfNullOrEmpty(otherMemberName);
 
