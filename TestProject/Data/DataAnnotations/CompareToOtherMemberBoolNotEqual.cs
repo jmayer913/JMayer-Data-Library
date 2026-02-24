@@ -4,11 +4,11 @@ using JMayer.Data.DataAnnotations;
 namespace TestProject.Data.DataAnnotations;
 
 /// <summary>
-/// The class is used to test the CompareToOtherMember attribute when comparing two bool properties to be equal.
+/// The class is used to test the CompareToOtherMember attribute when comparing two bool properties to be not equal.
 /// </summary>
-internal class CompareToOtherMemberBoolEqual : DataObject
+internal class CompareToOtherMemberBoolNotEqual : DataObject
 {
-    [CompareToOtherMember(nameof(Property2), ComparisonOperation.Equal)]
+    [CompareToOtherMember(nameof(Property2), ComparisonOperation.NotEqual)]
     public bool Property1 { get; set; }
 
     /// <summary>

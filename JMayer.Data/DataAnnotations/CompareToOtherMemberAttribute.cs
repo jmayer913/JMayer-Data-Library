@@ -307,13 +307,14 @@ public sealed class CompareToOtherMemberAttribute : ValidationAttribute
 
         if (_allowNullCheck)
         {
+#warning I'm not making sure they're the same type.
             success = CheckNullVaues(value, otherMemberValue);
         }
 
         if (value is bool registeredMemberBoolValue && otherMemberValue is bool otherMemberBoolValue)
         {
             //Only equal and not equal are supported for this type.
-            if (_comparisonOperation is not ComparisonOperation.Equal and ComparisonOperation.NotEqual)
+            if (_comparisonOperation is not ComparisonOperation.Equal and not ComparisonOperation.NotEqual)
             {
                 return new ValidationResult(InvalidComparisonForBoolErrorMessage);
             }
@@ -322,20 +323,20 @@ public sealed class CompareToOtherMemberAttribute : ValidationAttribute
         }
         else if (value is sbyte or short or int or long && otherMemberValue is sbyte or short or int or long)
         {
-            success = CheckIntegerValues((long)value, (long)otherMemberValue);
+            success = CheckIntegerValues(Convert.ToInt64(value), Convert.ToInt64(otherMemberValue));
         }
         else if (value is byte or ushort or uint or ulong && otherMemberValue is byte or ushort or uint or ulong)
         {
-            success = CheckUnsignedIntegerValues((ulong)value, (ulong)otherMemberValue);
+            success = CheckUnsignedIntegerValues(Convert.ToUInt64(value), Convert.ToUInt64(otherMemberValue));
         }
         else if (value is float or double or decimal && otherMemberValue is float or double or decimal)
         {
-            success = CheckDecimalValues((decimal)value, (decimal)otherMemberValue);
+            success = CheckDecimalValues(Convert.ToDecimal(value), Convert.ToDecimal(otherMemberValue));
         }
         else if (value is char registeredMemberdCharacterValue && otherMemberValue is char otherMemberdCharacterValue)
         {
             //Only equal and not equal are supported for this type.
-            if (_comparisonOperation is not ComparisonOperation.Equal and ComparisonOperation.NotEqual)
+            if (_comparisonOperation is not ComparisonOperation.Equal and not ComparisonOperation.NotEqual)
             {
                 return new ValidationResult(InvalidComparisonForCharErrorMessage);
             }
@@ -345,7 +346,7 @@ public sealed class CompareToOtherMemberAttribute : ValidationAttribute
         else if (value is string registeredMemberdStringValue && otherMemberValue is string otherMemberdStringValue)
         {
             //Only equal and not equal are supported for this type.
-            if (_comparisonOperation is not ComparisonOperation.Equal and ComparisonOperation.NotEqual)
+            if (_comparisonOperation is not ComparisonOperation.Equal and not ComparisonOperation.NotEqual)
             {
                 return new ValidationResult(InvalidComparisonForStringErrorMessage);
             }
@@ -367,7 +368,7 @@ public sealed class CompareToOtherMemberAttribute : ValidationAttribute
         else if (value is Enum registeredMemberEnumValue && otherMemberValue is Enum otherMemberEnumValue)
         {
             //Only equal and not equal are supported for this type.
-            if (_comparisonOperation is not ComparisonOperation.Equal and ComparisonOperation.NotEqual)
+            if (_comparisonOperation is not ComparisonOperation.Equal and not ComparisonOperation.NotEqual)
             {
                 return new ValidationResult(InvalidComparisonForEnumErrorMessage);
             }

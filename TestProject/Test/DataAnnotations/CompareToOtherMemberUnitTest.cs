@@ -8,7 +8,7 @@ namespace TestProject.Test.DataAnnotations;
 #warning The base has a reference to the default and custom error message but those are private and the public ErrorMessage property returns one of them.
 
 /// <summary>
-/// The class manages tests for the CompareToOtherMemberAttribute object.
+/// The class manages general tests for the CompareToOtherMemberAttribute object.
 /// </summary>
 public class CompareToOtherMemberUnitTest
 {
@@ -19,37 +19,54 @@ public class CompareToOtherMemberUnitTest
     public void VerifyConstructorThrowsArgumentNullExceptionForOtherMemberNameParameter() => Assert.Throws<ArgumentNullException>(() => new CompareToOtherMemberAttribute(null, ComparisonOperation.Equal));
 
     /// <summary>
-    /// The method verifies the CompareToOther data annotation return failure when the two bool properties do not equal each other.
+    /// The method verifies a failure when the types are invalid.
     /// </summary>
     [Fact]
-    public void VerifyCompareToOtherBoolMemberEqualFailure()
+    public void VerifyFailureInvalidType()
     {
-        CompareToOtherMemberBoolEqual dataObject = new()
-        {
-            BoolProperty1 = true,
-            BoolProperty2 = false,
-        };
+        CompareToOtherMemberInvalidType dataObject = new();
         List<ValidationResult> validationResults = dataObject.Validate();
 
         Assert.Single(validationResults);
-        //Assert.Equal($"The {nameof(RequiredDependsOnTrue.ConditionalRequireValue)} field is required.", validationResults[0].ErrorMessage);
-        Assert.Equal(2, validationResults[0].MemberNames.Count());
-        Assert.Equal(nameof(CompareToOtherMemberBoolEqual.BoolProperty1), validationResults[0].MemberNames.First());
-        Assert.Equal(nameof(CompareToOtherMemberBoolEqual.BoolProperty2), validationResults[0].MemberNames.Last());
+        Assert.Equal(DataAnnotationMemberHelper.InvalidTypeErrorMessage, validationResults[0].ErrorMessage);
     }
 
     /// <summary>
-    /// The method verifies the CompareToOther data annotation return success when the two bool properties equal each other.
+    /// The method verifies a failure when the depends on member is not found.
     /// </summary>
     [Fact]
-    public void VerifyCompareToOtherBoolMemberEqualSuccess()
+    public void VerifyFailureMemberNameNotFound()
     {
-        CompareToOtherMemberBoolEqual dataObject = new()
-        {
-            BoolProperty1 = true,
-            BoolProperty2 = true,
-        };
+        CompareToOtherMemberNotFound dataObject = new();
         List<ValidationResult> validationResults = dataObject.Validate();
-        Assert.Empty(validationResults);
+
+        Assert.Single(validationResults);
+        Assert.Equal(DataAnnotationMemberHelper.MemberNotFoundErrorMessage, validationResults[0].ErrorMessage);
+    }
+
+    /// <summary>
+    /// The method verifies a failure when the depends on member is the same member of the evaluating member.
+    /// </summary>
+    [Fact]
+    public void VerifyFailureSameMember()
+    {
+        CompareToOtherMemberSameMember dataObject = new();
+        List<ValidationResult> validationResults = dataObject.Validate();
+
+        Assert.Single(validationResults);
+        Assert.Equal(DataAnnotationMemberHelper.SameMemberErrorMessage, validationResults[0].ErrorMessage);
+    }
+
+    /// <summary>
+    /// The method verifies a failure when the depends on member has a different type than the other property.
+    /// </summary>
+    [Fact]
+    public void VerifyFailureTypeMismatch()
+    {
+        CompareToOtherMemberTypeMismatch dataObject = new();
+        List<ValidationResult> validationResults = dataObject.Validate();
+
+        Assert.Single(validationResults);
+        Assert.Equal(DataAnnotationMemberHelper.TypeMismatchErrorMessage, validationResults[0].ErrorMessage);
     }
 }
