@@ -1,6 +1,6 @@
 ﻿using JMayer.Data.DataAnnotations;
 using System.ComponentModel.DataAnnotations;
-using TestProject.Data.DataAnnotations;
+using TestProject.Data.DataAnnotations.CompareToOtherMembers;
 
 namespace TestProject.Test.DataAnnotations;
 

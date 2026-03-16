@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using TestProject.Data.DataAnnotations;
+using TestProject.Data.DataAnnotations.CompareToOtherMembers.Null;
 
 namespace TestProject.Test.DataAnnotations;
 
@@ -14,7 +14,7 @@ public class CompareToOtherMemberNullUnitTest
     [Fact]
     public void VerifyEqualFailure()
     {
-        CompareToOtherMemberNullEqual dataObject = new()
+        CompareToOtherMemberEqual dataObject = new()
         {
             Property1 = null,
             Property2 = int.MaxValue,
@@ -24,8 +24,8 @@ public class CompareToOtherMemberNullUnitTest
         Assert.Single(validationResults);
         //Assert.Equal($"The {nameof(RequiredDependsOnTrue.ConditionalRequireValue)} field is required.", validationResults[0].ErrorMessage);
         Assert.Equal(2, validationResults[0].MemberNames.Count());
-        Assert.Equal(nameof(CompareToOtherMemberNullEqual.Property1), validationResults[0].MemberNames.First());
-        Assert.Equal(nameof(CompareToOtherMemberNullEqual.Property2), validationResults[0].MemberNames.Last());
+        Assert.Equal(nameof(CompareToOtherMemberEqual.Property1), validationResults[0].MemberNames.First());
+        Assert.Equal(nameof(CompareToOtherMemberEqual.Property2), validationResults[0].MemberNames.Last());
 
         dataObject.Property1 = int.MaxValue;
         dataObject.Property2 = null;
@@ -35,8 +35,8 @@ public class CompareToOtherMemberNullUnitTest
         Assert.Single(validationResults);
         //Assert.Equal($"The {nameof(RequiredDependsOnTrue.ConditionalRequireValue)} field is required.", validationResults[0].ErrorMessage);
         Assert.Equal(2, validationResults[0].MemberNames.Count());
-        Assert.Equal(nameof(CompareToOtherMemberNullEqual.Property1), validationResults[0].MemberNames.First());
-        Assert.Equal(nameof(CompareToOtherMemberNullEqual.Property2), validationResults[0].MemberNames.Last());
+        Assert.Equal(nameof(CompareToOtherMemberEqual.Property1), validationResults[0].MemberNames.First());
+        Assert.Equal(nameof(CompareToOtherMemberEqual.Property2), validationResults[0].MemberNames.Last());
     }
 
     /// <summary>
@@ -45,7 +45,7 @@ public class CompareToOtherMemberNullUnitTest
     [Fact]
     public void VerifyEqualSuccess()
     {
-        CompareToOtherMemberNullEqual dataObject = new()
+        CompareToOtherMemberEqual dataObject = new()
         {
             Property1 = null,
             Property2 = null,
@@ -60,7 +60,7 @@ public class CompareToOtherMemberNullUnitTest
     [Fact]
     public void VerifyNotEqualFailure()
     {
-        CompareToOtherMemberNullNotEqual dataObject = new()
+        CompareToOtherMemberNotEqual dataObject = new()
         {
             Property1 = null,
             Property2 = null,
@@ -70,8 +70,8 @@ public class CompareToOtherMemberNullUnitTest
         Assert.Single(validationResults);
         //Assert.Equal($"The {nameof(RequiredDependsOnTrue.ConditionalRequireValue)} field is required.", validationResults[0].ErrorMessage);
         Assert.Equal(2, validationResults[0].MemberNames.Count());
-        Assert.Equal(nameof(CompareToOtherMemberNullNotEqual.Property1), validationResults[0].MemberNames.First());
-        Assert.Equal(nameof(CompareToOtherMemberNullNotEqual.Property2), validationResults[0].MemberNames.Last());
+        Assert.Equal(nameof(CompareToOtherMemberNotEqual.Property1), validationResults[0].MemberNames.First());
+        Assert.Equal(nameof(CompareToOtherMemberNotEqual.Property2), validationResults[0].MemberNames.Last());
     }
 
     /// <summary>
@@ -80,7 +80,7 @@ public class CompareToOtherMemberNullUnitTest
     [Fact]
     public void VerifyNotEqualSuccess()
     {
-        CompareToOtherMemberNullNotEqual dataObject = new()
+        CompareToOtherMemberNotEqual dataObject = new()
         {
             Property1 = null,
             Property2 = int.MaxValue,
@@ -101,7 +101,7 @@ public class CompareToOtherMemberNullUnitTest
     [Fact]
     public void VerifyGreaterThanFailure()
     {
-        CompareToOtherMemberNullGreaterThan dataObject = new()
+        CompareToOtherMemberGreaterThan dataObject = new()
         {
             Property1 = null,
             Property2 = int.MaxValue,
@@ -111,8 +111,8 @@ public class CompareToOtherMemberNullUnitTest
         Assert.Single(validationResults);
         //Assert.Equal($"The {nameof(RequiredDependsOnTrue.ConditionalRequireValue)} field is required.", validationResults[0].ErrorMessage);
         Assert.Equal(2, validationResults[0].MemberNames.Count());
-        Assert.Equal(nameof(CompareToOtherMemberNullGreaterThan.Property1), validationResults[0].MemberNames.First());
-        Assert.Equal(nameof(CompareToOtherMemberNullGreaterThan.Property2), validationResults[0].MemberNames.Last());
+        Assert.Equal(nameof(CompareToOtherMemberGreaterThan.Property1), validationResults[0].MemberNames.First());
+        Assert.Equal(nameof(CompareToOtherMemberGreaterThan.Property2), validationResults[0].MemberNames.Last());
 
         dataObject.Property1 = int.MaxValue;
         dataObject.Property2 = null;
@@ -121,8 +121,8 @@ public class CompareToOtherMemberNullUnitTest
         Assert.Single(validationResults);
         //Assert.Equal($"The {nameof(RequiredDependsOnTrue.ConditionalRequireValue)} field is required.", validationResults[0].ErrorMessage);
         Assert.Equal(2, validationResults[0].MemberNames.Count());
-        Assert.Equal(nameof(CompareToOtherMemberNullGreaterThan.Property1), validationResults[0].MemberNames.First());
-        Assert.Equal(nameof(CompareToOtherMemberNullGreaterThan.Property2), validationResults[0].MemberNames.Last());
+        Assert.Equal(nameof(CompareToOtherMemberGreaterThan.Property1), validationResults[0].MemberNames.First());
+        Assert.Equal(nameof(CompareToOtherMemberGreaterThan.Property2), validationResults[0].MemberNames.Last());
     }
 
     /// <summary>
@@ -131,7 +131,7 @@ public class CompareToOtherMemberNullUnitTest
     [Fact]
     public void VerifyGreaterThanOrEqualFailure()
     {
-        CompareToOtherMemberNullGreaterThanOrEqual dataObject = new()
+        CompareToOtherMemberGreaterThanOrEqual dataObject = new()
         {
             Property1 = null,
             Property2 = int.MaxValue,
@@ -141,8 +141,8 @@ public class CompareToOtherMemberNullUnitTest
         Assert.Single(validationResults);
         //Assert.Equal($"The {nameof(RequiredDependsOnTrue.ConditionalRequireValue)} field is required.", validationResults[0].ErrorMessage);
         Assert.Equal(2, validationResults[0].MemberNames.Count());
-        Assert.Equal(nameof(CompareToOtherMemberNullGreaterThanOrEqual.Property1), validationResults[0].MemberNames.First());
-        Assert.Equal(nameof(CompareToOtherMemberNullGreaterThanOrEqual.Property2), validationResults[0].MemberNames.Last());
+        Assert.Equal(nameof(CompareToOtherMemberGreaterThanOrEqual.Property1), validationResults[0].MemberNames.First());
+        Assert.Equal(nameof(CompareToOtherMemberGreaterThanOrEqual.Property2), validationResults[0].MemberNames.Last());
 
         dataObject.Property1 = int.MaxValue;
         dataObject.Property2 = null;
@@ -151,8 +151,8 @@ public class CompareToOtherMemberNullUnitTest
         Assert.Single(validationResults);
         //Assert.Equal($"The {nameof(RequiredDependsOnTrue.ConditionalRequireValue)} field is required.", validationResults[0].ErrorMessage);
         Assert.Equal(2, validationResults[0].MemberNames.Count());
-        Assert.Equal(nameof(CompareToOtherMemberNullGreaterThanOrEqual.Property1), validationResults[0].MemberNames.First());
-        Assert.Equal(nameof(CompareToOtherMemberNullGreaterThanOrEqual.Property2), validationResults[0].MemberNames.Last());
+        Assert.Equal(nameof(CompareToOtherMemberGreaterThanOrEqual.Property1), validationResults[0].MemberNames.First());
+        Assert.Equal(nameof(CompareToOtherMemberGreaterThanOrEqual.Property2), validationResults[0].MemberNames.Last());
     }
 
     /// <summary>
@@ -161,7 +161,7 @@ public class CompareToOtherMemberNullUnitTest
     [Fact]
     public void VerifyLessThanFailure()
     {
-        CompareToOtherMemberNullLessThan dataObject = new()
+        CompareToOtherMemberLessThan dataObject = new()
         {
             Property1 = null,
             Property2 = int.MaxValue,
@@ -171,8 +171,8 @@ public class CompareToOtherMemberNullUnitTest
         Assert.Single(validationResults);
         //Assert.Equal($"The {nameof(RequiredDependsOnTrue.ConditionalRequireValue)} field is required.", validationResults[0].ErrorMessage);
         Assert.Equal(2, validationResults[0].MemberNames.Count());
-        Assert.Equal(nameof(CompareToOtherMemberNullLessThan.Property1), validationResults[0].MemberNames.First());
-        Assert.Equal(nameof(CompareToOtherMemberNullLessThan.Property2), validationResults[0].MemberNames.Last());
+        Assert.Equal(nameof(CompareToOtherMemberLessThan.Property1), validationResults[0].MemberNames.First());
+        Assert.Equal(nameof(CompareToOtherMemberLessThan.Property2), validationResults[0].MemberNames.Last());
 
         dataObject.Property1 = int.MaxValue;
         dataObject.Property2 = null;
@@ -181,8 +181,8 @@ public class CompareToOtherMemberNullUnitTest
         Assert.Single(validationResults);
         //Assert.Equal($"The {nameof(RequiredDependsOnTrue.ConditionalRequireValue)} field is required.", validationResults[0].ErrorMessage);
         Assert.Equal(2, validationResults[0].MemberNames.Count());
-        Assert.Equal(nameof(CompareToOtherMemberNullLessThan.Property1), validationResults[0].MemberNames.First());
-        Assert.Equal(nameof(CompareToOtherMemberNullLessThan.Property2), validationResults[0].MemberNames.Last());
+        Assert.Equal(nameof(CompareToOtherMemberLessThan.Property1), validationResults[0].MemberNames.First());
+        Assert.Equal(nameof(CompareToOtherMemberLessThan.Property2), validationResults[0].MemberNames.Last());
     }
 
     /// <summary>
@@ -191,7 +191,7 @@ public class CompareToOtherMemberNullUnitTest
     [Fact]
     public void VerifyLessThanOrEqualFailure()
     {
-        CompareToOtherMemberNullLessThanOrEqual dataObject = new()
+        CompareToOtherMemberLessThanOrEqual dataObject = new()
         {
             Property1 = null,
             Property2 = int.MaxValue,
@@ -201,8 +201,8 @@ public class CompareToOtherMemberNullUnitTest
         Assert.Single(validationResults);
         //Assert.Equal($"The {nameof(RequiredDependsOnTrue.ConditionalRequireValue)} field is required.", validationResults[0].ErrorMessage);
         Assert.Equal(2, validationResults[0].MemberNames.Count());
-        Assert.Equal(nameof(CompareToOtherMemberNullLessThanOrEqual.Property1), validationResults[0].MemberNames.First());
-        Assert.Equal(nameof(CompareToOtherMemberNullLessThanOrEqual.Property2), validationResults[0].MemberNames.Last());
+        Assert.Equal(nameof(CompareToOtherMemberLessThanOrEqual.Property1), validationResults[0].MemberNames.First());
+        Assert.Equal(nameof(CompareToOtherMemberLessThanOrEqual.Property2), validationResults[0].MemberNames.Last());
 
         dataObject.Property1 = int.MaxValue;
         dataObject.Property2 = null;
@@ -211,7 +211,7 @@ public class CompareToOtherMemberNullUnitTest
         Assert.Single(validationResults);
         //Assert.Equal($"The {nameof(RequiredDependsOnTrue.ConditionalRequireValue)} field is required.", validationResults[0].ErrorMessage);
         Assert.Equal(2, validationResults[0].MemberNames.Count());
-        Assert.Equal(nameof(CompareToOtherMemberNullLessThanOrEqual.Property1), validationResults[0].MemberNames.First());
-        Assert.Equal(nameof(CompareToOtherMemberNullLessThanOrEqual.Property2), validationResults[0].MemberNames.Last());
+        Assert.Equal(nameof(CompareToOtherMemberLessThanOrEqual.Property1), validationResults[0].MemberNames.First());
+        Assert.Equal(nameof(CompareToOtherMemberLessThanOrEqual.Property2), validationResults[0].MemberNames.Last());
     }
 }

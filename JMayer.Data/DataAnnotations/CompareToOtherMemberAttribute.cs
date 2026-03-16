@@ -177,6 +177,26 @@ public sealed class CompareToOtherMemberAttribute : ValidationAttribute
     }
 
     /// <summary>
+    /// The method returns if the double values pass the comparison.
+    /// </summary>
+    /// <param name="registeredMemberValue">The value of the member the attribute is registered too.</param>
+    /// <param name="otherMemberValue">The value of the other member.</param>
+    /// <returns>True means the comparison passed.</returns>
+    private bool CheckDoubleValues(double registeredMemberValue, double otherMemberValue)
+    {
+        return _comparisonOperation switch
+        {
+            ComparisonOperation.Equal => registeredMemberValue == otherMemberValue,
+            ComparisonOperation.GreaterThan => registeredMemberValue > otherMemberValue,
+            ComparisonOperation.GreaterThanOrEqual => registeredMemberValue >= otherMemberValue,
+            ComparisonOperation.LessThan => registeredMemberValue < otherMemberValue,
+            ComparisonOperation.LessThanOrEqual => registeredMemberValue <= otherMemberValue,
+            ComparisonOperation.NotEqual => registeredMemberValue != otherMemberValue,
+            _ => false
+        };
+    }
+
+    /// <summary>
     /// The method returns if the enum values pass the comparison.
     /// </summary>
     /// <param name="registeredMemberValue">The value of the member the attribute is registered too.</param>
@@ -329,7 +349,11 @@ public sealed class CompareToOtherMemberAttribute : ValidationAttribute
         {
             success = CheckUnsignedIntegerValues(Convert.ToUInt64(value), Convert.ToUInt64(otherMemberValue));
         }
-        else if (value is float or double or decimal && otherMemberValue is float or double or decimal)
+        else if (value is float or double && otherMemberValue is float or double)
+        {
+            success = CheckDoubleValues(Convert.ToDouble(value), Convert.ToDouble(otherMemberValue));
+        }
+        else if (value is decimal && otherMemberValue is decimal)
         {
             success = CheckDecimalValues(Convert.ToDecimal(value), Convert.ToDecimal(otherMemberValue));
         }

@@ -1,6 +1,6 @@
 ﻿using JMayer.Data.DataAnnotations;
 using System.ComponentModel.DataAnnotations;
-using TestProject.Data.DataAnnotations;
+using TestProject.Data.DataAnnotations.CompareToOtherMembers.Bool;
 
 namespace TestProject.Test.DataAnnotations;
 
@@ -15,7 +15,7 @@ public class CompareToOtherMemberBoolUnitTest
     [Fact]
     public void VerifyEqualFailure()
     {
-        CompareToOtherMemberBoolEqual dataObject = new()
+        CompareToOtherMemberEqual dataObject = new()
         {
             Property1 = true,
             Property2 = false,
@@ -25,8 +25,8 @@ public class CompareToOtherMemberBoolUnitTest
         Assert.Single(validationResults);
         //Assert.Equal($"The {nameof(RequiredDependsOnTrue.ConditionalRequireValue)} field is required.", validationResults[0].ErrorMessage);
         Assert.Equal(2, validationResults[0].MemberNames.Count());
-        Assert.Equal(nameof(CompareToOtherMemberBoolEqual.Property1), validationResults[0].MemberNames.First());
-        Assert.Equal(nameof(CompareToOtherMemberBoolEqual.Property2), validationResults[0].MemberNames.Last());
+        Assert.Equal(nameof(CompareToOtherMemberEqual.Property1), validationResults[0].MemberNames.First());
+        Assert.Equal(nameof(CompareToOtherMemberEqual.Property2), validationResults[0].MemberNames.Last());
 
         dataObject.Property1 = false;
         dataObject.Property2 = true;
@@ -36,8 +36,8 @@ public class CompareToOtherMemberBoolUnitTest
         Assert.Single(validationResults);
         //Assert.Equal($"The {nameof(RequiredDependsOnTrue.ConditionalRequireValue)} field is required.", validationResults[0].ErrorMessage);
         Assert.Equal(2, validationResults[0].MemberNames.Count());
-        Assert.Equal(nameof(CompareToOtherMemberBoolEqual.Property1), validationResults[0].MemberNames.First());
-        Assert.Equal(nameof(CompareToOtherMemberBoolEqual.Property2), validationResults[0].MemberNames.Last());
+        Assert.Equal(nameof(CompareToOtherMemberEqual.Property1), validationResults[0].MemberNames.First());
+        Assert.Equal(nameof(CompareToOtherMemberEqual.Property2), validationResults[0].MemberNames.Last());
     }
 
     /// <summary>
@@ -46,7 +46,7 @@ public class CompareToOtherMemberBoolUnitTest
     [Fact]
     public void VerifyEqualSuccess()
     {
-        CompareToOtherMemberBoolEqual dataObject = new()
+        CompareToOtherMemberEqual dataObject = new()
         {
             Property1 = true,
             Property2 = true,
@@ -67,7 +67,7 @@ public class CompareToOtherMemberBoolUnitTest
     [Fact]
     public void VerifyNotEqualFailure()
     {
-        CompareToOtherMemberBoolNotEqual dataObject = new()
+        CompareToOtherMemberNotEqual dataObject = new()
         {
             Property1 = true,
             Property2 = true,
@@ -77,8 +77,8 @@ public class CompareToOtherMemberBoolUnitTest
         Assert.Single(validationResults);
         //Assert.Equal($"The {nameof(RequiredDependsOnTrue.ConditionalRequireValue)} field is required.", validationResults[0].ErrorMessage);
         Assert.Equal(2, validationResults[0].MemberNames.Count());
-        Assert.Equal(nameof(CompareToOtherMemberBoolEqual.Property1), validationResults[0].MemberNames.First());
-        Assert.Equal(nameof(CompareToOtherMemberBoolEqual.Property2), validationResults[0].MemberNames.Last());
+        Assert.Equal(nameof(CompareToOtherMemberEqual.Property1), validationResults[0].MemberNames.First());
+        Assert.Equal(nameof(CompareToOtherMemberEqual.Property2), validationResults[0].MemberNames.Last());
 
         dataObject.Property1 = false;
         dataObject.Property2 = false;
@@ -88,8 +88,8 @@ public class CompareToOtherMemberBoolUnitTest
         Assert.Single(validationResults);
         //Assert.Equal($"The {nameof(RequiredDependsOnTrue.ConditionalRequireValue)} field is required.", validationResults[0].ErrorMessage);
         Assert.Equal(2, validationResults[0].MemberNames.Count());
-        Assert.Equal(nameof(CompareToOtherMemberBoolEqual.Property1), validationResults[0].MemberNames.First());
-        Assert.Equal(nameof(CompareToOtherMemberBoolEqual.Property2), validationResults[0].MemberNames.Last());
+        Assert.Equal(nameof(CompareToOtherMemberEqual.Property1), validationResults[0].MemberNames.First());
+        Assert.Equal(nameof(CompareToOtherMemberEqual.Property2), validationResults[0].MemberNames.Last());
     }
 
     /// <summary>
@@ -98,7 +98,7 @@ public class CompareToOtherMemberBoolUnitTest
     [Fact]
     public void VerifyNotEqualSuccess()
     {
-        CompareToOtherMemberBoolNotEqual dataObject = new()
+        CompareToOtherMemberNotEqual dataObject = new()
         {
             Property1 = true,
             Property2 = false,
@@ -119,7 +119,7 @@ public class CompareToOtherMemberBoolUnitTest
     [Fact]
     public void VerifyFailureGreaterThanNotSupported()
     {
-        CompareToOtherMemberBoolGreaterThan dataObject = new();
+        CompareToOtherMemberGreaterThan dataObject = new();
         List<ValidationResult> validationResults = dataObject.Validate();
 
         Assert.Single(validationResults);
@@ -132,7 +132,7 @@ public class CompareToOtherMemberBoolUnitTest
     [Fact]
     public void VerifyFailureGreaterThanOrEqualNotSupported()
     {
-        CompareToOtherMemberBoolGreaterThanOrEqual dataObject = new();
+        CompareToOtherMemberGreaterThanOrEqual dataObject = new();
         List<ValidationResult> validationResults = dataObject.Validate();
 
         Assert.Single(validationResults);
@@ -145,7 +145,7 @@ public class CompareToOtherMemberBoolUnitTest
     [Fact]
     public void VerifyFailureLessThanNotSupported()
     {
-        CompareToOtherMemberBoolLessThan dataObject = new();
+        CompareToOtherMemberLessThan dataObject = new();
         List<ValidationResult> validationResults = dataObject.Validate();
 
         Assert.Single(validationResults);
@@ -158,7 +158,7 @@ public class CompareToOtherMemberBoolUnitTest
     [Fact]
     public void VerifyFailureLessThanOrEqualNotSupported()
     {
-        CompareToOtherMemberBoolLessThanOrEqual dataObject = new();
+        CompareToOtherMemberLessThanOrEqual dataObject = new();
         List<ValidationResult> validationResults = dataObject.Validate();
 
         Assert.Single(validationResults);

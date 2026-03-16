@@ -1,12 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using TestProject.Data.DataAnnotations.CompareToOtherMembers.Byte;
+using TestProject.Data.DataAnnotations.CompareToOtherMembers.Int;
 
 namespace TestProject.Test.DataAnnotations;
 
 /// <summary>
-/// The class manages tests for the CompareToOtherMemberAttribute object for the byte data type.
+/// The class manages tests for the CompareToOtherMemberAttribute object for the int data type.
 /// </summary>
-public class CompareToOtherMemberByteUnitTest
+public class CompareToOtherMemberIntUnitTest
 {
     /// <summary>
     /// The method verifies the CompareToOther data annotation return failure when the two properties do not equal each other.
@@ -16,8 +16,8 @@ public class CompareToOtherMemberByteUnitTest
     {
         CompareToOtherMemberEqual dataObject = new()
         {
-            Property1 = byte.MaxValue,
-            Property2 = byte.MinValue,
+            Property1 = int.MaxValue,
+            Property2 = int.MinValue,
         };
         List<ValidationResult> validationResults = dataObject.Validate();
 
@@ -27,8 +27,8 @@ public class CompareToOtherMemberByteUnitTest
         Assert.Equal(nameof(CompareToOtherMemberEqual.Property1), validationResults[0].MemberNames.First());
         Assert.Equal(nameof(CompareToOtherMemberEqual.Property2), validationResults[0].MemberNames.Last());
 
-        dataObject.Property1 = byte.MinValue;
-        dataObject.Property2 = byte.MaxValue;
+        dataObject.Property1 = int.MinValue;
+        dataObject.Property2 = int.MaxValue;
         validationResults = dataObject.Validate();
 
         Assert.Single(validationResults);
@@ -46,14 +46,14 @@ public class CompareToOtherMemberByteUnitTest
     {
         CompareToOtherMemberEqual dataObject = new()
         {
-            Property1 = byte.MaxValue,
-            Property2 = byte.MaxValue,
+            Property1 = int.MaxValue,
+            Property2 = int.MaxValue,
         };
         List<ValidationResult> validationResults = dataObject.Validate();
         Assert.Empty(validationResults);
 
-        dataObject.Property1 = byte.MinValue;
-        dataObject.Property2 = byte.MinValue;
+        dataObject.Property1 = int.MinValue;
+        dataObject.Property2 = int.MinValue;
         validationResults = dataObject.Validate();
         Assert.Empty(validationResults);
     }
@@ -66,8 +66,8 @@ public class CompareToOtherMemberByteUnitTest
     {
         CompareToOtherMemberGreaterThan dataObject = new()
         {
-            Property1 = byte.MinValue,
-            Property2 = byte.MaxValue,
+            Property1 = int.MinValue,
+            Property2 = int.MaxValue,
         };
         List<ValidationResult> validationResults = dataObject.Validate();
 
@@ -86,8 +86,8 @@ public class CompareToOtherMemberByteUnitTest
     {
         CompareToOtherMemberGreaterThan dataObject = new()
         {
-            Property1 = byte.MaxValue,
-            Property2 = byte.MinValue,
+            Property1 = int.MaxValue,
+            Property2 = int.MinValue,
         };
         List<ValidationResult> validationResults = dataObject.Validate();
         Assert.Empty(validationResults);
@@ -101,8 +101,8 @@ public class CompareToOtherMemberByteUnitTest
     {
         CompareToOtherMemberGreaterThanOrEqual dataObject = new()
         {
-            Property1 = byte.MinValue,
-            Property2 = byte.MaxValue,
+            Property1 = int.MinValue,
+            Property2 = int.MaxValue,
         };
         List<ValidationResult> validationResults = dataObject.Validate();
 
@@ -121,14 +121,14 @@ public class CompareToOtherMemberByteUnitTest
     {
         CompareToOtherMemberGreaterThanOrEqual dataObject = new()
         {
-            Property1 = byte.MaxValue,
-            Property2 = byte.MinValue,
+            Property1 = int.MaxValue,
+            Property2 = int.MinValue,
         };
         List<ValidationResult> validationResults = dataObject.Validate();
         Assert.Empty(validationResults);
 
-        dataObject.Property1 = byte.MaxValue;
-        dataObject.Property2 = byte.MaxValue;
+        dataObject.Property1 = int.MaxValue;
+        dataObject.Property2 = int.MaxValue;
         validationResults = dataObject.Validate();
         Assert.Empty(validationResults);
     }
@@ -141,8 +141,8 @@ public class CompareToOtherMemberByteUnitTest
     {
         CompareToOtherMemberLessThan dataObject = new()
         {
-            Property1 = byte.MaxValue,
-            Property2 = byte.MinValue,
+            Property1 = int.MaxValue,
+            Property2 = int.MinValue,
         };
         List<ValidationResult> validationResults = dataObject.Validate();
 
@@ -161,8 +161,8 @@ public class CompareToOtherMemberByteUnitTest
     {
         CompareToOtherMemberLessThan dataObject = new()
         {
-            Property1 = byte.MinValue,
-            Property2 = byte.MaxValue,
+            Property1 = int.MinValue,
+            Property2 = int.MaxValue,
         };
         List<ValidationResult> validationResults = dataObject.Validate();
         Assert.Empty(validationResults);
@@ -176,8 +176,8 @@ public class CompareToOtherMemberByteUnitTest
     {
         CompareToOtherMemberLessThanOrEqual dataObject = new()
         {
-            Property1 = byte.MaxValue,
-            Property2 = byte.MinValue,
+            Property1 = int.MaxValue,
+            Property2 = int.MinValue,
         };
         List<ValidationResult> validationResults = dataObject.Validate();
 
@@ -196,14 +196,14 @@ public class CompareToOtherMemberByteUnitTest
     {
         CompareToOtherMemberLessThanOrEqual dataObject = new()
         {
-            Property1 = byte.MinValue,
-            Property2 = byte.MaxValue,
+            Property1 = int.MinValue,
+            Property2 = int.MaxValue,
         };
         List<ValidationResult> validationResults = dataObject.Validate();
         Assert.Empty(validationResults);
 
-        dataObject.Property1 = byte.MaxValue;
-        dataObject.Property2 = byte.MaxValue;
+        dataObject.Property1 = int.MaxValue;
+        dataObject.Property2 = int.MaxValue;
         validationResults = dataObject.Validate();
         Assert.Empty(validationResults);
     }
@@ -216,8 +216,8 @@ public class CompareToOtherMemberByteUnitTest
     {
         CompareToOtherMemberNotEqual dataObject = new()
         {
-            Property1 = byte.MaxValue,
-            Property2 = byte.MaxValue,
+            Property1 = int.MaxValue,
+            Property2 = int.MaxValue,
         };
         List<ValidationResult> validationResults = dataObject.Validate();
 
@@ -227,8 +227,8 @@ public class CompareToOtherMemberByteUnitTest
         Assert.Equal(nameof(CompareToOtherMemberNotEqual.Property1), validationResults[0].MemberNames.First());
         Assert.Equal(nameof(CompareToOtherMemberNotEqual.Property2), validationResults[0].MemberNames.Last());
 
-        dataObject.Property1 = byte.MinValue;
-        dataObject.Property2 = byte.MinValue;
+        dataObject.Property1 = int.MinValue;
+        dataObject.Property2 = int.MinValue;
         validationResults = dataObject.Validate();
 
         Assert.Single(validationResults);
@@ -246,14 +246,14 @@ public class CompareToOtherMemberByteUnitTest
     {
         CompareToOtherMemberNotEqual dataObject = new()
         {
-            Property1 = byte.MaxValue,
-            Property2 = byte.MinValue,
+            Property1 = int.MaxValue,
+            Property2 = int.MinValue,
         };
         List<ValidationResult> validationResults = dataObject.Validate();
         Assert.Empty(validationResults);
 
-        dataObject.Property1 = byte.MinValue;
-        dataObject.Property2 = byte.MaxValue;
+        dataObject.Property1 = int.MinValue;
+        dataObject.Property2 = int.MaxValue;
         validationResults = dataObject.Validate();
         Assert.Empty(validationResults);
     }

@@ -1,6 +1,6 @@
 ﻿using JMayer.Data.DataAnnotations;
 using System.ComponentModel.DataAnnotations;
-using TestProject.Data.DataAnnotations;
+using TestProject.Data.DataAnnotations.CompareToOtherMembers.String;
 
 namespace TestProject.Test.DataAnnotations;
 
@@ -25,7 +25,7 @@ public class CompareToOtherMemberStringUnitTest
     [Fact]
     public void VerifyEqualFailure()
     {
-        CompareToOtherMemberStringEqual dataObject = new()
+        CompareToOtherMemberEqual dataObject = new()
         {
             Property1 = AString,
             Property2 = DifferentString,
@@ -35,8 +35,8 @@ public class CompareToOtherMemberStringUnitTest
         Assert.Single(validationResults);
         //Assert.Equal($"The {nameof(RequiredDependsOnTrue.ConditionalRequireValue)} field is required.", validationResults[0].ErrorMessage);
         Assert.Equal(2, validationResults[0].MemberNames.Count());
-        Assert.Equal(nameof(CompareToOtherMemberStringEqual.Property1), validationResults[0].MemberNames.First());
-        Assert.Equal(nameof(CompareToOtherMemberStringEqual.Property2), validationResults[0].MemberNames.Last());
+        Assert.Equal(nameof(CompareToOtherMemberEqual.Property1), validationResults[0].MemberNames.First());
+        Assert.Equal(nameof(CompareToOtherMemberEqual.Property2), validationResults[0].MemberNames.Last());
 
         dataObject.Property1 = DifferentString;
         dataObject.Property2 = AString;
@@ -46,8 +46,8 @@ public class CompareToOtherMemberStringUnitTest
         Assert.Single(validationResults);
         //Assert.Equal($"The {nameof(RequiredDependsOnTrue.ConditionalRequireValue)} field is required.", validationResults[0].ErrorMessage);
         Assert.Equal(2, validationResults[0].MemberNames.Count());
-        Assert.Equal(nameof(CompareToOtherMemberStringEqual.Property1), validationResults[0].MemberNames.First());
-        Assert.Equal(nameof(CompareToOtherMemberStringEqual.Property2), validationResults[0].MemberNames.Last());
+        Assert.Equal(nameof(CompareToOtherMemberEqual.Property1), validationResults[0].MemberNames.First());
+        Assert.Equal(nameof(CompareToOtherMemberEqual.Property2), validationResults[0].MemberNames.Last());
     }
 
     /// <summary>
@@ -56,7 +56,7 @@ public class CompareToOtherMemberStringUnitTest
     [Fact]
     public void VerifyEqualSuccess()
     {
-        CompareToOtherMemberStringEqual dataObject = new()
+        CompareToOtherMemberEqual dataObject = new()
         {
             Property1 = AString,
             Property2 = AString,
@@ -77,7 +77,7 @@ public class CompareToOtherMemberStringUnitTest
     [Fact]
     public void VerifyNotEqualFailure()
     {
-        CompareToOtherMemberStringNotEqual dataObject = new()
+        CompareToOtherMemberNotEqual dataObject = new()
         {
             Property1 = AString,
             Property2 = AString,
@@ -87,8 +87,8 @@ public class CompareToOtherMemberStringUnitTest
         Assert.Single(validationResults);
         //Assert.Equal($"The {nameof(RequiredDependsOnTrue.ConditionalRequireValue)} field is required.", validationResults[0].ErrorMessage);
         Assert.Equal(2, validationResults[0].MemberNames.Count());
-        Assert.Equal(nameof(CompareToOtherMemberStringEqual.Property1), validationResults[0].MemberNames.First());
-        Assert.Equal(nameof(CompareToOtherMemberStringEqual.Property2), validationResults[0].MemberNames.Last());
+        Assert.Equal(nameof(CompareToOtherMemberEqual.Property1), validationResults[0].MemberNames.First());
+        Assert.Equal(nameof(CompareToOtherMemberEqual.Property2), validationResults[0].MemberNames.Last());
 
         dataObject.Property1 = DifferentString;
         dataObject.Property2 = DifferentString;
@@ -98,8 +98,8 @@ public class CompareToOtherMemberStringUnitTest
         Assert.Single(validationResults);
         //Assert.Equal($"The {nameof(RequiredDependsOnTrue.ConditionalRequireValue)} field is required.", validationResults[0].ErrorMessage);
         Assert.Equal(2, validationResults[0].MemberNames.Count());
-        Assert.Equal(nameof(CompareToOtherMemberStringEqual.Property1), validationResults[0].MemberNames.First());
-        Assert.Equal(nameof(CompareToOtherMemberStringEqual.Property2), validationResults[0].MemberNames.Last());
+        Assert.Equal(nameof(CompareToOtherMemberEqual.Property1), validationResults[0].MemberNames.First());
+        Assert.Equal(nameof(CompareToOtherMemberEqual.Property2), validationResults[0].MemberNames.Last());
     }
 
     /// <summary>
@@ -108,7 +108,7 @@ public class CompareToOtherMemberStringUnitTest
     [Fact]
     public void VerifyNotEqualSuccess()
     {
-        CompareToOtherMemberStringNotEqual dataObject = new()
+        CompareToOtherMemberNotEqual dataObject = new()
         {
             Property1 = AString,
             Property2 = DifferentString,
@@ -129,7 +129,7 @@ public class CompareToOtherMemberStringUnitTest
     [Fact]
     public void VerifyFailureGreaterThanNotSupported()
     {
-        CompareToOtherMemberStringGreaterThan dataObject = new()
+        CompareToOtherMemberGreaterThan dataObject = new()
         {
             Property1 = AString,
             Property2 = DifferentString,
@@ -146,7 +146,7 @@ public class CompareToOtherMemberStringUnitTest
     [Fact]
     public void VerifyFailureGreaterThanOrEqualNotSupported()
     {
-        CompareToOtherMemberStringGreaterThanOrEqual dataObject = new()
+        CompareToOtherMemberGreaterThanOrEqual dataObject = new()
         {
             Property1 = AString,
             Property2 = DifferentString,
@@ -163,7 +163,7 @@ public class CompareToOtherMemberStringUnitTest
     [Fact]
     public void VerifyFailureLessThanNotSupported()
     {
-        CompareToOtherMemberStringLessThan dataObject = new()
+        CompareToOtherMemberLessThan dataObject = new()
         {
             Property1 = AString,
             Property2 = DifferentString,
@@ -180,7 +180,7 @@ public class CompareToOtherMemberStringUnitTest
     [Fact]
     public void VerifyFailureLessThanOrEqualNotSupported()
     {
-        CompareToOtherMemberStringLessThanOrEqual dataObject = new()
+        CompareToOtherMemberLessThanOrEqual dataObject = new()
         {
             Property1 = AString,
             Property2 = DifferentString,
