@@ -234,7 +234,7 @@ public class StandardCRUDDataLayerUnitTest
     /// </summary>
     /// <returns>A Task object for the async.</returns>
     [Fact]
-    public async Task VerifyCreateThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleDataLayer().CreateAsync(null));
+    public async Task VerifyCreateThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleDataLayer().CreateAsync(null!));
 
     /// <summary>
     /// The method verifies if StandardCRUDDataLayer.CreateAsync() receives an empty string in the response, an exception is thrown.
@@ -380,7 +380,7 @@ public class StandardCRUDDataLayerUnitTest
     /// </summary>
     /// <returns>A Task object for the async.</returns>
     [Fact]
-    public async Task VerifyDeleteThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleDataLayer().DeleteAsync(null));
+    public async Task VerifyDeleteThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleDataLayer().DeleteAsync(null!));
 
     /// <summary>
     /// The method verifies the StandardCRUDDataLayer.GetAllAsync() request and response based on the status code.
@@ -688,14 +688,14 @@ public class StandardCRUDDataLayerUnitTest
     /// </summary>
     /// <returns>A Task object for the async.</returns>
     [Fact]
-    public async Task VerifyGetPageThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleDataLayer().GetPageAsync(null));
+    public async Task VerifyGetPageThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleDataLayer().GetPageAsync(null!));
 
     /// <summary>
     /// The method confirms if a null query definition is passed to the StandardCRUDDataLayer.GetPageListViewAsync(), an exception is thrown.
     /// </summary>
     /// <returns>A Task object for the async.</returns>
     [Fact]
-    public async Task VerifyGetPageListViewThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleDataLayer().GetPageListViewAsync(null));
+    public async Task VerifyGetPageListViewThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleDataLayer().GetPageListViewAsync(null!));
 
     /// <summary>
     /// The method verifies the StandardCRUDDataLayer.GetSingleAsync() request and response based on the status code.
@@ -932,7 +932,7 @@ public class StandardCRUDDataLayerUnitTest
     /// </summary>
     /// <returns>A Task object for the async.</returns>
     [Fact]
-    public async Task VerifyUpdateThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleDataLayer().UpdateAsync(null));
+    public async Task VerifyUpdateThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleDataLayer().UpdateAsync(null!));
 
     /// <summary>
     /// The method verifies if StandardCRUDDataLayer.UpdateAsync() receives an empty string in the response, an exception is thrown.

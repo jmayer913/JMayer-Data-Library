@@ -16,7 +16,7 @@ public class RequiredDependsOnUnitTest
     /// The method verifies an argument null exception is thrown when null is passed into the constructor for the conditionValue parameter.
     /// </summary>
     [Fact]
-    public void VerifyConstructorThrowsArgumentNullExceptionForConditionValueParameter() => Assert.Throws<ArgumentNullException>(() => new RequiredDependsOnAttribute("A Member", null));
+    public void VerifyConstructorThrowsArgumentNullExceptionForConditionValueParameter() => Assert.Throws<ArgumentNullException>(() => new RequiredDependsOnAttribute("A Member", null!));
 
     /// <summary>
     /// The method verifies an argument exception is thrown when an empty string is passed into the constructor for the dependentMemberName parameter.
@@ -28,7 +28,7 @@ public class RequiredDependsOnUnitTest
     /// The method verifies an argument null exception is thrown when null is passed into the constructor for the dependentMemberName parameter.
     /// </summary>
     [Fact]
-    public void VerifyConstructorThrowsArgumentNullExceptionForDependentMemberNameParameter() => Assert.Throws<ArgumentNullException>(() => new RequiredDependsOnAttribute(null, true));
+    public void VerifyConstructorThrowsArgumentNullExceptionForDependentMemberNameParameter() => Assert.Throws<ArgumentNullException>(() => new RequiredDependsOnAttribute(null!, true));
 
     /// <summary>
     /// The method verifies a failure when the types are invalid.

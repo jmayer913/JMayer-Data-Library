@@ -90,7 +90,7 @@ public class StandardCRUDDataLayerUnitTest
     /// The method verifies if a null data object is passed to the StandardCRUDDataLayer.CountAsync(), an exception is thrown.
     /// </summary>
     [Fact]
-    public async Task VerifyCountThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().CountAsync(null));
+    public async Task VerifyCountThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().CountAsync(null!));
 
     /// <summary>
     /// The method verifies the StandardCRUDDataLayer.CountAsync() will return a count for a where predicate.
@@ -137,8 +137,8 @@ public class StandardCRUDDataLayerUnitTest
     [Fact]
     public async Task VerifyCreateThrowsArgumentNullException()
     {
-        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().CreateAsync((SimpleDataObject)null));
-        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().CreateAsync((List<SimpleDataObject>)null));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().CreateAsync((SimpleDataObject)null!));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().CreateAsync((List<SimpleDataObject>)null!));
     }
 
     /// <summary>
@@ -307,9 +307,9 @@ public class StandardCRUDDataLayerUnitTest
     [Fact]
     public async Task VerifyDeleteThrowsArgumentNullException()
     {
-        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().DeleteAsync((SimpleDataObject)null));
-        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().DeleteAsync((List<SimpleDataObject>)null));
-        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().DeleteAsync((Expression<Func<SimpleDataObject, bool>>)null));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().DeleteAsync((SimpleDataObject)null!));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().DeleteAsync((List<SimpleDataObject>)null!));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().DeleteAsync((Expression<Func<SimpleDataObject, bool>>)null!));
     }
 
     /// <summary>
@@ -389,7 +389,7 @@ public class StandardCRUDDataLayerUnitTest
     /// The method verifies if a null data object is passed to the StandardCRUDDataLayer.ExistAsync(), an exception is thrown.
     /// </summary>
     [Fact]
-    public async Task VerifyExistThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().ExistAsync(null));
+    public async Task VerifyExistThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().ExistAsync(null!));
 
     /// <summary>
     /// The method verifies StandardCRUDDataLayer.ExistAsync() can determine if a data object exists or not.
@@ -677,13 +677,13 @@ public class StandardCRUDDataLayerUnitTest
     /// The method verifies if a null data object is passed to the StandardCRUDDataLayer.GetPageListViewAsync(), an exception is thrown.
     /// </summary>
     [Fact]
-    public async Task VerifyGetPageListViewThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().GetPageListViewAsync(null));
+    public async Task VerifyGetPageListViewThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().GetPageListViewAsync(null!));
 
     /// <summary>
     /// The method verifies if a null data object is passed to the StandardCRUDDataLayer.GetPageAsync(), an exception is thrown.
     /// </summary>
     [Fact]
-    public async Task VerifyGetPageThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().GetPageAsync(null));
+    public async Task VerifyGetPageThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().GetPageAsync(null!));
 
     /// <summary>
     /// The method verifies StandardCRUDDataLayer.GetSingleAsync() returns the first data object.
@@ -783,8 +783,8 @@ public class StandardCRUDDataLayerUnitTest
     [Fact]
     public async Task VerifyUpdateThrowsArgumentNullException()
     {
-        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().UpdateAsync((SimpleDataObject)null));
-        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().UpdateAsync((List<SimpleDataObject>)null));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().UpdateAsync((SimpleDataObject)null!));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().UpdateAsync((List<SimpleDataObject>)null!));
     }
 
     /// <summary>
@@ -1039,5 +1039,5 @@ public class StandardCRUDDataLayerUnitTest
     /// The method verifies if a null data object is passed to the StandardCRUDDataLayer.ValidateAsync(), an exception is thrown.
     /// </summary>
     [Fact]
-    public async Task VerifyValidateThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().ValidateAsync(null));
+    public async Task VerifyValidateThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().ValidateAsync(null!));
 }

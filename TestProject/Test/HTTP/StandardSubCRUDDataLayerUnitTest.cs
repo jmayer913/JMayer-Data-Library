@@ -281,14 +281,14 @@ public class StandardSubCRUDDataLayerUnitTest
     /// </summary>
     /// <returns>A Task object for the async.</returns>
     [Fact]
-    public async Task VerifyGetPageThrowsArgumentException() => await Assert.ThrowsAsync<ArgumentException>(() => new SimpleSubDataLayer().GetPageAsync(string.Empty, null));
+    public async Task VerifyGetPageThrowsArgumentException() => await Assert.ThrowsAsync<ArgumentException>(() => new SimpleSubDataLayer().GetPageAsync(string.Empty, null!));
 
     /// <summary>
     /// The method verifies if a null query definition is passed to the StandardSubCRUDDataLayer.GetPageAsync(), an exception is thrown.
     /// </summary>
     /// <returns>A Task object for the async.</returns>
     [Fact]
-    public async Task VerifyGetPageThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleSubDataLayer().GetPageAsync(1, null));
+    public async Task VerifyGetPageThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleSubDataLayer().GetPageAsync(1, null!));
 
     /// <summary>
     /// The method verifies the StandardSubCRUDDataLayer.GetPageListViewAsync() request and response based on the status code.
@@ -394,12 +394,12 @@ public class StandardSubCRUDDataLayerUnitTest
     /// </summary>
     /// <returns>A Task object for the async.</returns>
     [Fact]
-    public async Task VerifyGetPageListViewThrowsArgumentException() => await Assert.ThrowsAsync<ArgumentException>(() => new SimpleSubDataLayer().GetPageListViewAsync(string.Empty, null));
+    public async Task VerifyGetPageListViewThrowsArgumentException() => await Assert.ThrowsAsync<ArgumentException>(() => new SimpleSubDataLayer().GetPageListViewAsync(string.Empty, null!));
 
     /// <summary>
     /// The method verifies if a null query definition is passed to the StandardSubCRUDDataLayer.GetPageListViewAsync(), an exception is thrown.
     /// </summary>
     /// <returns>A Task object for the async.</returns>
     [Fact]
-    public async Task VerifyGetPageListViewThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleSubDataLayer().GetPageListViewAsync(1, null));
+    public async Task VerifyGetPageListViewThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleSubDataLayer().GetPageListViewAsync(1, null!));
 }

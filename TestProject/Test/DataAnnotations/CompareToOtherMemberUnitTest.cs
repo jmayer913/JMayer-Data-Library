@@ -16,7 +16,7 @@ public class CompareToOtherMemberUnitTest
     /// The method verifies an argument null exception is thrown when null is passed into the constructor for the conditionValue parameter.
     /// </summary>
     [Fact]
-    public void VerifyConstructorThrowsArgumentNullExceptionForOtherMemberNameParameter() => Assert.Throws<ArgumentNullException>(() => new CompareToOtherMemberAttribute(null, ComparisonOperation.Equal));
+    public void VerifyConstructorThrowsArgumentNullExceptionForOtherMemberNameParameter() => Assert.Throws<ArgumentNullException>(() => new CompareToOtherMemberAttribute(null!, ComparisonOperation.Equal));
 
     /// <summary>
     /// The method verifies a failure when the types are invalid.
