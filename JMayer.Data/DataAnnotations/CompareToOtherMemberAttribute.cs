@@ -6,7 +6,7 @@ namespace JMayer.Data.DataAnnotations;
 /// <summary>
 /// The class does a value comparison with the member the attribute is registered too and another member on the 
 /// same instance being validated. The following types are supported: bool, byte, sbyte, short, ushort, int, uint, long, 
-/// ulong, float, double, decimal, char, string, DateTime, DateOffset, Timespan and Enum. The following comparison
+/// ulong, float, double, decimal, char, string, DateTime, DateOffset, DateOnly, TimeOnly, Timespan and Enum. The following comparison
 /// operations are suppored: ==, !=, &lt;, &lt;=, &gt;, and &gt;=; bool, char, string and Enum only support == and !=.
 /// </summary>
 /// <remarks>
@@ -157,6 +157,26 @@ public sealed class CompareToOtherMemberAttribute : ValidationAttribute
     }
 
     /// <summary>
+    /// The method returns if the date values pass the comparison.
+    /// </summary>
+    /// <param name="registeredMemberValue">The value of the member the attribute is registered too.</param>
+    /// <param name="otherMemberValue">The value of the other member.</param>
+    /// <returns>True means the comparison passed.</returns>
+    private bool CheckDateValues(DateOnly registeredMemberValue, DateOnly otherMemberValue)
+    {
+        return _comparisonOperation switch
+        {
+            ComparisonOperation.Equal => registeredMemberValue == otherMemberValue,
+            ComparisonOperation.GreaterThan => registeredMemberValue > otherMemberValue,
+            ComparisonOperation.GreaterThanOrEqual => registeredMemberValue >= otherMemberValue,
+            ComparisonOperation.LessThan => registeredMemberValue < otherMemberValue,
+            ComparisonOperation.LessThanOrEqual => registeredMemberValue <= otherMemberValue,
+            ComparisonOperation.NotEqual => registeredMemberValue != otherMemberValue,
+            _ => false
+        };
+    }
+
+    /// <summary>
     /// The method returns if the decimal values pass the comparison.
     /// </summary>
     /// <param name="registeredMemberValue">The value of the member the attribute is registered too.</param>
@@ -260,6 +280,26 @@ public sealed class CompareToOtherMemberAttribute : ValidationAttribute
         return _comparisonOperation switch
         {
             ComparisonOperation.Equal => registeredMemberValue == otherMemberValue,
+            ComparisonOperation.NotEqual => registeredMemberValue != otherMemberValue,
+            _ => false
+        };
+    }
+
+    /// <summary>
+    /// The method returns if the time values pass the comparison.
+    /// </summary>
+    /// <param name="registeredMemberValue">The value of the member the attribute is registered too.</param>
+    /// <param name="otherMemberValue">The value of the other member.</param>
+    /// <returns>True means the comparison passed.</returns>
+    private bool CheckTimeValues(TimeOnly registeredMemberValue, TimeOnly otherMemberValue)
+    {
+        return _comparisonOperation switch
+        {
+            ComparisonOperation.Equal => registeredMemberValue == otherMemberValue,
+            ComparisonOperation.GreaterThan => registeredMemberValue > otherMemberValue,
+            ComparisonOperation.GreaterThanOrEqual => registeredMemberValue >= otherMemberValue,
+            ComparisonOperation.LessThan => registeredMemberValue < otherMemberValue,
+            ComparisonOperation.LessThanOrEqual => registeredMemberValue <= otherMemberValue,
             ComparisonOperation.NotEqual => registeredMemberValue != otherMemberValue,
             _ => false
         };
@@ -384,6 +424,14 @@ public sealed class CompareToOtherMemberAttribute : ValidationAttribute
         else if (value is DateTimeOffset registeredMemberDateOffsetValue && otherMemberValue is DateTimeOffset otherMemberDateOffsetValue)
         {
             success = CheckDateValues(registeredMemberDateOffsetValue, otherMemberDateOffsetValue);
+        }
+        else if (value is DateOnly registeredMemberDateOnlyValue && otherMemberValue is DateOnly otherMemberDateOnlyValue)
+        {
+            success = CheckDateValues(registeredMemberDateOnlyValue, otherMemberDateOnlyValue);
+        }
+        else if (value is TimeOnly registeredMemberTimeOnlyValue && otherMemberValue is TimeOnly otherMemberTimeOnlyValue)
+        {
+            success = CheckTimeValues(registeredMemberTimeOnlyValue, otherMemberTimeOnlyValue);
         }
         else if (value is TimeSpan registeredMemberTimeValue && otherMemberValue is TimeSpan otherMemberTimeValue)
         {
