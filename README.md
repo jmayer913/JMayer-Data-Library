@@ -2,8 +2,7 @@
 This library will help you define the data your application utilizes. It will also help you define a common interface your application will use when accessing or manipulating data objects in a database or a remote server.
 
 ## Data Object
-A data object is used to represent data accessed through the data layer and used by your application. For example, your application displays banking accounts for a user so your application will need an Account object and it would need properties like AccountType and TotalAmount to describe the account. Using the library,
-you would define an Account object as such:
+A data object is used to represent data accessed through the data layer and used by your application. For example, your application displays banking accounts for a user so your application will need an Account object and it would need properties like AccountType and TotalAmount to describe the account. Using the library, you would define an Account object as such:
 ```
 public class Account : DataObject
 {
@@ -26,10 +25,8 @@ public class Account : DataObject
 The library is built on the idea you create a class which represents your data and it inherits from one of the two base classes defined in the library. Each base class describes the data in certain ways.
 
 ### Data Object Class
-This contains an identifier the record in a database table or collection and there are two properties, an Integer64ID property and StringID property, and **the library expects you to choose if either one or both are used by your application and your data layers.** Also, included is a CreatedOn and LastEditedOn properties which keep track of when
-the data object was created and when it was lasted edited. Additionally, there are common optional properties, Name, Description, LastEditedBy (a user name), LastEditedByInteger64ID (if integer identifiers are used) and LastEditedByStringID (if string identifiers are used).
-<br/>
-<br/>
+This contains an identifier the record in a database table or collection and there are two properties, an Integer64ID property and StringID property, and **the library expects you to choose if either one or both are used by your application and your data layers.** Also, included is a CreatedOn and LastEditedOn properties which keep track of when the data object was created and when it was lasted edited. Additionally, there are common optional properties, Name, Description, LastEditedBy (a user name), LastEditedByInteger64ID (if integer identifiers are used) and LastEditedByStringID (if string identifiers are used).
+
 There is an overridable MapProperties() method which you can override it in your subclasses to define how data is copied from one data object to another. There is also a Validate() method which can be used by the data layer to validate the data of the object; this uses data annotations.
 
 #### Data Annotations
@@ -61,10 +58,8 @@ public class Account : DataObject
 
 ### Sub Data Object Class
 This represents data that's relationally under something else; think *this* has *that* and *that* would be the sub of *this*. Like the DataObject class, it has two owner identifier properties, OwnerInteger64ID and OwnerStringID, and these will reference an owner data object. **The library expects you to choose if either one or both are used by your application and your data layers.**
-<br/>
-<br/>
-Going back to the banking example, an account will have transactions taken by the user or externally (auto deposit/withdrawl) so that's something your application would need to display. Your application would need a Transaction object and you would need to set the owner identifier property to the identifier of the Account object. This defines 
-a relationship between the Account object and Transaction object.
+
+Going back to the banking example, an account will have transactions taken by the user or externally (auto deposit/withdrawl) so that's something your application would need to display. Your application would need a Transaction object and you would need to set the owner identifier property to the identifier of the Account object. This defines a relationship between the Account object and Transaction object.
 ```
 public class Transaction : SubDataObject
 {
@@ -99,20 +94,16 @@ This is not a data object but its derived from the DataObject or SubDataObject. 
 
 ## Data Layer
 Your application will use the data layer to access or manipulate data objects. The data layer will act as a wrapper for the database or a remote server. This abstraction allows your application to only know about the data objects and the data layers and not how its needs to talk to the source.
-<br/>
-<br/>
-This library defines two types of data layers, database and HTTP. Both have interfaces that define common data access/manipulation. For the database side, this library only contains memory storage data layers and these are meant more for prototyping or example projects. For the HTTP side, this library contains HTTP data layers meant 
-for communicating with a web API and these use the System.Net.Http.HttpClient class.
-<br/>
-<br/>
+
+This library defines two types of data layers, database and HTTP. Both have interfaces that define common data access/manipulation. For the database side, this library only contains memory storage data layers and these are meant more for prototyping or example projects. For the HTTP side, this library contains HTTP data layers meant for communicating with a web API and these use the System.Net.Http.HttpClient class.
+
 The data layer classes in the library are generic. The library is built on the idea you create a sub data layer class from whichever base data layer class you need and define which data object the data layer will represent. This creates a strongly typed association between the data object and data layer.
 
 ### Memory Storage Data Layer
 **First, let's start off by saying the memory storage data layer uses an auto incrementing long identity as the identifier so this means your application needs to use the DataObject.Integer64ID property when interacting with a data object and its data layer.** 
 
 #### How to Create Your Memory Storage Data Layer 
-Going back to our banking account example, your application needs a way to interact with the account data so you need to define an interface for your account data layer and an account data layer sub class which inherits from StandardCRUDDataLayer in the JMayer.Data.Database.DataLayer.MemoryStorage namespace. Optionally, the data layer would need to be
-registered to the middleware in the Program.cs; this allows for depedency injection if your application utilizes it.
+Going back to our banking account example, your application needs a way to interact with the account data so you need to define an interface for your account data layer and an account data layer sub class which inherits from StandardCRUDDataLayer in the JMayer.Data.Database.DataLayer.MemoryStorage namespace. Optionally, the data layer would need to be registered to the middleware in the Program.cs; this allows for depedency injection if your application utilizes it.
 ```
 public interface IAccountDataLayer : IStandardCRUDDataLayer<Account>
 {
@@ -135,8 +126,7 @@ Account account = await accountDataLayer.CreateAsync(new Account()
    TotalAmount = 100.00,
 });
 ```
-The CreateAsync() method can take a single object or a list. ValidateAsync() will be called for each data object; base functionality checks the data annotations on the object but the ValidateAsync() method can be overridden to add additional validation checks. Any validation issue will throw a DataObjectValidationException. The Created event will 
-also be called after all the data objects have been inserted into the list. If your application needs to react to the creation in some way, you can register an event handler with the Created event.
+The CreateAsync() method can take a single object or a list. ValidateAsync() will be called for each data object; base functionality checks the data annotations on the object but the ValidateAsync() method can be overridden to add additional validation checks. Any validation issue will throw a DataObjectValidationException. The Created event will also be called after all the data objects have been inserted into the list. If your application needs to react to the creation in some way, you can register an event handler with the Created event.
 
 #### How to Delete a Data Object Using Your Memory Storage Data Layer
 ```
@@ -151,9 +141,7 @@ The DeleteAsync() method can take a single object or a list. It can also take an
 account.TotalAmount = 250.00;
 account = await accountDataLayer.UpdateAsync(account);
 ```
-The UpdateAsync() method can take a single object or a list. ValidateAsync() will be called for each data object; base functionality checks the data annotations on the object but the ValidateAsync() method can be overridden to add additional validation checks. Any validation issue will throw a DataObjectValidationException. Additionally, the existence
-of each data object will be confirmed in the list (this is before the list is update) and if any are missing, an DataObjectIDNotFoundException will be thrown. The Updated event will also be called after all the data objects have been updated in the list. If your application needs to react to the update in some way, you can register an event handler with the 
-Updated event.
+The UpdateAsync() method can take a single object or a list. ValidateAsync() will be called for each data object; base functionality checks the data annotations on the object but the ValidateAsync() method can be overridden to add additional validation checks. Any validation issue will throw a DataObjectValidationException. Additionally, the existence of each data object will be confirmed in the list (this is before the list is update) and if any are missing, an DataObjectIDNotFoundException will be thrown. The Updated event will also be called after all the data objects have been updated in the list. If your application needs to react to the update in some way, you can register an event handler with the Updated event.
 
 #### How to Get Data Objects Using Your Memory Storage Data Layer
 ```
@@ -304,9 +292,7 @@ public class AccountDataLayer : StandardCRUDDataLayer<Account>, IAccountDataLaye
    }
 }
 ```
-The base has a QueryData() method you can call; you can either pass in a QueryDefinition object or linq for a where predicate and/or linq for an order predicate and/or bool for ascending/descending order. If for some reason, you need direct access to the list, it can be accessed with the DataStorage property but it will require a 
-lock(DataStorageLock) { ... } statement in order to maintain thread-safety. If for some reason, the CreateAsync() method needs to be overridden, to access the identity, use the Identity property and to increment the identity use the IncrementIdentity() method; again, in order to maintain thread-safety, calling either will require a 
-lock(DataStorageLock) { ... } statement. 
+The base has a QueryData() method you can call; you can either pass in a QueryDefinition object or linq for a where predicate and/or linq for an order predicate and/or bool for ascending/descending order. If for some reason, you need direct access to the list, it can be accessed with the DataStorage property but it will require a lock(DataStorageLock) { ... } statement in order to maintain thread-safety. If for some reason, the CreateAsync() method needs to be overridden, to access the identity, use the Identity property and to increment the identity use the IncrementIdentity() method; again, in order to maintain thread-safety, calling either will require a lock(DataStorageLock) { ... } statement.
 
 #### How to Override Base Functionality in Your Memory Storage Data Layer
 Let's also say you need to do something extra in the CreateAsync() method. It's easy because the methods are virtual so you can override them.
@@ -326,8 +312,7 @@ public class AccountDataLayer : StandardCRUDDataLayer<Account>, IAccountDataLaye
 **First, let's start off by saying the HTTP data layer is tightly coupled with the web API controllers defined in the JMayer.Web.Mvc library. If you're not using the JMayer.Web.Mvc library then your web API controllers will need to match the expected HTTP request and response defined here.**
 
 #### How to Create Your HTTP Data Layer 
-Going back to our banking account example, your application needs a way to interact with the account data so you need to define an interface for your account data layer and an account data layer sub class which inherits from StandardCRUDDataLayer in the JMayer.Data.HTTP.DataLayer namespace. Optionally, the data layer would need to be
-registered to the middleware in the Program.cs; this allows for depedency injection if your application utilizes it.
+Going back to our banking account example, your application needs a way to interact with the account data so you need to define an interface for your account data layer and an account data layer sub class which inherits from StandardCRUDDataLayer in the JMayer.Data.HTTP.DataLayer namespace. Optionally, the data layer would need to be registered to the middleware in the Program.cs; this allows for depedency injection if your application utilizes it.
 ```
 public interface IAccountDataLayer : IStandardCRUDDataLayer<Account>
 {
@@ -414,10 +399,8 @@ var accounts = await accountDataLayer.GetAllAsync();
 var accountListViews = await accountDataLayer.GetAllListViewAsync();
 ```
 This will send a GET HTTP request to the web API. The Uri will be formatted as {BaseAddress}/api/{TypeName}/All or {BaseAddress}/api/{TypeName}/All/ListView and the TypeName would be Account in our example.
-<br/>
-<br/>
-The StandardSubCRUDDataLayer has a GetAllAsync() and GetAllListViewAsync() method which accepts an owner ID; the idea is the web API returns all sub data objects under an owner. The Uri will be formatted as {BaseAddress}/api/{TypeName}/All/{OwnerInteger64ID} or {BaseAddress}/api/{TypeName}/All/{OwnerStringID} or 
-{BaseAddress}/api/{TypeName}/All/ListView/{OwnerInteger64ID} or {BaseAddress}/api/{TypeName}/All/ListView/{OwnerStringID}.
+
+The StandardSubCRUDDataLayer has a GetAllAsync() and GetAllListViewAsync() method which accepts an owner ID; the idea is the web API returns all sub data objects under an owner. The Uri will be formatted as {BaseAddress}/api/{TypeName}/All/{OwnerInteger64ID} or {BaseAddress}/api/{TypeName}/All/{OwnerStringID} or {BaseAddress}/api/{TypeName}/All/ListView/{OwnerInteger64ID} or {BaseAddress}/api/{TypeName}/All/ListView/{OwnerStringID}.
 
 #### How to Get Paged Data Objects Using Your HTTP Data Layer
 ```
@@ -503,13 +486,9 @@ QueryDefinition queryDefinition = new()
 };
 PagedList pagedList = accountDataLayer.GetPageListViewAsync(queryDefinition);
 ```
-This will send a GET HTTP request to the web API. The Uri will be formatted as {BaseAddress}/api/{TypeName}/Page?{queryDefinition} or {BaseAddress}/api/{TypeName}/Page/ListView?{queryDefinition} and the TypeName would be Account in our example. The query definition will be in the query string of the Uri and it'll be formatted as 
-<br/>
-Skip={Skip}&Take={Take}&FilterDefinition[X].FilterOn={FilterOn}&FilterDefinition[X].Operator={Operator}&FilterDefinition[X].Value={Value}&SortDefinition[X].SortOn={SortOn}&SortDefinition[X].Descending={Descending}. X will be 0 to N; based on the number FilterDefinitions or SortDefinitions in each list.
-<br/>
-<br/>
-The StandardSubCRUDDataLayer has a GetPageAsync() and GetPageListViewAsync() method which accepts an owner ID; the idea is the web API returns all sub data objects under an owner. The Uri will be formatted as {BaseAddress}/api/{TypeName}/Page/{OwnerInteger64ID}?{queryDefinition} or {BaseAddress}/api/{TypeName}/Page/{OwnerStringID}?{queryDefinition}
-or {BaseAddress}/api/{TypeName}/Page/ListView/{OwnerInteger64ID}?{queryDefinition} or {BaseAddress}/api/{TypeName}/Page/ListView/{OwnerStringID}?{queryDefinition}.
+This will send a GET HTTP request to the web API. The Uri will be formatted as {BaseAddress}/api/{TypeName}/Page?{queryDefinition} or {BaseAddress}/api/{TypeName}/Page/ListView?{queryDefinition} and the TypeName would be Account in our example. The query definition will be in the query string of the Uri and it'll be formatted as Skip={Skip}&Take={Take}&FilterDefinition[X].FilterOn={FilterOn}&FilterDefinition[X].Operator={Operator}&FilterDefinition[X].Value={Value}&SortDefinition[X].SortOn={SortOn}&SortDefinition[X].Descending={Descending}. X will be 0 to N; based on the number FilterDefinitions or SortDefinitions in each list.
+
+The StandardSubCRUDDataLayer has a GetPageAsync() and GetPageListViewAsync() method which accepts an owner ID; the idea is the web API returns all sub data objects under an owner. The Uri will be formatted as {BaseAddress}/api/{TypeName}/Page/{OwnerInteger64ID}?{queryDefinition} or {BaseAddress}/api/{TypeName}/Page/{OwnerStringID}?{queryDefinition} or {BaseAddress}/api/{TypeName}/Page/ListView/{OwnerInteger64ID}?{queryDefinition} or {BaseAddress}/api/{TypeName}/Page/ListView/{OwnerStringID}?{queryDefinition}.
 
 #### How to Get a Single Data Object Using Your HTTP Data Layer
 ```
@@ -582,39 +561,20 @@ public class AccountDataLayer : StandardCRUDDataLayer<Account>, IAccountDataLaye
 The same can be done when using the StandardSubCRUDDataLayer.
 
 ### Build Your Own
-In the real world, your application will need to interact with an actual database instead of the memory storage classes provided and currently, the JMayer library suite doesn't provide data layer classes for accessing the various databases in existence. It's also possible the HTTP data layer is too restrictive or it needs to interact with something other
-than a Web API. Either way, you can build your own. 
-<br/>
-<br/>
+In the real world, your application will need to interact with an actual database instead of the memory storage classes provided and currently, the JMayer library suite doesn't provide data layer classes for accessing the various databases in existence. It's also possible the HTTP data layer is too restrictive or it needs to interact with something other than a Web API. Either way, you can build your own. 
+
 You'll need to create a data layer class for X and implement at least the IStandardCRUDDataLayer interface. Then, its about using the necessary library to communicate with the database or remote server and filling out the interface methods with functionality.
-<br/>
-<br/>
+
 Things to be aware of on the database side:
 * Expressions. Your database library will need a linq to database translator.
 * Property Mappings. Your database library may need to know if Column A in Table 1 is mapped to Property A in Data Object 1.
 
-# v9.0.0 Change Log
+# v9.1.0 Change Log
 ---
-* Updated to .NET9.
-* **Breaking Change:** Merged the UserEditableDataObject into the DataObject.
-* **Breaking Change:** Renamed the SubUserEditableDataObject to the SubDataObject.
-* **Breaking Change:** Merged the database IUserEditableDataLayer into the IStandardCRUDDataLayer.
-* **Breaking Change:** Merged the memory storage UserEditableDataLayer into the StandardCRUDDataLayer.
-* **Breaking Change:** Renamed the ISubUserEditableDataLayer to the IStandardSubCRUDDataLayer.
-* Created a memory storage StandardSubCRUDDataLayer.
-* **Breaking Change:** Changed memory storage StandardCRUDDataLayer.IsOldDataObjectDetectionEnabled property to be false by default; the developer should decide what features are turned on.
-* **Breaking Change:** Removed IsLessPreciseTimestampComparisonEnabled  property from the database IStandardCRUDDataLayer and memory storage StandardCRUDDataLayer. Conflict detection will compare to the seconds; lower than that seems like overkill.
-* Added IsUniqueNameRequired  property to the database IStandardCRUDDataLayer and memory storage StandardCRUDDataLayer. Before unique names would always be enforced; now its up to the developer.
-* **Breaking Change** Renamed the database IDNotFoundException to the DataObjectIDNotFoundException; the other data object related exceptions start with DataObject so this should too.
-* **Breaking Change:** Merged the HTTP IUserEditableDataLayer into the IStandardCRUDDataLayer.
-* **Breaking Change:** Merged the HTTP UserEditableDataLayer into the StandardCRUDDataLayer.
-* **Breaking Change:** Renamed the HTTP ISubUserEditableDataLayer to the IStandardSubCRUDDataLayer.
-* **Breaking Change:** Renamed the HTTP SubUserEditableDataLayer to the StandardSubCRUDDataLayer.
-* **Breaking Change:** Removed HTTP ServerSideValidationResult and ServerSideValidationError; it's expected the server will return a ValidationProblemDetails when validation issues occur.
-* **Breaking Change:** Renamed HTTP OperationResult.ServerSideValidationResult property to the ValidationErrors property. Type has changed too; its now a dictionary.
-* Added ProblemDetails property to the OperationResult. When the server returns a conflict (409), not found (404) or internal server error (500), the HTTP data layer will attempt to serialize the body as a ProblemDetails and the details will be set to OperationResult.ProblemDetails.
-* **Breaking Change:** Removed HTTP IStandardCRUDDataLayer.ValidateAsync().
+* Added a CompareToOtherMember data annotation attribute. You can compare two properties and pass/fail validation based on the comparison rule you setup.
+* Added a RequiredDependsOn data annotation attribute. A property will have the Required data annotation evaulated if another property equals a true/false condition.
 ---
+* [ASP.NET Core MVC Example Project](https://github.com/jmayer913/JMayer-Example-ASPVanillaMVC)
 * [ASP.NET Core MVC with Syncfusion Example Project](https://github.com/jmayer913/JMayer-Example-ASPSyncfusionMVC)
 * [ASP.NET Core / React Example Project](https://github.com/jmayer913/JMayer-Example-ASPReact)
 * [Blazor WebAssembly Example Project](https://github.com/jmayer913/JMayer-Example-WebAssemblyBlazor)
