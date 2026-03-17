@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using JMayer.Data.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using TestProject.Data.DataAnnotations.CompareToOtherMembers.Null;
 
 namespace TestProject.Test.DataAnnotations;
@@ -52,6 +53,19 @@ public class CompareToOtherMemberNullUnitTest
         };
         List<ValidationResult> validationResults = dataObject.Validate();
         Assert.Empty(validationResults);
+    }
+
+    /// <summary>
+    /// The method verifies a failure when the depends on member has a different type than the other property.
+    /// </summary>
+    [Fact]
+    public void VerifyFailureTypeMismatch()
+    {
+        CompareToOtherMemberTypeMismatch dataObject = new();
+        List<ValidationResult> validationResults = dataObject.Validate();
+
+        Assert.Single(validationResults);
+        Assert.Equal(DataAnnotationMemberHelper.TypeMismatchErrorMessage, validationResults[0].ErrorMessage);
     }
 
     /// <summary>

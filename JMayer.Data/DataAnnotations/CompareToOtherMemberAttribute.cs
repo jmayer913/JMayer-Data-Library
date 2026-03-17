@@ -354,11 +354,23 @@ public sealed class CompareToOtherMemberAttribute : ValidationAttribute
             return new ValidationResult(DataAnnotationMemberHelper.SameMemberErrorMessage);
         }
 
+        MemberInfo? memberInfo = validationContext.ObjectType.FindMembers(MemberTypes.Field | MemberTypes.Property, BindingFlags.Public | BindingFlags.Instance, Type.FilterName, validationContext.MemberName).FirstOrDefault();
+
+        if (memberInfo is null)
+        {
+            return new ValidationResult(DataAnnotationMemberHelper.MemberNotFoundErrorMessage);
+        }
+
         MemberInfo? otherMemberInfo = validationContext.ObjectType.FindMembers(MemberTypes.Field | MemberTypes.Property, BindingFlags.Public | BindingFlags.Instance, Type.FilterName, _otherMemberName).FirstOrDefault();
 
         if (otherMemberInfo is null)
         {
             return new ValidationResult(DataAnnotationMemberHelper.MemberNotFoundErrorMessage);
+        }
+        
+        if (DataAnnotationMemberHelper.IsSameType(memberInfo, otherMemberInfo) is false)
+        {
+            return new ValidationResult(DataAnnotationMemberHelper.TypeMismatchErrorMessage);
         }
 
         object? otherMemberValue = DataAnnotationMemberHelper.GetMemberValue(otherMemberInfo, validationContext.ObjectInstance);
@@ -367,7 +379,6 @@ public sealed class CompareToOtherMemberAttribute : ValidationAttribute
 
         if (_allowNullCheck)
         {
-#warning I'm not making sure they're the same type.
             success = CheckNullVaues(value, otherMemberValue);
         }
 
@@ -444,25 +455,13 @@ public sealed class CompareToOtherMemberAttribute : ValidationAttribute
             {
                 return new ValidationResult(InvalidComparisonForEnumErrorMessage);
             }
-            //The enums need to be of the same type.
-            else if (otherMemberValue.GetType() != value.GetType())
-            {
-                return new ValidationResult(DataAnnotationMemberHelper.TypeMismatchErrorMessage);
-            }
 
             success = CheckEnumValues(registeredMemberEnumValue, otherMemberEnumValue);
         }
+        //At this point, the type must not be supported.
         else if (value is not null && otherMemberValue is not null)
         {
-            //At this point, there's either a type mismatch or the type is not supported.
-            if (otherMemberValue.GetType() != value.GetType())
-            {
-                return new ValidationResult(DataAnnotationMemberHelper.TypeMismatchErrorMessage);
-            }
-            else
-            {
-                return new ValidationResult(DataAnnotationMemberHelper.InvalidTypeErrorMessage);
-            }
+            return new ValidationResult(DataAnnotationMemberHelper.InvalidTypeErrorMessage);
         }
 
         if (success is false)
