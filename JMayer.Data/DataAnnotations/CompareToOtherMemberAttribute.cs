@@ -12,14 +12,15 @@ namespace JMayer.Data.DataAnnotations;
 /// <remarks>
 /// To use, add the attribute to the public field or property that needs to be compared with another public field or
 /// property in the same class. Set the otherMemberName to the name of the other public field or property which needs to be
-/// compared against. Set the comparisonOperation to operation that needs to be preformed when the comparison is done. 
-/// Set the allowNullCheck if you want both values being null to pass an Equal comparison or if you want one being null 
-/// to pass a NotEqual comparison.
+/// compared against. Set the comparisonOperation to the operation that needs to be preformed when the comparison is done. 
+/// Set the passRegisteredMemberIfNull to true if the attribute's registered member can be null and you don't want the comparison 
+/// to fail because the member is set to null. Set the passOtherMemberIfNull to true if the other member can be null 
+/// and you don't want the comparison to fail because the member is set to null.
 /// <code>
 /// public class ObjectRequiringValidation
 /// {
 ///     //IntMember will need to be less than OtherIntMember in order to pass validation.
-///     [CompareToOtherMember(otherMemberName: nameof(OtherIntMember), comparisonOperation: ComparisonOperation.LessThan)]
+///     [CompareToOtherMember(otherMemberName: nameof(OtherIntMember), comparisonOperation: ComparisonOperation.LessThan, passRegisteredMemberIfNull: false, passOtherMemberIfNull: false)]
 ///     public int IntMember { get; set; }
 /// 
 ///     public int OtherIntMember { get; set; }
@@ -30,12 +31,6 @@ namespace JMayer.Data.DataAnnotations;
 public sealed class CompareToOtherMemberAttribute : ValidationAttribute
 {
     /// <summary>
-    /// Allows the CompareToOtherMember data annotation to return success when the comparison is equal and both members
-    /// have a null value or the comparison is not equal and one of the members has a null value.
-    /// </summary>
-    private readonly bool _allowNullCheck;
-
-    /// <summary>
     /// The operation used when the CompareToOtherMember data annotation does the comparison.
     /// </summary>
     private readonly ComparisonOperation _comparisonOperation;
@@ -44,6 +39,16 @@ public sealed class CompareToOtherMemberAttribute : ValidationAttribute
     /// The name of the other member the CompareToOtherMember data annotation will compare against.
     /// </summary>
     private readonly string _otherMemberName;
+
+    /// <summary>
+    /// Allows the CompareToOtherMember data annotation to return success if the other member is null.
+    /// </summary>
+    private readonly bool _passOtherMemberIfNull;
+
+    /// <summary>
+    /// Allows the CompareToOtherMember data annotation to return success if the member this attribute is registered on is null.
+    /// </summary>
+    private readonly bool _passRegisteredMemberIfNull;
 
     /// <summary>
     /// The constant for the invalid comparison for boolean values error message.
@@ -70,18 +75,17 @@ public sealed class CompareToOtherMemberAttribute : ValidationAttribute
     /// </summary>
     /// <param name="otherMemberName">The name of the other member the CompareToOtherMember data annotation will compare against.</param>
     /// <param name="compareToOperation">The operation used when the CompareToOtherMember data annotation does the comparison.</param>
-    /// <param name="allowNullCheck">
-    /// Allows the CompareToOtherMember data annotation to return success when the comparison is equal and both members
-    /// have a null value or the comparison is not equal and one of the members has a null value.
-    /// </param>
+    /// <param name="passRegisteredMemberIfNull">Allows the CompareToOtherMember data annotation to return success if the member this attribute is registered on is null.</param>
+    /// <param name="passOtherMemberIfNull">Allows the CompareToOtherMember data annotation to return success if the other member is null. </param>
     /// <exception cref="ArgumentException">Thrown when the otherMemberName parameter is null or an empty string.</exception>
-    public CompareToOtherMemberAttribute(string otherMemberName, ComparisonOperation compareToOperation, bool allowNullCheck = false)
+    public CompareToOtherMemberAttribute(string otherMemberName, ComparisonOperation compareToOperation, bool passRegisteredMemberIfNull = false, bool passOtherMemberIfNull = false)
     {
         ArgumentException.ThrowIfNullOrEmpty(otherMemberName);
 
-        _allowNullCheck = allowNullCheck;
         _comparisonOperation = compareToOperation;
         _otherMemberName = otherMemberName;
+        _passOtherMemberIfNull = passOtherMemberIfNull;
+        _passRegisteredMemberIfNull = passRegisteredMemberIfNull;
     }
 
     /// <summary>
@@ -253,23 +257,6 @@ public sealed class CompareToOtherMemberAttribute : ValidationAttribute
     }
 
     /// <summary>
-    /// The method does a comparison for null values; equal needs both to be null and not equal needs
-    /// one to be null.
-    /// </summary>
-    /// <param name="registeredMemberValue">The value of the member the attribute is registered too.</param>
-    /// <param name="otherMemberValue">The value of the other member.</param>
-    /// <returns>True means the comparison passed.</returns>
-    private bool CheckNullVaues(object? registeredMemberValue, object? otherMemberValue)
-    {
-        return _comparisonOperation switch
-        {
-            ComparisonOperation.Equal => registeredMemberValue is null && otherMemberValue is null,
-            ComparisonOperation.NotEqual => (registeredMemberValue is null && otherMemberValue is not null) || (registeredMemberValue is not null && otherMemberValue is null),
-            _ => false,
-        };
-    }
-
-    /// <summary>
     /// The method returns if the string values pass the comparison.
     /// </summary>
     /// <param name="registeredMemberValue">The value of the member the attribute is registered too.</param>
@@ -375,12 +362,16 @@ public sealed class CompareToOtherMemberAttribute : ValidationAttribute
 
         object? otherMemberValue = DataAnnotationMemberHelper.GetMemberValue(otherMemberInfo, validationContext.ObjectInstance);
 
-        bool success = false;
-
-        if (_allowNullCheck)
+        if (_passRegisteredMemberIfNull && value is null)
         {
-            success = CheckNullVaues(value, otherMemberValue);
+            return ValidationResult.Success;
         }
+        else if (_passOtherMemberIfNull && otherMemberValue is null)
+        {
+            return ValidationResult.Success;
+        }
+
+        bool success = false;
 
         if (value is bool registeredMemberBoolValue && otherMemberValue is bool otherMemberBoolValue)
         {

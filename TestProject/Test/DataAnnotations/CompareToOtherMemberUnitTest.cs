@@ -19,6 +19,42 @@ public class CompareToOtherMemberUnitTest
     public void VerifyConstructorThrowsArgumentNullExceptionForOtherMemberNameParameter() => Assert.Throws<ArgumentNullException>(() => new CompareToOtherMemberAttribute(null!, ComparisonOperation.Equal));
 
     /// <summary>
+    /// The method verifies when the passIfOtherMemberIsNull parameter is false and the other member is null, it'll fail.
+    /// </summary>
+    [Fact]
+    public void VerifyFailureIfOtherMemberIsNull()
+    {
+        CompareOtherMemberFailOtherMemberIfNull dataObject = new()
+        {
+            Property1 = string.Empty,
+        };
+        List<ValidationResult> validationResults = dataObject.Validate();
+
+        Assert.Single(validationResults);
+        Assert.Equal(2, validationResults[0].MemberNames.Count());
+        Assert.Equal(nameof(CompareOtherMemberFailOtherMemberIfNull.Property1), validationResults[0].MemberNames.First());
+        Assert.Equal(nameof(CompareOtherMemberFailOtherMemberIfNull.Property2), validationResults[0].MemberNames.Last());
+    }
+
+    /// <summary>
+    /// The method verifies when the passIfRegisteredMemberIsNull parameter is false and the registered member is null, it'll fail.
+    /// </summary>
+    [Fact]
+    public void VerifyFailureIfRegisteredMemberIsNull()
+    {
+        CompareOtherMemberFailRegisteredMemberIfNull dataObject = new()
+        {
+            Property2 = string.Empty,
+        };
+        List<ValidationResult> validationResults = dataObject.Validate();
+
+        Assert.Single(validationResults);
+        Assert.Equal(2, validationResults[0].MemberNames.Count());
+        Assert.Equal(nameof(CompareOtherMemberFailRegisteredMemberIfNull.Property1), validationResults[0].MemberNames.First());
+        Assert.Equal(nameof(CompareOtherMemberFailRegisteredMemberIfNull.Property2), validationResults[0].MemberNames.Last());
+    }
+
+    /// <summary>
     /// The method verifies a failure when the types are invalid.
     /// </summary>
     [Fact]
@@ -68,5 +104,35 @@ public class CompareToOtherMemberUnitTest
 
         Assert.Single(validationResults);
         Assert.Equal(DataAnnotationMemberHelper.TypeMismatchErrorMessage, validationResults[0].ErrorMessage);
+    }
+
+    /// <summary>
+    /// The method verifies when the passIfOtherMemberIsNull parameter is true and the other member is null, it'll pass.
+    /// </summary>
+    [Fact]
+    public void VerifyPassIfOtherMemberIsNull()
+    {
+        CompareOtherMemberPassOtherMemberIfNull dataObject = new()
+        {
+            Property1 = string.Empty,
+        };
+        List<ValidationResult> validationResults = dataObject.Validate();
+
+        Assert.Empty(validationResults);
+    }
+
+    /// <summary>
+    /// The method verifies when the passIfRegisteredMemberIsNull parameter is true and the registered member is null, it'll pass.
+    /// </summary>
+    [Fact]
+    public void VerifyPassIfRegisteredMemberIsNull()
+    {
+        CompareOtherMemberPassRegisteredMemberIfNull dataObject = new()
+        {
+            Property2 = string.Empty,
+        };
+        List<ValidationResult> validationResults = dataObject.Validate();
+
+        Assert.Empty(validationResults);
     }
 }
