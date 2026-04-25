@@ -69,9 +69,47 @@ internal static class DataAnnotationMemberHelper
     /// <summary>
     /// The method returns if the members are the same type or not.
     /// </summary>
-    /// <param name="memberInfo">The information on the member in the validation context.</param>
+    /// <param name="registeredMemberInfo">The information on the member in the validation context.</param>
     /// <param name="otherMemberInfo">The information on the other member.</param>
     /// <returns>True means the types are the same.</returns>
-    public static bool IsSameType(MemberInfo memberInfo, MemberInfo otherMemberInfo)
-        => GetMemberType(memberInfo) == GetMemberType(otherMemberInfo);
+    public static bool IsSameType(MemberInfo registeredMemberInfo, MemberInfo otherMemberInfo)
+    {
+        Type? registeredMemberType = GetMemberType(registeredMemberInfo);
+
+        if (registeredMemberType is null)
+        {
+            return false;
+        }
+
+        //Get the underlying type if nullable.
+        if (registeredMemberType.IsGenericType && registeredMemberType.GetGenericTypeDefinition() == typeof(Nullable<>))
+        {
+            registeredMemberType = Nullable.GetUnderlyingType(registeredMemberType);
+
+            if (registeredMemberType is null)
+            {
+                return false;
+            }
+        }
+
+        Type? otherMemberType = GetMemberType(otherMemberInfo);
+
+        if (otherMemberType is null)
+        {
+            return false;
+        }
+
+        //Get the underlying type if nullable.
+        if (otherMemberType.IsGenericType && otherMemberType.GetGenericTypeDefinition() == typeof(Nullable<>))
+        {
+            otherMemberType = Nullable.GetUnderlyingType(otherMemberType);
+
+            if (otherMemberType is null)
+            {
+                return false;
+            }
+        }
+
+        return registeredMemberType == otherMemberType;
+    }
 }

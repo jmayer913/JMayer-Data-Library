@@ -341,9 +341,9 @@ public sealed class CompareToOtherMemberAttribute : ValidationAttribute
             return new ValidationResult(DataAnnotationMemberHelper.SameMemberErrorMessage);
         }
 
-        MemberInfo? memberInfo = validationContext.ObjectType.FindMembers(MemberTypes.Field | MemberTypes.Property, BindingFlags.Public | BindingFlags.Instance, Type.FilterName, validationContext.MemberName).FirstOrDefault();
+        MemberInfo? registeredMemberInfo = validationContext.ObjectType.FindMembers(MemberTypes.Field | MemberTypes.Property, BindingFlags.Public | BindingFlags.Instance, Type.FilterName, validationContext.MemberName).FirstOrDefault();
 
-        if (memberInfo is null)
+        if (registeredMemberInfo is null)
         {
             return new ValidationResult(DataAnnotationMemberHelper.MemberNotFoundErrorMessage);
         }
@@ -355,7 +355,7 @@ public sealed class CompareToOtherMemberAttribute : ValidationAttribute
             return new ValidationResult(DataAnnotationMemberHelper.MemberNotFoundErrorMessage);
         }
         
-        if (DataAnnotationMemberHelper.IsSameType(memberInfo, otherMemberInfo) is false)
+        if (DataAnnotationMemberHelper.IsSameType(registeredMemberInfo, otherMemberInfo) is false)
         {
             return new ValidationResult(DataAnnotationMemberHelper.TypeMismatchErrorMessage);
         }
