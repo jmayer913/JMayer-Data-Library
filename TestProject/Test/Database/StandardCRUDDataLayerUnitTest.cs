@@ -80,8 +80,8 @@ public class StandardCRUDDataLayerUnitTest
     {
         SimpleStandardDataLayer dataLayer = new();
 
-        _ = await dataLayer.CreateAsync(new SimpleDataObject() { Name = DefaultName });
-        long count = await dataLayer.CountAsync();
+        _ = await dataLayer.CreateAsync(new SimpleDataObject() { Name = DefaultName }, TestContext.Current.CancellationToken);
+        long count = await dataLayer.CountAsync(TestContext.Current.CancellationToken);
 
         Assert.Equal(1, count);
     }
@@ -90,7 +90,7 @@ public class StandardCRUDDataLayerUnitTest
     /// The method verifies if a null data object is passed to the StandardCRUDDataLayer.CountAsync(), an exception is thrown.
     /// </summary>
     [Fact]
-    public async Task VerifyCountThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().CountAsync(null));
+    public async Task VerifyCountThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().CountAsync(null!, TestContext.Current.CancellationToken));
 
     /// <summary>
     /// The method verifies the StandardCRUDDataLayer.CountAsync() will return a count for a where predicate.
@@ -103,8 +103,8 @@ public class StandardCRUDDataLayerUnitTest
 
         await PopulateDataObjectsDivisibleBy10Async(dataLayer);
 
-        long oneCount = await dataLayer.CountAsync(obj => obj.Integer64ID == DefaultId);
-        long zeroCount = await dataLayer.CountAsync(obj => obj.Integer64ID == NotFoundId);
+        long oneCount = await dataLayer.CountAsync(obj => obj.Integer64ID == DefaultId, TestContext.Current.CancellationToken);
+        long zeroCount = await dataLayer.CountAsync(obj => obj.Integer64ID == NotFoundId, TestContext.Current.CancellationToken);
 
         Assert.Equal(1, oneCount);
         Assert.Equal(0, zeroCount);
@@ -121,13 +121,13 @@ public class StandardCRUDDataLayerUnitTest
         (
             handler => dataLayer.Created += handler,
             handler => dataLayer.Created -= handler,
-            () => dataLayer.CreateAsync(new SimpleDataObject() { Name = DefaultName })
+            () => dataLayer.CreateAsync(new SimpleDataObject() { Name = DefaultName }, TestContext.Current.CancellationToken)
         );
         await Assert.RaisesAsync<CreatedEventArgs>
         (
             handler => dataLayer.Created += handler,
             handler => dataLayer.Created -= handler,
-            () => dataLayer.CreateAsync([new SimpleDataObject() { Name = AnotherName }, new SimpleDataObject() { Name = DifferentName }])
+            () => dataLayer.CreateAsync([new SimpleDataObject() { Name = AnotherName }, new SimpleDataObject() { Name = DifferentName }], TestContext.Current.CancellationToken)
         );
     }
 
@@ -137,8 +137,8 @@ public class StandardCRUDDataLayerUnitTest
     [Fact]
     public async Task VerifyCreateThrowsArgumentNullException()
     {
-        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().CreateAsync((SimpleDataObject)null));
-        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().CreateAsync((List<SimpleDataObject>)null));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().CreateAsync((SimpleDataObject)null!, TestContext.Current.CancellationToken));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().CreateAsync((List<SimpleDataObject>)null!, TestContext.Current.CancellationToken));
     }
 
     /// <summary>
@@ -147,8 +147,8 @@ public class StandardCRUDDataLayerUnitTest
     [Fact]
     public async Task VerifyCreateThrowsDataObjectValidationException()
     {
-        await Assert.ThrowsAsync<DataObjectValidationException>(() => new SimpleStandardDataLayer().CreateAsync(new SimpleDataObject() { Name = DefaultName, Value = InvalidValue }));
-        await Assert.ThrowsAsync<DataObjectValidationException>(() => new SimpleStandardDataLayer().CreateAsync([new SimpleDataObject() { Name = DefaultName, Value = DefaultValue }, new SimpleDataObject() { Name = AnotherName, Value = InvalidValue }]));
+        await Assert.ThrowsAsync<DataObjectValidationException>(() => new SimpleStandardDataLayer().CreateAsync(new SimpleDataObject() { Name = DefaultName, Value = InvalidValue }, TestContext.Current.CancellationToken));
+        await Assert.ThrowsAsync<DataObjectValidationException>(() => new SimpleStandardDataLayer().CreateAsync([new SimpleDataObject() { Name = DefaultName, Value = DefaultValue }, new SimpleDataObject() { Name = AnotherName, Value = InvalidValue }], TestContext.Current.CancellationToken));
     }
 
     /// <summary>
@@ -164,7 +164,7 @@ public class StandardCRUDDataLayerUnitTest
                 IsUniqueNameRequired = true,
             };
 
-            await dataLayer.CreateAsync([new SimpleDataObject() { Name = DefaultName, Value = DefaultValue }, new SimpleDataObject() { Name = DefaultName, Value = DefaultValue }]);
+            await dataLayer.CreateAsync([new SimpleDataObject() { Name = DefaultName, Value = DefaultValue }, new SimpleDataObject() { Name = DefaultName, Value = DefaultValue }], TestContext.Current.CancellationToken);
         });
     }
 
@@ -188,8 +188,8 @@ public class StandardCRUDDataLayerUnitTest
         SimpleStandardDataLayer dataLayer = new();
 
         //Create the data objects.
-        List<SimpleDataObject> returnedDataObjects = await dataLayer.CreateAsync([firstOriginalDataObject, secondOriginalDataObject]);
-        long count = await dataLayer.CountAsync();
+        List<SimpleDataObject> returnedDataObjects = await dataLayer.CreateAsync([firstOriginalDataObject, secondOriginalDataObject], TestContext.Current.CancellationToken);
+        long count = await dataLayer.CountAsync(TestContext.Current.CancellationToken);
 
         //Objects must have been returned and the amount added must be the same amount returned.
         Assert.NotNull(returnedDataObjects); 
@@ -234,9 +234,9 @@ public class StandardCRUDDataLayerUnitTest
         SimpleStandardDataLayer dataLayer = new();
 
         //Create the data objects.
-        SimpleDataObject firstReturnedDataObject = await dataLayer.CreateAsync(originalDataObject);
-        SimpleDataObject secondReturnedDataObject = await dataLayer.CreateAsync(originalDataObject);
-        long count = await dataLayer.CountAsync();
+        SimpleDataObject firstReturnedDataObject = await dataLayer.CreateAsync(originalDataObject, TestContext.Current.CancellationToken);
+        SimpleDataObject secondReturnedDataObject = await dataLayer.CreateAsync(originalDataObject, TestContext.Current.CancellationToken);
+        long count = await dataLayer.CountAsync(TestContext.Current.CancellationToken);
 
         //An object must have been returned.
         Assert.NotNull(firstReturnedDataObject); 
@@ -275,8 +275,8 @@ public class StandardCRUDDataLayerUnitTest
             handler => dataLayer.Deleted -= handler,
             async Task () =>
             {
-                SimpleDataObject dataObject = await dataLayer.CreateAsync(new SimpleDataObject() { Name = DefaultName });
-                await dataLayer.DeleteAsync(dataObject);
+                SimpleDataObject dataObject = await dataLayer.CreateAsync(new SimpleDataObject() { Name = DefaultName }, TestContext.Current.CancellationToken);
+                await dataLayer.DeleteAsync(dataObject, TestContext.Current.CancellationToken);
             }
         );
         await Assert.RaisesAsync<DeletedEventArgs>
@@ -285,8 +285,8 @@ public class StandardCRUDDataLayerUnitTest
             handler => dataLayer.Deleted -= handler,
             async Task () =>
             {
-                List<SimpleDataObject> dataObjects = await dataLayer.CreateAsync([new SimpleDataObject() { Name = DefaultName }, new SimpleDataObject() { Name = AnotherName }]);
-                await dataLayer.DeleteAsync(dataObjects);
+                List<SimpleDataObject> dataObjects = await dataLayer.CreateAsync([new SimpleDataObject() { Name = DefaultName }, new SimpleDataObject() { Name = AnotherName }], TestContext.Current.CancellationToken);
+                await dataLayer.DeleteAsync(dataObjects, TestContext.Current.CancellationToken);
             }
         );
         await Assert.RaisesAsync<DeletedEventArgs>
@@ -295,8 +295,8 @@ public class StandardCRUDDataLayerUnitTest
             handler => dataLayer.Deleted -= handler,
             async Task () =>
             {
-                _ = await dataLayer.CreateAsync([new SimpleDataObject() { Name = DefaultName }, new SimpleDataObject() { Name = AnotherName }, new SimpleDataObject() { Name = DifferentName }]);
-                await dataLayer.DeleteAsync(obj => obj.Integer64ID > 1);
+                _ = await dataLayer.CreateAsync([new SimpleDataObject() { Name = DefaultName }, new SimpleDataObject() { Name = AnotherName }, new SimpleDataObject() { Name = DifferentName }], TestContext.Current.CancellationToken);
+                await dataLayer.DeleteAsync(obj => obj.Integer64ID > 1, TestContext.Current.CancellationToken);
             }
         );
     }
@@ -307,9 +307,9 @@ public class StandardCRUDDataLayerUnitTest
     [Fact]
     public async Task VerifyDeleteThrowsArgumentNullException()
     {
-        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().DeleteAsync((SimpleDataObject)null));
-        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().DeleteAsync((List<SimpleDataObject>)null));
-        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().DeleteAsync((Expression<Func<SimpleDataObject, bool>>)null));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().DeleteAsync((SimpleDataObject)null!, TestContext.Current.CancellationToken));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().DeleteAsync((List<SimpleDataObject>)null!, TestContext.Current.CancellationToken));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().DeleteAsync((Expression<Func<SimpleDataObject, bool>>)null!, TestContext.Current.CancellationToken));
     }
 
     /// <summary>
@@ -328,12 +328,12 @@ public class StandardCRUDDataLayerUnitTest
         SimpleStandardDataLayer dataLayer = new();
         List<SimpleDataObject> dataObjects = [];
 
-        dataObjects.Add(await dataLayer.CreateAsync(new SimpleDataObject() { Name = DefaultName }));
-        dataObjects.Add(await dataLayer.CreateAsync(new SimpleDataObject() { Name = AnotherName }));
-        dataObjects.Add(await dataLayer.CreateAsync(new SimpleDataObject() { Name = DifferentName }));
+        dataObjects.Add(await dataLayer.CreateAsync(new SimpleDataObject() { Name = DefaultName }, TestContext.Current.CancellationToken));
+        dataObjects.Add(await dataLayer.CreateAsync(new SimpleDataObject() { Name = AnotherName }, TestContext.Current.CancellationToken));
+        dataObjects.Add(await dataLayer.CreateAsync(new SimpleDataObject() { Name = DifferentName }, TestContext.Current.CancellationToken));
 
-        await dataLayer.DeleteAsync(dataObjects);
-        long count = await dataLayer.CountAsync();
+        await dataLayer.DeleteAsync(dataObjects, TestContext.Current.CancellationToken);
+        long count = await dataLayer.CountAsync(TestContext.Current.CancellationToken);
 
         Assert.Equal(0, count);
     }
@@ -353,9 +353,9 @@ public class StandardCRUDDataLayerUnitTest
     {
         SimpleStandardDataLayer dataLayer = new();
 
-        SimpleDataObject dataObject = await dataLayer.CreateAsync(new SimpleDataObject() { Name = DefaultName });
-        await dataLayer.DeleteAsync(dataObject);
-        long count = await dataLayer.CountAsync();
+        SimpleDataObject dataObject = await dataLayer.CreateAsync(new SimpleDataObject() { Name = DefaultName }, TestContext.Current.CancellationToken);
+        await dataLayer.DeleteAsync(dataObject, TestContext.Current.CancellationToken);
+        long count = await dataLayer.CountAsync(TestContext.Current.CancellationToken);
 
         Assert.Equal(0, count);
     }
@@ -375,12 +375,12 @@ public class StandardCRUDDataLayerUnitTest
     {
         SimpleStandardDataLayer dataLayer = new();
 
-        _ = await dataLayer.CreateAsync(new SimpleDataObject() { Name = DefaultName });
-        _ = await dataLayer.CreateAsync(new SimpleDataObject() { Name = AnotherName });
-        _ = await dataLayer.CreateAsync(new SimpleDataObject() { Name = DifferentName });
+        _ = await dataLayer.CreateAsync(new SimpleDataObject() { Name = DefaultName }, TestContext.Current.CancellationToken);
+        _ = await dataLayer.CreateAsync(new SimpleDataObject() { Name = AnotherName }, TestContext.Current.CancellationToken);
+        _ = await dataLayer.CreateAsync(new SimpleDataObject() { Name = DifferentName }, TestContext.Current.CancellationToken);
 
-        await dataLayer.DeleteAsync(obj => obj.Integer64ID > 2);
-        long count = await dataLayer.CountAsync();
+        await dataLayer.DeleteAsync(obj => obj.Integer64ID > 2, TestContext.Current.CancellationToken);
+        long count = await dataLayer.CountAsync(TestContext.Current.CancellationToken);
 
         Assert.Equal(2, count);
     }
@@ -389,7 +389,7 @@ public class StandardCRUDDataLayerUnitTest
     /// The method verifies if a null data object is passed to the StandardCRUDDataLayer.ExistAsync(), an exception is thrown.
     /// </summary>
     [Fact]
-    public async Task VerifyExistThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().ExistAsync(null));
+    public async Task VerifyExistThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().ExistAsync(null!, TestContext.Current.CancellationToken));
 
     /// <summary>
     /// The method verifies StandardCRUDDataLayer.ExistAsync() can determine if a data object exists or not.
@@ -399,10 +399,10 @@ public class StandardCRUDDataLayerUnitTest
     public async Task VerifyExistWithWherePredicate()
     {
         SimpleStandardDataLayer dataLayer = new();
-        _ = await dataLayer.CreateAsync(new SimpleDataObject() { Name = DefaultName });
+        _ = await dataLayer.CreateAsync(new SimpleDataObject() { Name = DefaultName }, TestContext.Current.CancellationToken);
 
-        bool found = await dataLayer.ExistAsync(obj => obj.Integer64ID == DefaultId);
-        bool notFound = await dataLayer.ExistAsync(obj => obj.Integer64ID == NotFoundId) == false;
+        bool found = await dataLayer.ExistAsync(obj => obj.Integer64ID == DefaultId, TestContext.Current.CancellationToken);
+        bool notFound = await dataLayer.ExistAsync(obj => obj.Integer64ID == NotFoundId, TestContext.Current.CancellationToken) == false;
 
         Assert.True(found, "The found condition should have been true.");
         Assert.True(notFound, "The not found condition should been true.");
@@ -416,8 +416,8 @@ public class StandardCRUDDataLayerUnitTest
     public async Task VerifyGetAll()
     {
         SimpleStandardDataLayer dataLayer = new();
-        _ = await dataLayer.CreateAsync(new SimpleDataObject() { Name = DefaultName });
-        List<SimpleDataObject> dataObjects = await dataLayer.GetAllAsync();
+        _ = await dataLayer.CreateAsync(new SimpleDataObject() { Name = DefaultName }, TestContext.Current.CancellationToken);
+        List<SimpleDataObject> dataObjects = await dataLayer.GetAllAsync(cancellationToken: TestContext.Current.CancellationToken);
         Assert.Single(dataObjects);
     }
 
@@ -432,8 +432,8 @@ public class StandardCRUDDataLayerUnitTest
 
         await PopulateDataObjectsDivisibleBy10Async(dataLayer);
 
-        List<SimpleDataObject> ascOrderByDataObjects = await dataLayer.GetAllAsync(orderByPredicate: obj => obj.Value);
-        List<SimpleDataObject> descOrderByDataObjects = await dataLayer.GetAllAsync(orderByPredicate: obj => obj.Value, descending: true);
+        List<SimpleDataObject> ascOrderByDataObjects = await dataLayer.GetAllAsync(orderByPredicate: obj => obj.Value, cancellationToken: TestContext.Current.CancellationToken);
+        List<SimpleDataObject> descOrderByDataObjects = await dataLayer.GetAllAsync(orderByPredicate: obj => obj.Value, descending: true, cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.Equal(10, ascOrderByDataObjects.First().Value);
         Assert.Equal(100, descOrderByDataObjects.First().Value);
@@ -450,8 +450,8 @@ public class StandardCRUDDataLayerUnitTest
 
         await PopulateDataObjectsDivisibleBy10Async(dataLayer);
 
-        List<SimpleDataObject> whereAscOrderByDataObjects = await dataLayer.GetAllAsync(obj => obj.Value > 30, obj => obj.Value);
-        List<SimpleDataObject> whereDescOrderByDataObjects = await dataLayer.GetAllAsync(obj => obj.Value < 60, obj => obj.Value, true);
+        List<SimpleDataObject> whereAscOrderByDataObjects = await dataLayer.GetAllAsync(obj => obj.Value > 30, obj => obj.Value, cancellationToken: TestContext.Current.CancellationToken);
+        List<SimpleDataObject> whereDescOrderByDataObjects = await dataLayer.GetAllAsync(obj => obj.Value < 60, obj => obj.Value, descending: true, cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.Equal(40, whereAscOrderByDataObjects.First().Value);
         Assert.Equal(50, whereDescOrderByDataObjects.First().Value);
@@ -468,9 +468,9 @@ public class StandardCRUDDataLayerUnitTest
 
         await PopulateDataObjectsDivisibleBy10Async(dataLayer);
 
-        List<SimpleDataObject> lessThan40DataObjects = await dataLayer.GetAllAsync(obj => obj.Value < 40);
-        List<SimpleDataObject> greaterThan80DataObjects = await dataLayer.GetAllAsync(obj => obj.Value > 80);
-        List<SimpleDataObject> failedToFindDataObjects = await dataLayer.GetAllAsync(obj => obj.Value == 1);
+        List<SimpleDataObject> lessThan40DataObjects = await dataLayer.GetAllAsync(obj => obj.Value < 40, cancellationToken: TestContext.Current.CancellationToken);
+        List<SimpleDataObject> greaterThan80DataObjects = await dataLayer.GetAllAsync(obj => obj.Value > 80, cancellationToken: TestContext.Current.CancellationToken);
+        List<SimpleDataObject> failedToFindDataObjects = await dataLayer.GetAllAsync(obj => obj.Value == 1, cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.Equal(3, lessThan40DataObjects.Count);
         Assert.Equal(2, greaterThan80DataObjects.Count);
@@ -485,8 +485,8 @@ public class StandardCRUDDataLayerUnitTest
     public async Task VerifyGetAllListView()
     {
         SimpleStandardDataLayer dataLayer = new();
-        _ = await dataLayer.CreateAsync(new SimpleDataObject() { Name = DefaultName });
-        List<ListView> listViews = await dataLayer.GetAllListViewAsync();
+        _ = await dataLayer.CreateAsync(new SimpleDataObject() { Name = DefaultName }, TestContext.Current.CancellationToken);
+        List<ListView> listViews = await dataLayer.GetAllListViewAsync(cancellationToken: TestContext.Current.CancellationToken);
         Assert.Single(listViews);
     }
 
@@ -501,8 +501,8 @@ public class StandardCRUDDataLayerUnitTest
 
         await PopulateDataObjectsDivisibleBy10Async(dataLayer);
 
-        List<ListView> ascOrderByDataObjects = await dataLayer.GetAllListViewAsync(orderByPredicate: obj => obj.Value);
-        List<ListView> descOrderByDataObjects = await dataLayer.GetAllListViewAsync(orderByPredicate: obj => obj.Value, descending: true);
+        List<ListView> ascOrderByDataObjects = await dataLayer.GetAllListViewAsync(orderByPredicate: obj => obj.Value, cancellationToken: TestContext.Current.CancellationToken);
+        List<ListView> descOrderByDataObjects = await dataLayer.GetAllListViewAsync(orderByPredicate: obj => obj.Value, descending: true, cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.Equal("10", ascOrderByDataObjects.First().Name);
         Assert.Equal("100", descOrderByDataObjects.First().Name);
@@ -519,8 +519,8 @@ public class StandardCRUDDataLayerUnitTest
 
         await PopulateDataObjectsDivisibleBy10Async(dataLayer);
 
-        List<ListView> whereAscOrderByDataObjects = await dataLayer.GetAllListViewAsync(obj => obj.Value > 30, obj => obj.Value);
-        List<ListView> whereDescOrderByDataObjects = await dataLayer.GetAllListViewAsync(obj => obj.Value < 60, obj => obj.Value, true);
+        List<ListView> whereAscOrderByDataObjects = await dataLayer.GetAllListViewAsync(obj => obj.Value > 30, obj => obj.Value, cancellationToken: TestContext.Current.CancellationToken);
+        List<ListView> whereDescOrderByDataObjects = await dataLayer.GetAllListViewAsync(obj => obj.Value < 60, obj => obj.Value, descending: true, cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.Equal("40", whereAscOrderByDataObjects.First().Name);
         Assert.Equal("50", whereDescOrderByDataObjects.First().Name);
@@ -537,9 +537,9 @@ public class StandardCRUDDataLayerUnitTest
 
         await PopulateDataObjectsDivisibleBy10Async(dataLayer);
 
-        List<ListView> lessThan40DataObjects = await dataLayer.GetAllListViewAsync(obj => obj.Value < 40);
-        List<ListView> greaterThan80DataObjects = await dataLayer.GetAllListViewAsync(obj => obj.Value > 80);
-        List<ListView> failedToFindDataObjects = await dataLayer.GetAllListViewAsync(obj => obj.Value == 1);
+        List<ListView> lessThan40DataObjects = await dataLayer.GetAllListViewAsync(obj => obj.Value < 40, cancellationToken: TestContext.Current.CancellationToken);
+        List<ListView> greaterThan80DataObjects = await dataLayer.GetAllListViewAsync(obj => obj.Value > 80, cancellationToken: TestContext.Current.CancellationToken);
+        List<ListView> failedToFindDataObjects = await dataLayer.GetAllListViewAsync(obj => obj.Value == 1, cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.Equal(3, lessThan40DataObjects.Count);
         Assert.Equal(2, greaterThan80DataObjects.Count);
@@ -565,14 +565,14 @@ public class StandardCRUDDataLayerUnitTest
             });
         }
 
-        await dataLayer.CreateAsync(dataObjects);
+        await dataLayer.CreateAsync(dataObjects, TestContext.Current.CancellationToken);
 
         QueryDefinition skipAndTakeQueryDefinition = new()
         {
             Skip = 1,
             Take = 20,
         };
-        PagedList<SimpleDataObject> skipAndTakePage = await dataLayer.GetPageAsync(skipAndTakeQueryDefinition);
+        PagedList<SimpleDataObject> skipAndTakePage = await dataLayer.GetPageAsync(skipAndTakeQueryDefinition, TestContext.Current.CancellationToken);
 
         QueryDefinition filterQueryDefinition = new();
         filterQueryDefinition.FilterDefinitions.Add(new FilterDefinition()
@@ -581,7 +581,7 @@ public class StandardCRUDDataLayerUnitTest
             Operator = FilterDefinition.EqualsOperator,
             Value = "50",
         });
-        PagedList<SimpleDataObject> filterPage = await dataLayer.GetPageAsync(filterQueryDefinition);
+        PagedList<SimpleDataObject> filterPage = await dataLayer.GetPageAsync(filterQueryDefinition, TestContext.Current.CancellationToken);
 
         QueryDefinition sortQueryDefinition = new();
         sortQueryDefinition.SortDefinitions.Add(new SortDefinition()
@@ -589,7 +589,7 @@ public class StandardCRUDDataLayerUnitTest
             Descending = true,
             SortOn = nameof(SimpleDataObject.Value),
         });
-        PagedList<SimpleDataObject> sortPage = await dataLayer.GetPageAsync(sortQueryDefinition);
+        PagedList<SimpleDataObject> sortPage = await dataLayer.GetPageAsync(sortQueryDefinition, TestContext.Current.CancellationToken);
 
 #warning This should be broken into multiple tests because its trying to test too many things.
 
@@ -628,14 +628,14 @@ public class StandardCRUDDataLayerUnitTest
             });
         }
 
-        await dataLayer.CreateAsync(dataObjects);
+        await dataLayer.CreateAsync(dataObjects, TestContext.Current.CancellationToken);
 
         QueryDefinition skipAndTakeQueryDefinition = new()
         {
             Skip = 1,
             Take = 20,
         };
-        PagedList<ListView> skipAndTakePage = await dataLayer.GetPageListViewAsync(skipAndTakeQueryDefinition);
+        PagedList<ListView> skipAndTakePage = await dataLayer.GetPageListViewAsync(skipAndTakeQueryDefinition, TestContext.Current.CancellationToken);
 
 
         QueryDefinition filterQueryDefinition = new();
@@ -645,7 +645,7 @@ public class StandardCRUDDataLayerUnitTest
             Operator = FilterDefinition.EqualsOperator,
             Value = "50",
         });
-        PagedList<ListView> filterPage = await dataLayer.GetPageListViewAsync(filterQueryDefinition);
+        PagedList<ListView> filterPage = await dataLayer.GetPageListViewAsync(filterQueryDefinition, TestContext.Current.CancellationToken);
 
         QueryDefinition sortQueryDefinition = new();
         sortQueryDefinition.SortDefinitions.Add(new SortDefinition()
@@ -653,7 +653,7 @@ public class StandardCRUDDataLayerUnitTest
             Descending = true,
             SortOn = nameof(SimpleDataObject.Value),
         });
-        PagedList<ListView> sortPage = await dataLayer.GetPageListViewAsync(sortQueryDefinition);
+        PagedList<ListView> sortPage = await dataLayer.GetPageListViewAsync(sortQueryDefinition, TestContext.Current.CancellationToken);
 
 #warning This should be broken into multiple tests because its trying to test too many things.
 
@@ -677,13 +677,13 @@ public class StandardCRUDDataLayerUnitTest
     /// The method verifies if a null data object is passed to the StandardCRUDDataLayer.GetPageListViewAsync(), an exception is thrown.
     /// </summary>
     [Fact]
-    public async Task VerifyGetPageListViewThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().GetPageListViewAsync(null));
+    public async Task VerifyGetPageListViewThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().GetPageListViewAsync(null!, TestContext.Current.CancellationToken));
 
     /// <summary>
     /// The method verifies if a null data object is passed to the StandardCRUDDataLayer.GetPageAsync(), an exception is thrown.
     /// </summary>
     [Fact]
-    public async Task VerifyGetPageThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().GetPageAsync(null));
+    public async Task VerifyGetPageThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().GetPageAsync(null!, TestContext.Current.CancellationToken));
 
     /// <summary>
     /// The method verifies StandardCRUDDataLayer.GetSingleAsync() returns the first data object.
@@ -694,9 +694,9 @@ public class StandardCRUDDataLayerUnitTest
     {
         SimpleStandardDataLayer dataLayer = new();
 
-        bool notFound = await dataLayer.GetSingleAsync() == null;
-        _ = await dataLayer.CreateAsync(new SimpleDataObject() { Name = DefaultName });
-        bool found = await dataLayer.GetSingleAsync() != null;
+        bool notFound = await dataLayer.GetSingleAsync(cancellationToken: TestContext.Current.CancellationToken) == null;
+        _ = await dataLayer.CreateAsync(new SimpleDataObject() { Name = DefaultName }, TestContext.Current.CancellationToken);
+        bool found = await dataLayer.GetSingleAsync(cancellationToken: TestContext.Current.CancellationToken) != null;
 
         Assert.True(found, "The found should have been true.");
         Assert.True(notFound, "The not found should have been true.");
@@ -713,8 +713,8 @@ public class StandardCRUDDataLayerUnitTest
 
         await PopulateDataObjectsDivisibleBy10Async(dataLayer);
 
-        bool found = await dataLayer.GetSingleAsync(obj => obj.Value == 70) != null;
-        bool notFound = await dataLayer.GetSingleAsync(obj => obj.Value == 71) == null;
+        bool found = await dataLayer.GetSingleAsync(obj => obj.Value == 70, cancellationToken: TestContext.Current.CancellationToken) != null;
+        bool notFound = await dataLayer.GetSingleAsync(obj => obj.Value == 71, cancellationToken: TestContext.Current.CancellationToken) == null;
 
         Assert.True(found, "The found condition should have been true.");
         Assert.True(notFound, "The not found condition should been true.");
@@ -732,15 +732,15 @@ public class StandardCRUDDataLayerUnitTest
     public async Task VerifyUpdateDisableOldDataObjectDetectionThrowsNoException()
     {
         SimpleStandardDataLayer dataLayer = new();
-        SimpleDataObject originalDataObject = await dataLayer.CreateAsync(new SimpleDataObject() { Name = DefaultName });
+        SimpleDataObject originalDataObject = await dataLayer.CreateAsync(new SimpleDataObject() { Name = DefaultName }, TestContext.Current.CancellationToken);
 
         _ = await dataLayer.UpdateAsync(new SimpleDataObject(originalDataObject)
         {
             Value = DefaultValue,
-        });
+        }, TestContext.Current.CancellationToken);
 
         originalDataObject.Value = DefaultValue + 1;
-        _ = await dataLayer.UpdateAsync(originalDataObject);
+        _ = await dataLayer.UpdateAsync(originalDataObject, TestContext.Current.CancellationToken);
     }
 
     /// <summary>
@@ -756,9 +756,9 @@ public class StandardCRUDDataLayerUnitTest
             handler => dataLayer.Updated -= handler,
             async Task () =>
             {
-                SimpleDataObject dataObject = await dataLayer.CreateAsync(new SimpleDataObject() { Name = DefaultName });
+                SimpleDataObject dataObject = await dataLayer.CreateAsync(new SimpleDataObject() { Name = DefaultName }, TestContext.Current.CancellationToken);
                 dataObject.Value = 10;
-                _ = await dataLayer.UpdateAsync(dataObject);
+                _ = await dataLayer.UpdateAsync(dataObject, TestContext.Current.CancellationToken);
             }
         );
         await Assert.RaisesAsync<UpdatedEventArgs>
@@ -767,12 +767,12 @@ public class StandardCRUDDataLayerUnitTest
             handler => dataLayer.Updated -= handler,
             async Task () =>
             {
-                List<SimpleDataObject> dataObjects = await dataLayer.CreateAsync([new SimpleDataObject() { Name = AnotherName }, new SimpleDataObject() { Name = DifferentName }]);
+                List<SimpleDataObject> dataObjects = await dataLayer.CreateAsync([new SimpleDataObject() { Name = AnotherName }, new SimpleDataObject() { Name = DifferentName }], TestContext.Current.CancellationToken);
 
                 dataObjects[0].Value = 10;
                 dataObjects[1].Value = 20;
 
-                _ = await dataLayer.UpdateAsync(dataObjects);
+                _ = await dataLayer.UpdateAsync(dataObjects, TestContext.Current.CancellationToken);
             }
         );
     }
@@ -783,8 +783,8 @@ public class StandardCRUDDataLayerUnitTest
     [Fact]
     public async Task VerifyUpdateThrowsArgumentNullException()
     {
-        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().UpdateAsync((SimpleDataObject)null));
-        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().UpdateAsync((List<SimpleDataObject>)null));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().UpdateAsync((SimpleDataObject)null!, TestContext.Current.CancellationToken));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().UpdateAsync((List<SimpleDataObject>)null!, TestContext.Current.CancellationToken));
     }
 
     /// <summary>
@@ -796,21 +796,21 @@ public class StandardCRUDDataLayerUnitTest
         await Assert.ThrowsAsync<DataObjectValidationException>(async Task () =>
         {
             SimpleStandardDataLayer dataLayer = new();
-            SimpleDataObject dataObject = await dataLayer.CreateAsync(new SimpleDataObject() { Name = DefaultName });
+            SimpleDataObject dataObject = await dataLayer.CreateAsync(new SimpleDataObject() { Name = DefaultName }, TestContext.Current.CancellationToken);
 
             dataObject.Value = InvalidValue;
 
-            _ = await dataLayer.UpdateAsync(dataObject);
+            _ = await dataLayer.UpdateAsync(dataObject, TestContext.Current.CancellationToken);
         });
         await Assert.ThrowsAsync<DataObjectValidationException>(async Task () =>
         {
             SimpleStandardDataLayer dataLayer = new();
-            List<SimpleDataObject> dataObjects = await dataLayer.CreateAsync([new SimpleDataObject() { Name = DefaultName }, new SimpleDataObject() { Name = AnotherName }]);
+            List<SimpleDataObject> dataObjects = await dataLayer.CreateAsync([new SimpleDataObject() { Name = DefaultName }, new SimpleDataObject() { Name = AnotherName }], TestContext.Current.CancellationToken);
 
             dataObjects[0].Value = DefaultValue;
             dataObjects[1].Value = InvalidValue;
 
-            _ = await dataLayer.UpdateAsync(dataObjects);
+            _ = await dataLayer.UpdateAsync(dataObjects, TestContext.Current.CancellationToken);
         });
         await Assert.ThrowsAsync<DataObjectValidationException>(async Task () =>
         {
@@ -818,10 +818,10 @@ public class StandardCRUDDataLayerUnitTest
             {
                 IsUniqueNameRequired = true,
             };
-            List<SimpleDataObject> dataObjects = await dataLayer.CreateAsync([new SimpleDataObject() { Name = DefaultName }, new SimpleDataObject() { Name = AnotherName }]);
+            List<SimpleDataObject> dataObjects = await dataLayer.CreateAsync([new SimpleDataObject() { Name = DefaultName }, new SimpleDataObject() { Name = AnotherName }], TestContext.Current.CancellationToken);
 
             dataObjects[0].Name = AnotherName;
-            _ = await dataLayer.UpdateAsync(dataObjects[0]);
+            _ = await dataLayer.UpdateAsync(dataObjects[0], TestContext.Current.CancellationToken);
         });
     }
 
@@ -831,8 +831,8 @@ public class StandardCRUDDataLayerUnitTest
     [Fact]
     public async Task VerifyUpdateAsyncDataObjectIDNotFoundException()
     {
-        await Assert.ThrowsAsync<DataObjectIDNotFoundException>(() => new SimpleStandardDataLayer().UpdateAsync(new SimpleDataObject() { Integer64ID = NotFoundId, Name = DefaultName }));
-        await Assert.ThrowsAsync<DataObjectIDNotFoundException>(() => new SimpleStandardDataLayer().UpdateAsync([new SimpleDataObject() { Integer64ID = NotFoundId, Name = DefaultName }]));
+        await Assert.ThrowsAsync<DataObjectIDNotFoundException>(() => new SimpleStandardDataLayer().UpdateAsync(new SimpleDataObject() { Integer64ID = NotFoundId, Name = DefaultName }, TestContext.Current.CancellationToken));
+        await Assert.ThrowsAsync<DataObjectIDNotFoundException>(() => new SimpleStandardDataLayer().UpdateAsync([new SimpleDataObject() { Integer64ID = NotFoundId, Name = DefaultName }], TestContext.Current.CancellationToken));
     }
 
     /// <summary>
@@ -848,7 +848,7 @@ public class StandardCRUDDataLayerUnitTest
                 IsUniqueNameRequired = true,
             };
 
-            await dataLayer.CreateAsync([new SimpleDataObject() { Name = DefaultName, Value = DefaultValue }, new SimpleDataObject() { Name = DefaultName, Value = DefaultValue }]);
+            await dataLayer.CreateAsync([new SimpleDataObject() { Name = DefaultName, Value = DefaultValue }, new SimpleDataObject() { Name = DefaultName, Value = DefaultValue }], TestContext.Current.CancellationToken);
         });
     }
 
@@ -864,15 +864,15 @@ public class StandardCRUDDataLayerUnitTest
             {
                 IsOldDataObjectDetectionEnabled = true,
             };
-            SimpleDataObject originalDataObject = await dataLayer.CreateAsync(new SimpleDataObject() { Name = DefaultName });
+            SimpleDataObject originalDataObject = await dataLayer.CreateAsync(new SimpleDataObject() { Name = DefaultName }, TestContext.Current.CancellationToken);
 
             _ = await dataLayer.UpdateAsync(new SimpleDataObject(originalDataObject)
             {
                 Value = DefaultValue,
-            });
+            }, TestContext.Current.CancellationToken);
 
             originalDataObject.Value = DefaultValue + 1;
-            _ = await dataLayer.UpdateAsync(originalDataObject);
+            _ = await dataLayer.UpdateAsync(originalDataObject, TestContext.Current.CancellationToken);
         });
         await Assert.ThrowsAsync<DataObjectUpdateConflictException>(async Task () =>
         {
@@ -880,14 +880,14 @@ public class StandardCRUDDataLayerUnitTest
             {
                 IsOldDataObjectDetectionEnabled = true,
             };
-            List<SimpleDataObject> originalDataObjects = await dataLayer.CreateAsync([new SimpleDataObject() { Name = DefaultName }, new SimpleDataObject() { Name = AnotherName }]);
+            List<SimpleDataObject> originalDataObjects = await dataLayer.CreateAsync([new SimpleDataObject() { Name = DefaultName }, new SimpleDataObject() { Name = AnotherName }], TestContext.Current.CancellationToken);
 
-            _ = await dataLayer.UpdateAsync([new SimpleDataObject(originalDataObjects[0]) { Value = DefaultValue }, new SimpleDataObject(originalDataObjects[1]) { Value = DefaultValue + 1 }]);
+            _ = await dataLayer.UpdateAsync([new SimpleDataObject(originalDataObjects[0]) { Value = DefaultValue }, new SimpleDataObject(originalDataObjects[1]) { Value = DefaultValue + 1 }], TestContext.Current.CancellationToken);
 
             originalDataObjects[0].Value = DefaultValue + 1;
             originalDataObjects[1].Value = DefaultValue + 2;
 
-            _ = await dataLayer.UpdateAsync(originalDataObjects);
+            _ = await dataLayer.UpdateAsync(originalDataObjects, TestContext.Current.CancellationToken);
         });
     }
 
@@ -908,13 +908,13 @@ public class StandardCRUDDataLayerUnitTest
     public async Task VerifyUpdateWithList()
     {
         SimpleStandardDataLayer dataLayer = new();
-        List<SimpleDataObject> originalDataObjects = await dataLayer.CreateAsync([new SimpleDataObject() { Name = DefaultName }, new SimpleDataObject() { Name = AnotherName }]);
+        List<SimpleDataObject> originalDataObjects = await dataLayer.CreateAsync([new SimpleDataObject() { Name = DefaultName }, new SimpleDataObject() { Name = AnotherName }], TestContext.Current.CancellationToken);
 
         originalDataObjects[0].Value = 10;
         originalDataObjects[1].Value = 20;
 
-        List<SimpleDataObject> returnedCopiedDataObjects = await dataLayer.UpdateAsync(originalDataObjects);
-        List<SimpleDataObject> confirmedDataObjects = await dataLayer.GetAllAsync();
+        List<SimpleDataObject> returnedCopiedDataObjects = await dataLayer.UpdateAsync(originalDataObjects, TestContext.Current.CancellationToken);
+        List<SimpleDataObject> confirmedDataObjects = await dataLayer.GetAllAsync(cancellationToken: TestContext.Current.CancellationToken);
 
         //An object must have been returned and the same amount updated must be returned.
         Assert.NotNull(returnedCopiedDataObjects);
@@ -950,11 +950,11 @@ public class StandardCRUDDataLayerUnitTest
     public async Task VerifyUpdateWithSingle()
     {
         SimpleStandardDataLayer dataLayer = new();
-        SimpleDataObject originalDataObject = await dataLayer.CreateAsync(new SimpleDataObject() { Name = DefaultName });
+        SimpleDataObject originalDataObject = await dataLayer.CreateAsync(new SimpleDataObject() { Name = DefaultName }, TestContext.Current.CancellationToken);
 
         originalDataObject.Value = DefaultValue;
-        SimpleDataObject returnedCopiedDataObject = await dataLayer.UpdateAsync(originalDataObject);
-        SimpleDataObject? confirmedDataObject = await dataLayer.GetSingleAsync();
+        SimpleDataObject returnedCopiedDataObject = await dataLayer.UpdateAsync(originalDataObject, TestContext.Current.CancellationToken);
+        SimpleDataObject? confirmedDataObject = await dataLayer.GetSingleAsync(cancellationToken: TestContext.Current.CancellationToken);
 
         Assert.NotNull(returnedCopiedDataObject); //An object must have been returned.
         Assert.NotEqual(originalDataObject, returnedCopiedDataObject); //Returned object must be a copy.
@@ -976,14 +976,14 @@ public class StandardCRUDDataLayerUnitTest
     public async Task VerifyValidate()
     {
         SimpleStandardDataLayer dataLayer = new();
-        SimpleDataObject dataObject = await dataLayer.CreateAsync(new SimpleDataObject() { Name = DefaultName });
+        SimpleDataObject dataObject = await dataLayer.CreateAsync(new SimpleDataObject() { Name = DefaultName }, TestContext.Current.CancellationToken);
 
         dataObject.Value = DefaultValue;
-        List<ValidationResult> validationResults = await dataLayer.ValidateAsync(dataObject);
+        List<ValidationResult> validationResults = await dataLayer.ValidateAsync(dataObject, TestContext.Current.CancellationToken);
         bool dataAnnotationValid = validationResults.Count == 0;
 
         dataObject.Value = InvalidValue;
-        validationResults = await dataLayer.ValidateAsync(dataObject);
+        validationResults = await dataLayer.ValidateAsync(dataObject, TestContext.Current.CancellationToken);
         bool dataAnnotationNotValided = validationResults.Count != 0;
 
         Assert.True(dataAnnotationValid, "The data annotation valid should have been true.");
@@ -1008,25 +1008,25 @@ public class StandardCRUDDataLayerUnitTest
         {
             IsUniqueNameRequired = true,
         };
-        SimpleDataObject dataObject = await dataLayer.CreateAsync(new SimpleDataObject() { Name = DefaultName });
-        _ = await dataLayer.CreateAsync(new SimpleDataObject() { Name = AnotherName });
+        SimpleDataObject dataObject = await dataLayer.CreateAsync(new SimpleDataObject() { Name = DefaultName }, TestContext.Current.CancellationToken);
+        _ = await dataLayer.CreateAsync(new SimpleDataObject() { Name = AnotherName }, TestContext.Current.CancellationToken);
 
         dataObject.Name = DifferentName;
         dataObject.Value = DefaultValue;
-        List<ValidationResult> validationResults = await dataLayer.ValidateAsync(dataObject);
+        List<ValidationResult> validationResults = await dataLayer.ValidateAsync(dataObject, TestContext.Current.CancellationToken);
         bool dataAnnotationValid = validationResults.Count == 0;
 
         dataObject.Value = InvalidValue;
-        validationResults = await dataLayer.ValidateAsync(dataObject);
+        validationResults = await dataLayer.ValidateAsync(dataObject, TestContext.Current.CancellationToken);
         bool dataAnnotationNotValided = validationResults.Count != 0;
 
         dataObject.Value = 0;
-        validationResults = await dataLayer.ValidateAsync(dataObject);
+        validationResults = await dataLayer.ValidateAsync(dataObject, TestContext.Current.CancellationToken);
         bool nameValid = validationResults.Count == 0;
 
         dataObject.Integer64ID = 2;
         dataObject.Name = DefaultName;
-        validationResults = await dataLayer.ValidateAsync(dataObject);
+        validationResults = await dataLayer.ValidateAsync(dataObject, TestContext.Current.CancellationToken);
         bool nameNotValid = validationResults.Count != 0;
 
         Assert.True(dataAnnotationValid, "The data annotation valid should have been true.");
@@ -1039,5 +1039,5 @@ public class StandardCRUDDataLayerUnitTest
     /// The method verifies if a null data object is passed to the StandardCRUDDataLayer.ValidateAsync(), an exception is thrown.
     /// </summary>
     [Fact]
-    public async Task VerifyValidateThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().ValidateAsync(null));
+    public async Task VerifyValidateThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleStandardDataLayer().ValidateAsync(null!, TestContext.Current.CancellationToken));
 }

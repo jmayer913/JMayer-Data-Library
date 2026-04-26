@@ -81,7 +81,7 @@ public class StandardSubCRUDDataLayerUnitTest
             .Build();
 
         SimpleSubDataLayer dataLayer = new(httpClient);
-        List<SimpleSubDataObject>? returnedDataObjects = await dataLayer.GetAllAsync(DefaultOwnerId);
+        List<SimpleSubDataObject>? returnedDataObjects = await dataLayer.GetAllAsync(DefaultOwnerId, TestContext.Current.CancellationToken);
 
         //With positive, confirm json data objects were returned.
         if (httpStatusCode is HttpStatusCode.OK)
@@ -137,7 +137,7 @@ public class StandardSubCRUDDataLayerUnitTest
             .Build();
 
         SimpleSubDataLayer dataLayer = new(httpClient);
-        List<ListView>? returnedDataObjects = await dataLayer.GetAllListViewAsync(DefaultOwnerId);
+        List<ListView>? returnedDataObjects = await dataLayer.GetAllListViewAsync(DefaultOwnerId, TestContext.Current.CancellationToken);
 
         //With positive, confirm json data objects were returned.
         if (httpStatusCode is HttpStatusCode.OK)
@@ -164,14 +164,14 @@ public class StandardSubCRUDDataLayerUnitTest
     /// </summary>
     /// <returns>A Task object for the async.</returns>
     [Fact]
-    public async Task VerifyGetAllListViewThrowsArgumentException() => await Assert.ThrowsAsync<ArgumentException>(() => new SimpleSubDataLayer().GetAllListViewAsync(string.Empty));
+    public async Task VerifyGetAllListViewThrowsArgumentException() => await Assert.ThrowsAsync<ArgumentException>(() => new SimpleSubDataLayer().GetAllListViewAsync(string.Empty, TestContext.Current.CancellationToken));
 
     /// <summary>
     /// The method verifies if a a null or empty ID is passed to the StandardSubCRUDDataLayer.GetAllAsync(), an exception is thrown.
     /// </summary>
     /// <returns>A Task object for the async.</returns>
     [Fact]
-    public async Task VerifyGetAllThrowsArgumentException() => await Assert.ThrowsAsync<ArgumentException>(() => new SimpleSubDataLayer().GetAllAsync(string.Empty));
+    public async Task VerifyGetAllThrowsArgumentException() => await Assert.ThrowsAsync<ArgumentException>(() => new SimpleSubDataLayer().GetAllAsync(string.Empty, TestContext.Current.CancellationToken));
 
     /// <summary>
     /// The method verifies the StandardSubCRUDDataLayer.GetPageAsync() request and response based on the status code.
@@ -251,7 +251,7 @@ public class StandardSubCRUDDataLayerUnitTest
             .Build();
 
         SimpleSubDataLayer dataLayer = new(httpClient);
-        PagedList<SimpleSubDataObject>? returnedPage = await dataLayer.GetPageAsync(DefaultOwnerId, queryDefinition);
+        PagedList<SimpleSubDataObject>? returnedPage = await dataLayer.GetPageAsync(DefaultOwnerId, queryDefinition, TestContext.Current.CancellationToken);
 
         //With positive, confirm json data objects were returned.
         if (httpStatusCode is HttpStatusCode.OK)
@@ -281,14 +281,14 @@ public class StandardSubCRUDDataLayerUnitTest
     /// </summary>
     /// <returns>A Task object for the async.</returns>
     [Fact]
-    public async Task VerifyGetPageThrowsArgumentException() => await Assert.ThrowsAsync<ArgumentException>(() => new SimpleSubDataLayer().GetPageAsync(string.Empty, null));
+    public async Task VerifyGetPageThrowsArgumentException() => await Assert.ThrowsAsync<ArgumentException>(() => new SimpleSubDataLayer().GetPageAsync(string.Empty, null!, TestContext.Current.CancellationToken));
 
     /// <summary>
     /// The method verifies if a null query definition is passed to the StandardSubCRUDDataLayer.GetPageAsync(), an exception is thrown.
     /// </summary>
     /// <returns>A Task object for the async.</returns>
     [Fact]
-    public async Task VerifyGetPageThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleSubDataLayer().GetPageAsync(1, null));
+    public async Task VerifyGetPageThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleSubDataLayer().GetPageAsync(1, null!, TestContext.Current.CancellationToken));
 
     /// <summary>
     /// The method verifies the StandardSubCRUDDataLayer.GetPageListViewAsync() request and response based on the status code.
@@ -365,7 +365,7 @@ public class StandardSubCRUDDataLayerUnitTest
             .Build();
 
         SimpleSubDataLayer dataLayer = new(httpClient);
-        PagedList<ListView>? returnedPage = await dataLayer.GetPageListViewAsync(DefaultOwnerId, queryDefinition);
+        PagedList<ListView>? returnedPage = await dataLayer.GetPageListViewAsync(DefaultOwnerId, queryDefinition, TestContext.Current.CancellationToken);
 
         //With positive, confirm json data objects were returned.
         if (httpStatusCode is HttpStatusCode.OK)
@@ -394,12 +394,12 @@ public class StandardSubCRUDDataLayerUnitTest
     /// </summary>
     /// <returns>A Task object for the async.</returns>
     [Fact]
-    public async Task VerifyGetPageListViewThrowsArgumentException() => await Assert.ThrowsAsync<ArgumentException>(() => new SimpleSubDataLayer().GetPageListViewAsync(string.Empty, null));
+    public async Task VerifyGetPageListViewThrowsArgumentException() => await Assert.ThrowsAsync<ArgumentException>(() => new SimpleSubDataLayer().GetPageListViewAsync(string.Empty, null!, TestContext.Current.CancellationToken));
 
     /// <summary>
     /// The method verifies if a null query definition is passed to the StandardSubCRUDDataLayer.GetPageListViewAsync(), an exception is thrown.
     /// </summary>
     /// <returns>A Task object for the async.</returns>
     [Fact]
-    public async Task VerifyGetPageListViewThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleSubDataLayer().GetPageListViewAsync(1, null));
+    public async Task VerifyGetPageListViewThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleSubDataLayer().GetPageListViewAsync(1, null!, TestContext.Current.CancellationToken));
 }
