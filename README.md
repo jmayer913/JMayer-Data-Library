@@ -571,8 +571,8 @@ Things to be aware of on the database side:
 
 # v9.1.0 Change Log
 ---
-* Added a CompareToOtherMember data annotation attribute. You can compare two properties and pass/fail validation based on the comparison rule you setup.
-* Added a RequiredDependsOn data annotation attribute. A property will have the Required data annotation evaulated if another property equals a true/false condition.
+* Added a CompareToOtherMember data annotation attribute. You can compare two public members of the same class & instance and pass/fail validation based on the comparison rule you setup.
+* Added a RequiredDependsOn data annotation attribute. A public member will have the Required data annotation evaulated if another public member of the same class & instance equals a boolean value or enum value.
 ---
 * [ASP.NET Core MVC Example Project](https://github.com/jmayer913/JMayer-Example-ASPVanillaMVC)
 * [ASP.NET Core MVC with Syncfusion Example Project](https://github.com/jmayer913/JMayer-Example-ASPSyncfusionMVC)
