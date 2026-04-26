@@ -63,7 +63,7 @@ public class StandardCRUDDataLayerUnitTest
             .Build();
 
         SimpleDataLayer dataLayer = new(httpClient);
-        List<SimpleDataObject>? returnedDataObjects = await dataLayer.GetAllAsync();
+        List<SimpleDataObject>? returnedDataObjects = await dataLayer.GetAllAsync(TestContext.Current.CancellationToken);
 
         //With positive, confirm json data objects were returned.
         if (httpStatusCode is HttpStatusCode.OK)
@@ -105,7 +105,7 @@ public class StandardCRUDDataLayerUnitTest
             .Build();
 
         SimpleDataLayer dataLayer = new(httpClient);
-        long returnedCount = await dataLayer.CountAsync();
+        long returnedCount = await dataLayer.CountAsync(TestContext.Current.CancellationToken);
 
         //With positive compared against the expected response.
         if (httpStatusCode is HttpStatusCode.OK)
@@ -186,7 +186,7 @@ public class StandardCRUDDataLayerUnitTest
         }
 
         SimpleDataLayer dataLayer = new(httpClient);
-        OperationResult operationResult = await dataLayer.CreateAsync(requestDataObject);
+        OperationResult operationResult = await dataLayer.CreateAsync(requestDataObject, TestContext.Current.CancellationToken);
 
         //With positive, compared against the expected data object response.
         if (httpStatusCode is HttpStatusCode.OK)
@@ -234,7 +234,7 @@ public class StandardCRUDDataLayerUnitTest
     /// </summary>
     /// <returns>A Task object for the async.</returns>
     [Fact]
-    public async Task VerifyCreateThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleDataLayer().CreateAsync(null!));
+    public async Task VerifyCreateThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleDataLayer().CreateAsync(null!, TestContext.Current.CancellationToken));
 
     /// <summary>
     /// The method verifies if StandardCRUDDataLayer.CreateAsync() receives an empty string in the response, an exception is thrown.
@@ -262,7 +262,7 @@ public class StandardCRUDDataLayerUnitTest
             .RespondingHttpStatusCode(httpStatusCode)
             .Build();
 
-        await Assert.ThrowsAsync<JsonException>(() => new SimpleDataLayer(httpClient).CreateAsync(requestDataObject));
+        await Assert.ThrowsAsync<JsonException>(() => new SimpleDataLayer(httpClient).CreateAsync(requestDataObject, TestContext.Current.CancellationToken));
     }
 
     /// <summary>
@@ -327,7 +327,7 @@ public class StandardCRUDDataLayerUnitTest
         }
 
         SimpleDataLayer dataLayer = new(httpClient);
-        OperationResult operationResult = await dataLayer.DeleteAsync(new SimpleDataObject() { Integer64ID = id });
+        OperationResult operationResult = await dataLayer.DeleteAsync(new SimpleDataObject() { Integer64ID = id }, TestContext.Current.CancellationToken);
 
         //With positive, compared against the expected response.
         if (httpStatusCode is HttpStatusCode.OK)
@@ -380,7 +380,7 @@ public class StandardCRUDDataLayerUnitTest
     /// </summary>
     /// <returns>A Task object for the async.</returns>
     [Fact]
-    public async Task VerifyDeleteThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleDataLayer().DeleteAsync(null!));
+    public async Task VerifyDeleteThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleDataLayer().DeleteAsync(null!, TestContext.Current.CancellationToken));
 
     /// <summary>
     /// The method verifies the StandardCRUDDataLayer.GetAllAsync() request and response based on the status code.
@@ -414,7 +414,7 @@ public class StandardCRUDDataLayerUnitTest
             .Build();
 
         SimpleDataLayer dataLayer = new(httpClient);
-        List<SimpleDataObject>? returnedDataObjects = await dataLayer.GetAllAsync();
+        List<SimpleDataObject>? returnedDataObjects = await dataLayer.GetAllAsync(TestContext.Current.CancellationToken);
 
         //With positive, confirm json data objects were returned.
         if (httpStatusCode is HttpStatusCode.OK)
@@ -467,7 +467,7 @@ public class StandardCRUDDataLayerUnitTest
             .Build();
 
         SimpleDataLayer dataLayer = new(httpClient);
-        List<ListView>? returnedDataObjects = await dataLayer.GetAllListViewAsync();
+        List<ListView>? returnedDataObjects = await dataLayer.GetAllListViewAsync(TestContext.Current.CancellationToken);
 
         //With positive, confirm json data objects were returned.
         if (httpStatusCode is HttpStatusCode.OK)
@@ -563,7 +563,7 @@ public class StandardCRUDDataLayerUnitTest
             .Build();
 
         SimpleDataLayer dataLayer = new(httpClient);
-        PagedList<SimpleDataObject>? returnedPage = await dataLayer.GetPageAsync(queryDefinition);
+        PagedList<SimpleDataObject>? returnedPage = await dataLayer.GetPageAsync(queryDefinition, TestContext.Current.CancellationToken);
 
         //With positive, confirm json data objects were returned.
         if (httpStatusCode is HttpStatusCode.OK)
@@ -660,7 +660,7 @@ public class StandardCRUDDataLayerUnitTest
             .Build();
 
         SimpleDataLayer dataLayer = new(httpClient);
-        PagedList<ListView>? returnedPage = await dataLayer.GetPageListViewAsync(queryDefinition);
+        PagedList<ListView>? returnedPage = await dataLayer.GetPageListViewAsync(queryDefinition, TestContext.Current.CancellationToken);
 
         //With positive, confirm json data objects were returned.
         if (httpStatusCode is HttpStatusCode.OK)
@@ -688,14 +688,14 @@ public class StandardCRUDDataLayerUnitTest
     /// </summary>
     /// <returns>A Task object for the async.</returns>
     [Fact]
-    public async Task VerifyGetPageThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleDataLayer().GetPageAsync(null!));
+    public async Task VerifyGetPageThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleDataLayer().GetPageAsync(null!, TestContext.Current.CancellationToken));
 
     /// <summary>
     /// The method confirms if a null query definition is passed to the StandardCRUDDataLayer.GetPageListViewAsync(), an exception is thrown.
     /// </summary>
     /// <returns>A Task object for the async.</returns>
     [Fact]
-    public async Task VerifyGetPageListViewThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleDataLayer().GetPageListViewAsync(null!));
+    public async Task VerifyGetPageListViewThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleDataLayer().GetPageListViewAsync(null!, TestContext.Current.CancellationToken));
 
     /// <summary>
     /// The method verifies the StandardCRUDDataLayer.GetSingleAsync() request and response based on the status code.
@@ -721,7 +721,7 @@ public class StandardCRUDDataLayerUnitTest
             .Build();
 
         SimpleDataLayer dataLayer = new(httpClient);
-        SimpleDataObject? returnedDataObject = await dataLayer.GetSingleAsync();
+        SimpleDataObject? returnedDataObject = await dataLayer.GetSingleAsync(TestContext.Current.CancellationToken);
 
         //With positive, confirm json data object was returned.
         if (httpStatusCode is HttpStatusCode.OK)
@@ -763,7 +763,7 @@ public class StandardCRUDDataLayerUnitTest
             .Build();
 
         SimpleDataLayer dataLayer = new(httpClient);
-        SimpleDataObject? returnedDataObject = await dataLayer.GetSingleAsync(id.ToString());
+        SimpleDataObject? returnedDataObject = await dataLayer.GetSingleAsync(id.ToString(), TestContext.Current.CancellationToken);
 
         //With positive, confirm json data object was returned.
         if (httpStatusCode is HttpStatusCode.OK)
@@ -867,7 +867,7 @@ public class StandardCRUDDataLayerUnitTest
         }
 
         SimpleDataLayer dataLayer = new(httpClient);
-        OperationResult operationResult = await dataLayer.UpdateAsync(requestDataObject);
+        OperationResult operationResult = await dataLayer.UpdateAsync(requestDataObject, TestContext.Current.CancellationToken);
 
         //With positive, compared against the expected response.
         if (httpStatusCode is HttpStatusCode.OK)
@@ -932,7 +932,7 @@ public class StandardCRUDDataLayerUnitTest
     /// </summary>
     /// <returns>A Task object for the async.</returns>
     [Fact]
-    public async Task VerifyUpdateThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleDataLayer().UpdateAsync(null!));
+    public async Task VerifyUpdateThrowsArgumentNullException() => await Assert.ThrowsAsync<ArgumentNullException>(() => new SimpleDataLayer().UpdateAsync(null!, TestContext.Current.CancellationToken));
 
     /// <summary>
     /// The method verifies if StandardCRUDDataLayer.UpdateAsync() receives an empty string in the response, an exception is thrown.
@@ -960,6 +960,6 @@ public class StandardCRUDDataLayerUnitTest
             .RespondingHttpStatusCode(httpStatusCode)
             .Build();
 
-        await Assert.ThrowsAsync<JsonException>(() => new SimpleDataLayer(httpClient).UpdateAsync(requestDataObject));
+        await Assert.ThrowsAsync<JsonException>(() => new SimpleDataLayer(httpClient).UpdateAsync(requestDataObject, TestContext.Current.CancellationToken));
     }
 }

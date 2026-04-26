@@ -4,9 +4,6 @@ using TestProject.Data.DataAnnotations.CompareToOtherMembers;
 
 namespace TestProject.Test.DataAnnotations;
 
-#warning I need some sort of default error message when validation fails but it also needs to respect when a custom error message is set.
-#warning The base has a reference to the default and custom error message but those are private and the public ErrorMessage property returns one of them.
-
 /// <summary>
 /// The class manages general tests for the CompareToOtherMemberAttribute object.
 /// </summary>

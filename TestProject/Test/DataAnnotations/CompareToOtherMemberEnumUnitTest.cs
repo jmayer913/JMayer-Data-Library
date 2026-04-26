@@ -23,7 +23,6 @@ public class CompareToOtherMemberEnumUnitTest
         List<ValidationResult> validationResults = dataObject.Validate();
 
         Assert.Single(validationResults);
-        //Assert.Equal($"The {nameof(RequiredDependsOnTrue.ConditionalRequireValue)} field is required.", validationResults[0].ErrorMessage);
         Assert.Equal(2, validationResults[0].MemberNames.Count());
         Assert.Equal(nameof(CompareToOtherMemberEqual.Property1), validationResults[0].MemberNames.First());
         Assert.Equal(nameof(CompareToOtherMemberEqual.Property2), validationResults[0].MemberNames.Last());
@@ -34,7 +33,6 @@ public class CompareToOtherMemberEnumUnitTest
         validationResults = dataObject.Validate();
 
         Assert.Single(validationResults);
-        //Assert.Equal($"The {nameof(RequiredDependsOnTrue.ConditionalRequireValue)} field is required.", validationResults[0].ErrorMessage);
         Assert.Equal(2, validationResults[0].MemberNames.Count());
         Assert.Equal(nameof(CompareToOtherMemberEqual.Property1), validationResults[0].MemberNames.First());
         Assert.Equal(nameof(CompareToOtherMemberEqual.Property2), validationResults[0].MemberNames.Last());
@@ -88,7 +86,6 @@ public class CompareToOtherMemberEnumUnitTest
         List<ValidationResult> validationResults = dataObject.Validate();
 
         Assert.Single(validationResults);
-        //Assert.Equal($"The {nameof(RequiredDependsOnTrue.ConditionalRequireValue)} field is required.", validationResults[0].ErrorMessage);
         Assert.Equal(2, validationResults[0].MemberNames.Count());
         Assert.Equal(nameof(CompareToOtherMemberEqual.Property1), validationResults[0].MemberNames.First());
         Assert.Equal(nameof(CompareToOtherMemberEqual.Property2), validationResults[0].MemberNames.Last());
@@ -99,7 +96,6 @@ public class CompareToOtherMemberEnumUnitTest
         validationResults = dataObject.Validate();
 
         Assert.Single(validationResults);
-        //Assert.Equal($"The {nameof(RequiredDependsOnTrue.ConditionalRequireValue)} field is required.", validationResults[0].ErrorMessage);
         Assert.Equal(2, validationResults[0].MemberNames.Count());
         Assert.Equal(nameof(CompareToOtherMemberEqual.Property1), validationResults[0].MemberNames.First());
         Assert.Equal(nameof(CompareToOtherMemberEqual.Property2), validationResults[0].MemberNames.Last());
