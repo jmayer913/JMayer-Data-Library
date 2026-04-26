@@ -4,11 +4,11 @@ using System.Reflection;
 namespace JMayer.Data.DataAnnotations;
 
 /// <summary>
-/// The class does the required data annotation check if it matches a specific condition on another field or property in the same instance being validated. 
+/// The class does the required data annotation check if it matches a specific condition on another property in the same class and instance being validated. 
 /// The condition can be a boolean or an enum value. 
 /// </summary>
 /// <remarks>
-/// To use, add the attribute to the public field or property which is required on a condition. Set the dependentMemberName to the name of the public field or property
+/// To use, add the attribute to the public property which is required on a condition. Set the dependentMemberName to the name of the public property
 /// which has the condition that needs to be evaluated. Set the conditionValue to true, false or an enum value based on what condition needs to occur for the required
 /// data annotation to be evaluated.
 /// <code>
@@ -33,7 +33,7 @@ namespace JMayer.Data.DataAnnotations;
 /// }
 /// </code>
 /// </remarks>
-[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+[AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
 public sealed class RequiredDependsOnAttribute : RequiredAttribute
 {
     /// <summary>
@@ -87,7 +87,7 @@ public sealed class RequiredDependsOnAttribute : RequiredAttribute
             return new ValidationResult(DataAnnotationMemberHelper.SameMemberErrorMessage);
         }
 
-        MemberInfo? dependentMemberInfo = validationContext.ObjectType.FindMembers(MemberTypes.Field | MemberTypes.Property, BindingFlags.Public | BindingFlags.Instance, Type.FilterName, _dependentMemberName).FirstOrDefault();
+        MemberInfo? dependentMemberInfo = validationContext.ObjectType.FindMembers(MemberTypes.Property, BindingFlags.Public | BindingFlags.Instance, Type.FilterName, _dependentMemberName).FirstOrDefault();
 
         if (dependentMemberInfo is null)
         {

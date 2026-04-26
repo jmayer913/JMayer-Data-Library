@@ -4,18 +4,18 @@ using System.Reflection;
 namespace JMayer.Data.DataAnnotations;
 
 /// <summary>
-/// The class does a value comparison with the member the attribute is registered too and another member on the 
-/// same instance being validated. The following types are supported: bool, byte, sbyte, short, ushort, int, uint, long, 
-/// ulong, float, double, decimal, char, string, DateTime, DateOffset, DateOnly, TimeOnly, Timespan and Enum. The following comparison
-/// operations are suppored: ==, !=, &lt;, &lt;=, &gt;, and &gt;=; bool, char, string and Enum only support == and !=.
+/// The class does a value comparison with the public property the attribute is registered too and another public property 
+/// on the same class and instance being validated. The following types are supported: bool, byte, sbyte, short, ushort, int, 
+/// uint, long, ulong, float, double, decimal, char, string, DateTime, DateOffset, DateOnly, TimeOnly, Timespan and Enum. Nullable is
+/// also supported for the listed types. The following comparison operations are suppored: ==, !=, &lt;, &lt;=, &gt;, and 
+/// &gt;=; bool, char, string and Enum only support == and !=.
 /// </summary>
 /// <remarks>
-/// To use, add the attribute to the public field or property that needs to be compared with another public field or
-/// property in the same class. Set the otherMemberName to the name of the other public field or property which needs to be
-/// compared against. Set the comparisonOperation to the operation that needs to be preformed when the comparison is done. 
-/// Set the passRegisteredMemberIfNull to true if the attribute's registered member can be null and you don't want the comparison 
-/// to fail because the member is set to null. Set the passOtherMemberIfNull to true if the other member can be null 
-/// and you don't want the comparison to fail because the member is set to null.
+/// To use, add the attribute to the public property that needs to be compared with another public property in the same class. 
+/// Set the otherMemberName to the name of the other public property which needs to be compared against. Set the comparisonOperation 
+/// to the operation that needs to be preformed when the comparison is done. Set the passRegisteredMemberIfNull to true if the attribute's 
+/// registered member can be null and you don't want the comparison to fail because the member is set to null. Set the passOtherMemberIfNull 
+/// to true if the other member can be null and you don't want the comparison to fail because the member is set to null.
 /// <code>
 /// public class ObjectRequiringValidation
 /// {
@@ -27,7 +27,7 @@ namespace JMayer.Data.DataAnnotations;
 /// }
 /// </code>
 /// </remarks>
-[AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
+[AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
 public sealed class CompareToOtherMemberAttribute : ValidationAttribute
 {
     /// <summary>
@@ -341,14 +341,14 @@ public sealed class CompareToOtherMemberAttribute : ValidationAttribute
             return new ValidationResult(DataAnnotationMemberHelper.SameMemberErrorMessage);
         }
 
-        MemberInfo? registeredMemberInfo = validationContext.ObjectType.FindMembers(MemberTypes.Field | MemberTypes.Property, BindingFlags.Public | BindingFlags.Instance, Type.FilterName, validationContext.MemberName).FirstOrDefault();
+        MemberInfo? registeredMemberInfo = validationContext.ObjectType.FindMembers(MemberTypes.Property, BindingFlags.Public | BindingFlags.Instance, Type.FilterName, validationContext.MemberName).FirstOrDefault();
 
         if (registeredMemberInfo is null)
         {
             return new ValidationResult(DataAnnotationMemberHelper.MemberNotFoundErrorMessage);
         }
 
-        MemberInfo? otherMemberInfo = validationContext.ObjectType.FindMembers(MemberTypes.Field | MemberTypes.Property, BindingFlags.Public | BindingFlags.Instance, Type.FilterName, _otherMemberName).FirstOrDefault();
+        MemberInfo? otherMemberInfo = validationContext.ObjectType.FindMembers(MemberTypes.Property, BindingFlags.Public | BindingFlags.Instance, Type.FilterName, _otherMemberName).FirstOrDefault();
 
         if (otherMemberInfo is null)
         {

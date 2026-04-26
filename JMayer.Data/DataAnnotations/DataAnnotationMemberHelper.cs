@@ -34,11 +34,7 @@ internal static class DataAnnotationMemberHelper
     /// <returns>The type or null if member is not a field or property.</returns>
     public static Type? GetMemberType(MemberInfo memberInfo)
     {
-        if (memberInfo is FieldInfo fieldInfo)
-        {
-            return fieldInfo.FieldType;
-        }
-        else if (memberInfo is PropertyInfo propertyInfo)
+        if (memberInfo is PropertyInfo propertyInfo)
         {
             return propertyInfo.PropertyType;
         }
@@ -54,11 +50,7 @@ internal static class DataAnnotationMemberHelper
     /// <returns>The value or null if not found.</returns>
     public static object? GetMemberValue(MemberInfo memberInfo, object objectInstance)
     {
-        if (memberInfo is FieldInfo fieldInfo)
-        {
-            return fieldInfo.GetValue(objectInstance);
-        }
-        else if (memberInfo is PropertyInfo propertyInfo)
+        if (memberInfo is PropertyInfo propertyInfo)
         {
             return propertyInfo.GetValue(objectInstance);
         }

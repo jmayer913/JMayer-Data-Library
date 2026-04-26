@@ -4,9 +4,6 @@ using TestProject.Data.DataAnnotations;
 
 namespace TestProject.Test.DataAnnotations;
 
-#warning I'm only testing properties. I should also test fields.
-#warning I need to decide if the errors on evaluation should return the member name or not.
-
 /// <summary>
 /// The class manages tests for the RequiredDependsOnAttribute object.
 /// </summary>
